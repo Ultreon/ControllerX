@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "controllerx",
+  "version": "${version}",
+
+  "name": "ControllerX",
+  "description": "A simple controller mod for Minecraft!",
+  "authors": [],
+  "contact": {},
+
+  "license": "All Rights Reserved",
+  "icon": "icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "io.github.ultreon.controllerx.fabric.ControllerXFabric"
+    ]
+  },
+  "mixins": [
+    "controllerx.mixins.json",
+    "controllerx-common.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.6",
+    "minecraft": ">=1.20.1"
+  }
+}

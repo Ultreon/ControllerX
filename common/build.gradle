@@ -1,0 +1,39 @@
+architectury {
+    common(rootProject.enabled_platforms.split(","))
+}
+
+dependencies {
+    // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
+    // Do NOT use other classes from fabric loader
+    modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
+    // Remove the next line if you don't want to depend on the API
+    modApi "dev.architectury:architectury:$architectury_version"
+
+    implementation("io.github.libsdl4j:libsdl4j:$libsdl4j_version")
+    modImplementation("com.github.Ultreon.ultreonlib:ultreon-lib:$ultreonlib_version")
+    api("com.github.Ultreon.corelibs:corelibs-collections-v0:$corelibs_version")
+    api("com.github.Ultreon.corelibs:corelibs-commons-v0:$corelibs_version")
+    api("com.github.Ultreon.corelibs:corelibs-crash-v0:$corelibs_version")
+    api("com.github.Ultreon.corelibs:corelibs-datetime-v0:$corelibs_version")
+    api("com.github.Ultreon.corelibs:corelibs-events-v1:$corelibs_version")
+    api("com.github.Ultreon.corelibs:corelibs-functions-v0:$corelibs_version")
+    api("com.github.Ultreon.corelibs:corelibs-registries-v0:$corelibs_version")
+    api("com.github.Ultreon.corelibs:corelibs-resources-v0:$corelibs_version")
+    api("com.github.Ultreon.corelibs:corelibs-text-v0:$corelibs_version")
+    api("com.github.Ultreon.corelibs:corelibs-translations-v0:$corelibs_version")
+
+}
+
+publishing {
+    publications {
+        mavenCommon(MavenPublication) {
+            artifactId = rootProject.archives_base_name
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+    }
+}
