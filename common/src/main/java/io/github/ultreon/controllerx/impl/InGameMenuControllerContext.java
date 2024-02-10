@@ -10,6 +10,6 @@ public class InGameMenuControllerContext extends MenuControllerContext {
     public InGameMenuControllerContext() {
         super();
 
-        this.close = mappings.register(new ControllerMapping<>(ControllerActions.START, ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.inGameMenus.close")));
+        this.close = mappings.register(new ControllerMapping<>(ControllerActions.START, ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.inGameMenu.close")));
     }
 }

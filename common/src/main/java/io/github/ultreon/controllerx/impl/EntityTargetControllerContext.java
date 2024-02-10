@@ -13,6 +13,6 @@ public class EntityTargetControllerContext extends InGameControllerContext {
     protected EntityTargetControllerContext() {
         super();
 
-        this.attack = mappings.register(new ControllerMapping<>(ControllerActions.RIGHT_TRIGGER, ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.attack")));
+        this.attack = mappings.register(new ControllerMapping<>(ControllerActions.RIGHT_TRIGGER, ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.inGame.attack")));
     }
 }

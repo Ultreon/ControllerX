@@ -6,6 +6,7 @@ import io.github.ultreon.controllerx.input.keyboard.KeyboardLayout;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
@@ -20,12 +21,9 @@ public class TextInputScreen extends BaseScreen {
     private String input;
     private boolean shift;
     private boolean caps;
-    private VirtualKeyboardSubmitCallback submitCallback = s -> {};
+    private VirtualKeyboardSubmitCallback submitCallback = () -> {};
     private VirtualKeyboardEditCallback editCallback = s -> {};
-    private GuiGraphics gfx;
-    private boolean popPose;
     private final List<ImageButton> buttons = new ArrayList<>();
-    private boolean resizeSupported = true;
 
     public TextInputScreen(VirtualKeyboard virtualKeyboard) {
         super(Component.literal("Text Input"));
@@ -46,7 +44,6 @@ public class TextInputScreen extends BaseScreen {
     }
 
     public void setResizeSupported(boolean resizeSupported) {
-        this.resizeSupported = resizeSupported;
     }
 
     @Override
@@ -97,7 +94,7 @@ public class TextInputScreen extends BaseScreen {
     }
 
     private void addButton(char c, int x, int rowIdx, KeyMappingIcon icon) {
-        ImageButton imageButton = this.addRenderableWidget(new ImageButton(x, rowIdx * 16 + height - 85, icon.width, icon.height, icon.u, icon.v, -128, icon.getTexture(), 544, 384, button -> {
+        ImageButton imageButton = this.addRenderableWidget(new ImageButton(x, rowIdx * 16 + height - 85 - getYOffset(), icon.width, icon.height, icon.u, icon.v, -128, icon.getTexture(), 544, 384, button -> {
             if (c >= 0x20) {
                 setInput(getInput() + c);
                 return;
@@ -116,9 +113,17 @@ public class TextInputScreen extends BaseScreen {
         this.buttons.add(imageButton);
     }
 
+    private int getYOffset() {
+        if (this.minecraft != null) {
+            return this.minecraft.screen instanceof ChatScreen ? 32 : 0;
+        }
+
+        return 0;
+    }
+
     private void submit() {
         virtualKeyboard.close();
-        submitCallback.onInput(getInput());
+        submitCallback.onSubmit();
     }
 
     private void backspace() {
@@ -138,7 +143,9 @@ public class TextInputScreen extends BaseScreen {
 
     @Override
     public void onClose() {
-        this.submitCallback = s -> {};
+        this.virtualKeyboard.close();
+
+        this.submitCallback = () -> {};
     }
 
     @Override

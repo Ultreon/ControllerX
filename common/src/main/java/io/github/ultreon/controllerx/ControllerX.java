@@ -42,6 +42,8 @@ public class ControllerX {
     private InputType inputType = InputType.KEYBOARD_AND_MOUSE;
     private int inputCooldown;
     private boolean canChangeInput = true;
+
+    @ApiStatus.Internal
     public VirtualKeyboard virtualKeyboard;
 
     private ControllerX() {
@@ -68,13 +70,63 @@ public class ControllerX {
 
         this.initKeyboardLayout();
         virtualKeyboard = new VirtualKeyboard();
-        ClientScreenInputEvent.KEY_PRESSED_PRE.register((client, screen, keyCode, scanCode, modifiers) -> interruptIfVirtKdb());
-        ClientScreenInputEvent.KEY_RELEASED_PRE.register((client, screen, keyCode, scanCode, modifiers) -> interruptIfVirtKdb());
-        ClientScreenInputEvent.CHAR_TYPED_PRE.register((client, screen, character, keyCode) -> interruptIfVirtKdb());
-        ClientScreenInputEvent.MOUSE_CLICKED_PRE.register((client, screen, button, x, y) -> interruptIfVirtKdb());
-        ClientScreenInputEvent.MOUSE_DRAGGED_PRE.register((client, screen, mouseX1, mouseY1, button, mouseX2, mouseY2) -> interruptIfVirtKdb());
-        ClientScreenInputEvent.MOUSE_SCROLLED_PRE.register((client, screen, mouseX, mouseY, amount) -> interruptIfVirtKdb());
-        ClientScreenInputEvent.MOUSE_RELEASED_PRE.register((client, screen, mouseX, mouseY, button) -> interruptIfVirtKdb());
+        ClientScreenInputEvent.KEY_PRESSED_PRE.register((client, screen, keyCode, scanCode, modifiers) -> {
+            setInputType(InputType.KEYBOARD_AND_MOUSE);
+
+            if (controllerInput.isVirtualKeyboardOpen()) {
+                virtualKeyboard.getScreen().keyPressed(keyCode, scanCode, modifiers);
+                return EventResult.interruptFalse();
+            }
+            return EventResult.pass();
+        });
+        ClientScreenInputEvent.KEY_RELEASED_PRE.register((client, screen, keyCode, scanCode, modifiers) -> {
+            setInputType(InputType.KEYBOARD_AND_MOUSE);
+            if (controllerInput.isVirtualKeyboardOpen()) {
+                virtualKeyboard.getScreen().keyReleased(keyCode, scanCode, modifiers);
+                return EventResult.interruptFalse();
+            }
+            return EventResult.pass();
+        });
+        ClientScreenInputEvent.CHAR_TYPED_PRE.register((client, screen, character, keyCode) -> {
+            setInputType(InputType.KEYBOARD_AND_MOUSE);
+            if (controllerInput.isVirtualKeyboardOpen()) {
+                virtualKeyboard.getScreen().charTyped(character, keyCode);
+                return EventResult.interruptFalse();
+            }
+            return EventResult.pass();
+        });
+        ClientScreenInputEvent.MOUSE_CLICKED_PRE.register((client, screen, x, y, button) -> {
+            setInputType(InputType.KEYBOARD_AND_MOUSE);
+            if (controllerInput.isVirtualKeyboardOpen()) {
+                virtualKeyboard.getScreen().mouseClicked(x, y, button);
+                return EventResult.interruptFalse();
+            }
+            return EventResult.pass();
+        });
+        ClientScreenInputEvent.MOUSE_DRAGGED_PRE.register((client, screen, mouseX1, mouseY1, button, mouseX2, mouseY2) -> {
+            setInputType(InputType.KEYBOARD_AND_MOUSE);
+            if (controllerInput.isVirtualKeyboardOpen()) {
+                virtualKeyboard.getScreen().mouseDragged(mouseX1, mouseY1, button, mouseX2, mouseY2);
+                return EventResult.interruptFalse();
+            }
+            return EventResult.pass();
+        });
+        ClientScreenInputEvent.MOUSE_SCROLLED_PRE.register((client, screen, mouseX, mouseY, amount) -> {
+            setInputType(InputType.KEYBOARD_AND_MOUSE);
+            if (controllerInput.isVirtualKeyboardOpen()) {
+                virtualKeyboard.getScreen().mouseScrolled(mouseX, mouseY, amount);
+                return EventResult.interruptFalse();
+            }
+            return EventResult.pass();
+        });
+        ClientScreenInputEvent.MOUSE_RELEASED_PRE.register((client, screen, mouseX, mouseY, button) -> {
+            setInputType(InputType.KEYBOARD_AND_MOUSE);
+            if (controllerInput.isVirtualKeyboardOpen()) {
+                virtualKeyboard.getScreen().mouseReleased(mouseX, mouseY, button);
+                return EventResult.interruptFalse();
+            }
+            return EventResult.pass();
+        });
 
         LOGGER.info("ControllerX initialized");
     }
@@ -84,13 +136,6 @@ public class ControllerX {
             // SCARY!
             virtualKeyboard.getScreen().resize(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
             return EventResult.pass();
-        }
-        return EventResult.pass();
-    }
-
-    private EventResult interruptIfVirtKdb() {
-        if (controllerInput.isVirtualKeyboardOpen()) {
-            return EventResult.interruptFalse();
         }
         return EventResult.pass();
     }

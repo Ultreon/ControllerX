@@ -205,6 +205,11 @@ public sealed interface ControllerAction<T extends InputDefinition<?>> {
         }
 
         @Override
+        public boolean isJustPressed() {
+            return trigger.isJustPressed();
+        }
+
+        @Override
         public float getAxisValue() {
             return getValue() * 2 - 1;
         }

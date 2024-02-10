@@ -3,27 +3,22 @@ package io.github.ultreon.controllerx.input;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.ultreon.libs.commons.v0.Either;
 import com.ultreon.libs.functions.v0.misc.Mapper;
+import com.ultreon.mods.lib.client.UltreonLibClient;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
-import io.github.ultreon.controllerx.Config;
-import io.github.ultreon.controllerx.ControllerX;
-import io.github.ultreon.controllerx.VirtualKeyboardEditCallback;
-import io.github.ultreon.controllerx.VirtualKeyboardSubmitCallback;
+import io.github.ultreon.controllerx.*;
 import io.github.ultreon.controllerx.api.ControllerContext;
-import io.github.ultreon.controllerx.impl.CloseableMenuControllerContext;
-import io.github.ultreon.controllerx.impl.InGameControllerContext;
-import io.github.ultreon.controllerx.impl.InventoryMenuControllerContext;
-import io.github.ultreon.controllerx.impl.MenuControllerContext;
+import io.github.ultreon.controllerx.impl.*;
 import io.github.ultreon.controllerx.input.keyboard.KeyboardLayout;
 import io.github.ultreon.controllerx.mixin.accessors.AbstractSelectionListAccessor;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSelectionList;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.Input;
@@ -49,6 +44,7 @@ public class ControllerInput extends Input {
     private boolean rightTriggerJustPressed = false;
     private SDL_GameController sdlController;
     private Controller controller;
+    private final float[] oldAxes = new float[ControllerAxis.values().length];
     private final float[] axes = new float[ControllerAxis.values().length];
     private float delay;
     private long nextTick;
@@ -59,6 +55,8 @@ public class ControllerInput extends Input {
     private long nextTickDpad;
     private int delayDpad;
     private boolean dPadDisabled;
+    private int destroyDelay = 0;
+    private boolean screenWasOpen;
 
     public ControllerInput(ControllerX mod) {
         this.mod = mod;
@@ -71,6 +69,16 @@ public class ControllerInput extends Input {
         if (pollEvents()) return;
 
         Minecraft mc = Minecraft.getInstance();
+
+        if (mod.controllerInput.isVirtualKeyboardOpen()) {
+            this.handleScreen(mc.player, mod.virtualKeyboard.getScreen());
+            return;
+        }
+
+        if (screenWasOpen) {
+            screenWasOpen = false;
+            return;
+        }
 
         this.leftStick.set(this.getJoystick(ControllerJoystick.Left));
         this.rightStick.set(this.getJoystick(ControllerJoystick.Right));
@@ -85,6 +93,36 @@ public class ControllerInput extends Input {
 
             jumping = context.jump.action().isPressed();
             shiftKeyDown = context.sneak.action().isPressed();
+
+            if (context.use.action().isPressed() && GameApi.getRightClickDelay() == 0) {
+                GameApi.startUseItem();
+            }
+
+            if (context instanceof BlockTargetControllerContext blockCtx) {
+                boolean flag = false;
+                if (blockCtx.destroyBlock.action().isJustPressed()) {
+                    flag = GameApi.startAttack();
+                }
+                if (blockCtx.destroyBlock.action().isPressed()) {
+                    if (player.getAbilities().mayBuild && !player.getAbilities().instabuild)
+                        destroyDelay = 0;
+                    if (!player.getAbilities().mayBuild) {
+                        return;
+                    }
+                    GameApi.continueAttack(flag && destroyDelay == 0);
+                    if (destroyDelay-- < 0)
+                        destroyDelay = 0;
+                }
+            }
+            if (context instanceof EntityTargetControllerContext entityCtx) {
+                boolean flag = false;
+                if (entityCtx.attack.action().isJustPressed()) {
+                    flag = GameApi.startAttack();
+                }
+                if (entityCtx.attack.action().isPressed()) {
+                    GameApi.continueAttack(flag);
+                }
+            }
 
             for (KeyMapping keyMapping : mc.options.keyMappings) {
                 Boolean b = this.doInput(mc, keyMapping, eitherAxisOrBtn -> {
@@ -111,7 +149,7 @@ public class ControllerInput extends Input {
                 }
             }
 
-            if (isButtonJustPressed(ControllerButton.BACK)) {
+            if (context.gameMenu.action().isJustPressed()) {
                 mc.setScreen(new PauseScreen(true));
             }
         } else {
@@ -161,6 +199,7 @@ public class ControllerInput extends Input {
         for (int i = 0; i < ControllerAxis.values().length; i++) {
             ControllerAxis axis = ControllerAxis.values()[i];
             float axisValue = getAxis(axis);
+            this.oldAxes[i] = this.axes[i];
             if (axis == ControllerAxis.LeftTrigger) {
                 this.leftTriggerJustPressed = false;
                 boolean wasPressedBefore = this.axes[i] > 0;
@@ -191,6 +230,10 @@ public class ControllerInput extends Input {
     private void handleScreen(LocalPlayer player, Screen screen) {
         ControllerContext context = ControllerContext.get();
 
+        if (context instanceof ChatControllerContext chatContext) {
+            this.handleChat(screen, chatContext);
+        }
+
         if (context instanceof InventoryMenuControllerContext inventoryContext && inventoryContext.closeInventory.action().isJustPressed()) {
             player.closeContainer();
             return;
@@ -207,10 +250,7 @@ public class ControllerInput extends Input {
         }
 
         if (menuContext.activate.action().isJustPressed()) {
-            if (!(screen.getFocused() instanceof EditBox editBox)) {
-                screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
-                screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
-            } else {
+            if (screen.getFocused() instanceof EditBox editBox && !(screen instanceof ChatScreen)) {
                 screen.setFocused(true);
                 screen.setFocused(editBox);
                 this.openVirtualKeyboard(editBox.getValue(), input -> {
@@ -220,6 +260,9 @@ public class ControllerInput extends Input {
 
                     editBox.setValue(input);
                 });
+            } else {
+                screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
+                screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
             }
         }
 
@@ -304,21 +347,53 @@ public class ControllerInput extends Input {
         }
     }
 
-    private void closeVirtualKeyboard() {
+    private void handleChat(Screen screen, ChatControllerContext chatContext) {
+        if (!(screen instanceof ChatScreen)) return;
+
+        EditBox val = screen.children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast).findAny().orElse(null);
+        if (chatContext.openKeyboard.action().isJustPressed()) {
+            if (val != null) {
+                this.openVirtualKeyboard(val.getValue(), input -> {
+                    if (input == null) {
+                        throw new IllegalArgumentException("Input cannot be null");
+                    }
+
+                    val.setValue(input);
+                }, () -> Minecraft.getInstance().screen.keyPressed(InputConstants.KEY_RETURN, 0, 0));
+            } else {
+                ControllerX.LOGGER.warn("Chat screen does not contain any edit boxes.");
+            }
+        } else if (chatContext.send.action().isJustPressed()) {
+            screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
+            screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
+        } else if (chatContext.close.action().isJustPressed()) {
+            screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
+            screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
+        }
+    }
+
+    public void closeVirtualKeyboard() {
         this.virtualKeyboardValue = "";
         this.virtualKeyboardOpen = false;
         ControllerX.get().virtualKeyboard.close();
     }
 
-    private void openVirtualKeyboard(VirtualKeyboardEditCallback callback) {
+    public void openVirtualKeyboard(VirtualKeyboardEditCallback callback) {
         openVirtualKeyboard("", callback);
     }
 
-    private void openVirtualKeyboard(@NotNull String value, VirtualKeyboardEditCallback callback) {
+    public void openVirtualKeyboard(@NotNull String value, VirtualKeyboardEditCallback callback) {
         this.virtualKeyboardValue = value;
         this.virtualKeyboardOpen = true;
 
-        ControllerX.get().virtualKeyboard.open(callback);
+        ControllerX.get().virtualKeyboard.open(callback, () -> callback.onInput(this.mod.virtualKeyboard.getScreen().getInput()));
+    }
+
+    public void openVirtualKeyboard(@NotNull String value, VirtualKeyboardEditCallback callback, VirtualKeyboardSubmitCallback submitCallback) {
+        this.virtualKeyboardValue = value;
+        this.virtualKeyboardOpen = true;
+
+        ControllerX.get().virtualKeyboard.open(callback, submitCallback);
     }
 
     public @NotNull String getVirtualKeyboardValue() {
@@ -382,6 +457,10 @@ public class ControllerInput extends Input {
         }
 
         return 0;
+    }
+
+    private float getOldAxis(ControllerAxis controllerAxis) {
+        return oldAxes[controllerAxis.sdlAxis()];
     }
 
     public Vector2f getJoystick(ControllerJoystick joystick) {
@@ -456,40 +535,39 @@ public class ControllerInput extends Input {
         return isConnected() && ControllerX.get().getInputType() == InputType.CONTROLLER;
     }
 
-    @SuppressWarnings("SuspiciousNameCombination")
     public Boolean doInput(Minecraft mc, KeyMapping mapping, Mapper<Either<ControllerAxis, ControllerButton>, Boolean> controllerMapper) {
-        if (mapping == mc.options.keyAttack) {
-            return controllerMapper.map(Either.left(ControllerAxis.RightTrigger));
-        }
-        if (mapping == mc.options.keyUse) {
-            return controllerMapper.map(Either.left(ControllerAxis.LeftTrigger));
-        }
-        if (mapping == mc.options.keyPickItem) {
-            return controllerMapper.map(Either.right(ControllerButton.DPAD_UP));
-        }
-        if (mapping == mc.options.keyDrop) {
-            return controllerMapper.map(Either.right(ControllerButton.DPAD_DOWN));
-        }
-        if (mapping == mc.options.keyPlayerList) {
-            return controllerMapper.map(Either.right(ControllerButton.DPAD_LEFT));
-        }
-        if (mapping == mc.options.keyChat) {
-            return controllerMapper.map(Either.right(ControllerButton.DPAD_RIGHT));
-        }
-        if (mapping == mc.options.keyInventory) {
-            return controllerMapper.map(Either.right(ControllerButton.Y));
-        }
-        if (mapping == mc.options.keyShift) {
-            return controllerMapper.map(Either.right(ControllerButton.RIGHT_STICK));
-        }
-        if (mapping == mc.options.keySwapOffhand) {
-            return controllerMapper.map(Either.right(ControllerButton.X));
-        }
-        if (mapping == mc.options.keySprint) {
-            return controllerMapper.map(Either.right(ControllerButton.LEFT_STICK));
-        }
-        if (mapping == mc.options.keyScreenshot) {
-            return controllerMapper.map(Either.right(ControllerButton.MISC1));
+        if (ControllerContext.get() instanceof InGameControllerContext context) {
+//            if (mapping == mc.options.keyAttack && ControllerContext.get() instanceof BlockTargetControllerContext blockCtx)
+//                return blockCtx.destroyBlock.action().isPressed();
+//            if (mapping == mc.options.keyAttack && ControllerContext.get() instanceof EntityTargetControllerContext blockCtx)
+//                return blockCtx.attack.action().isPressed();
+//            if (mapping == mc.options.keyUse) {
+//                return context.use.action().isPressed();
+//            }
+            if (mapping == mc.options.keyPickItem) {
+                return context.pickItem.action().isPressed();
+            }
+            if (mapping == mc.options.keyDrop) {
+                return context.drop.action().isPressed();
+            }
+            if (mapping == mc.options.keyPlayerList) {
+                return context.playerList.action().isPressed();
+            }
+            if (mapping == mc.options.keyChat) {
+                return context.chat.action().isPressed();
+            }
+            if (mapping == mc.options.keyInventory) {
+                return context.inventory.action().isJustPressed();
+            }
+            if (mapping == mc.options.keyShift) {
+                return context.sneak.action().isPressed();
+            }
+            if (mapping == mc.options.keySwapOffhand) {
+                return context.swapHands.action().isJustPressed();
+            }
+            if (mapping == mc.options.keySprint) {
+                return context.run.action().isPressed();
+            }
         }
         return null;
     }
@@ -513,19 +591,19 @@ public class ControllerInput extends Input {
     }
 
     public void updateScreen(Screen screen) {
+        this.screenWasOpen = screen != null;
+
         if (pollEvents()) return;
 
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
 
         if (screen != null) {
-            if (ControllerContext.get() instanceof MenuControllerContext) {
-                if (virtualKeyboardOpen) {
-                    handleScreen(null, mod.virtualKeyboard.getScreen());
-                    return;
-                }
-                handleScreen(player, screen);
+            if (virtualKeyboardOpen) {
+                handleScreen(null, mod.virtualKeyboard.getScreen());
+                return;
             }
+            handleScreen(player, screen);
         }
     }
 
@@ -544,5 +622,9 @@ public class ControllerInput extends Input {
     public void handleVirtualKeyboardClosed(String value) {
         this.virtualKeyboardValue = value;
         this.virtualKeyboardOpen = false;
+    }
+
+    public boolean isTriggerJustPressed(ControllerAxis axis) {
+        return getAxis(axis) > 0 && getOldAxis(axis) == 0;
     }
 }

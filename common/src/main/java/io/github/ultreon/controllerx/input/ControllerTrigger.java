@@ -35,4 +35,8 @@ public enum ControllerTrigger implements InputDefinition<Float> {
     public boolean isPressed() {
         return controllerX.controllerInput.isAxisPressed(axis);
     }
+
+    public boolean isJustPressed() {
+        return controllerX.controllerInput.isTriggerJustPressed(axis);
+    }
 }

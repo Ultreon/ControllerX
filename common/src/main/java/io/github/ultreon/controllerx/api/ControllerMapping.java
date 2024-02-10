@@ -4,7 +4,10 @@ import io.github.ultreon.controllerx.util.InputDefinition;
 import net.minecraft.network.chat.Component;
 
 public record ControllerMapping<T extends InputDefinition<?>>(ControllerAction<T> action,
-                                                              Side side, Component name) {
+                                                              Side side, Component name, boolean visible) {
+    public ControllerMapping(ControllerAction<T> action, Side side, Component name) {
+        this(action, side, name, true);
+    }
 
     @Override
     public String toString() {

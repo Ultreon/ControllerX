@@ -10,7 +10,6 @@
   "client": [
     "KeyboardInputMixin",
     "KeyMappingMixin",
-    "MinecraftMixin",
     "accessors.AbstractSelectionListAccessor",
     "accessors.ChatComponentAccessor",
     "accessors.KeyMappingAccessor",

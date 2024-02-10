@@ -1,7 +1,6 @@
 package io.github.ultreon.controllerx.impl;
 
 import dev.architectury.platform.Platform;
-import io.github.ultreon.controllerx.GameApi;
 import io.github.ultreon.controllerx.api.ControllerAction;
 import io.github.ultreon.controllerx.api.ControllerContext;
 import io.github.ultreon.controllerx.api.ControllerMapping;
@@ -10,7 +9,6 @@ import io.github.ultreon.controllerx.input.ControllerButton;
 import io.github.ultreon.controllerx.input.ControllerJoystick;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
@@ -35,7 +33,7 @@ public class MenuControllerContext extends ControllerContext {
     public int getYOffset() {
         Screen screen = Minecraft.getInstance().screen;
         if (screen instanceof ChatScreen) {
-            return screen.height;
+            return 32;
         }
 
         if (screen instanceof TitleScreen) {

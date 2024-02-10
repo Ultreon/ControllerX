@@ -4,8 +4,10 @@ import io.github.ultreon.controllerx.gui.screen.TextInputScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Overlay;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+@ApiStatus.Internal
 public class VirtualKeyboard extends Overlay {
     private final TextInputScreen screen;
 
@@ -13,15 +15,16 @@ public class VirtualKeyboard extends Overlay {
         this.screen = new TextInputScreen(this);
     }
 
-    public void open(VirtualKeyboardEditCallback callback) {
-        this.screen.setSubmitCallback(callback::onInput);
+    public void open(VirtualKeyboardEditCallback callback, VirtualKeyboardSubmitCallback submitCallback) {
+        this.screen.setSubmitCallback(submitCallback);
         this.screen.setEditCallback(callback);
         this.screen.init(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
     }
 
     public void close() {
         this.screen.close();
-        this.screen.setSubmitCallback(input -> {});
+        this.screen.setSubmitCallback(() -> {});
+        this.screen.setEditCallback(input -> {});
         ControllerX.get().controllerInput.handleVirtualKeyboardClosed(this.screen.getInput());
     }
 

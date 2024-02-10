@@ -24,6 +24,8 @@ public class ControllerHud {
         int rightY = 20 + ctx.getYOffset();
 
         for (ControllerMapping<?> mapping : mappings) {
+            if (!mapping.visible()) continue;
+
             ControllerMapping.Side side = mapping.side();
             int x = side == ControllerMapping.Side.LEFT ? 4 + ctx.getLeftXOffset() : width() - 24 - ctx.getRightXOffset();
             int y = height() - (side == ControllerMapping.Side.LEFT ? leftY : rightY);

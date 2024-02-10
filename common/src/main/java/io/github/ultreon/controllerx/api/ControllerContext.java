@@ -5,6 +5,7 @@ import com.ultreon.mods.lib.world.Crosshair;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.impl.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -15,8 +16,17 @@ public abstract class ControllerContext {
     private static final Map<Predicate<Minecraft>, ControllerContext> REGISTRY = new OrderedHashMap<>();
     private static volatile boolean frozen = false;
     public final ControllerMappings mappings = new ControllerMappings();
+    private static boolean initialized = false;
+
+    private static boolean isUsingVirtualKeyboard(Minecraft minecraft) {
+        return ControllerX.get().controllerInput.isVirtualKeyboardOpen();
+    }
 
     protected ControllerContext() {
+        if (!initialized) {
+            REGISTRY.put(ControllerContext::isUsingVirtualKeyboard, VirtKeyboardControllerContext.INSTANCE);
+            initialized = true;
+        }
     }
 
     public static void register(ControllerContext context, Predicate<Minecraft> predicate) {
@@ -30,14 +40,18 @@ public abstract class ControllerContext {
     public static void freeze() {
         frozen = true;
 
+        REGISTRY.put(ControllerContext::isChatting, ChatControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInGameTargetingBlock, BlockTargetControllerContext.INSTANCE);
-        REGISTRY.put(ControllerContext::isInGameTargetingEntity, EntityTargetControllerContext.INSTANCE);
-        REGISTRY.put(ControllerContext::isInGame, InGameControllerContext.INSTANCE);
+        REGISTRY.put(ControllerContext::isInGame, EntityTargetControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInCloseableMenu, CloseableMenuControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInMenu, MenuControllerContext.INSTANCE);
         REGISTRY.put(Predicate.isEqual(Minecraft.getInstance()), new ControllerContext() {
 
         });
+    }
+
+    public static boolean isChatting(Minecraft minecraft) {
+        return minecraft.player != null && minecraft.level != null && minecraft.screen instanceof ChatScreen;
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -57,7 +71,7 @@ public abstract class ControllerContext {
     @SuppressWarnings("UnstableApiUsage")
     private static boolean isInGameTargetingBlock(Minecraft minecraft) {
         if (isInGame(minecraft)) {
-            return Crosshair.get().block(ControllerX.getBlockReach(minecraft.player)) != null;
+            return Crosshair.get().block(ControllerX.getBlockReach(minecraft.player)) != null && minecraft.player.getAbilities().mayBuild;
         }
         return false;
     }
