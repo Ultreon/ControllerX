@@ -9,13 +9,16 @@ import io.github.libsdl4j.api.gamecontroller.SdlGamecontroller;
 import io.github.ultreon.controllerx.Config;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.api.ControllerContext;
+import io.github.ultreon.controllerx.impl.CloseableMenuControllerContext;
 import io.github.ultreon.controllerx.impl.InGameControllerContext;
+import io.github.ultreon.controllerx.impl.InventoryMenuControllerContext;
 import io.github.ultreon.controllerx.impl.MenuControllerContext;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.ApiStatus;
@@ -42,6 +45,9 @@ public class ControllerInput extends Input {
     private float delay;
     private long nextTick;
     private final ControllerX mod;
+    private long nextTickDpad;
+    private int delayDpad;
+    private boolean dPadDisabled;
 
     public ControllerInput(ControllerX mod) {
         this.mod = mod;
@@ -172,55 +178,80 @@ public class ControllerInput extends Input {
     }
 
     private void handleScreen(LocalPlayer player, Screen screen) {
-        if (player != null && screen instanceof InventoryScreen && isButtonJustPressed(ControllerButton.Y)) {
+        ControllerContext context = ControllerContext.get();
+
+        if (context instanceof InventoryMenuControllerContext inventoryContext && inventoryContext.closeInventory.action().isJustPressed()) {
             player.closeContainer();
+            return;
         }
 
-        if (isButtonJustPressed(ControllerButton.A)) {
+        if (!(context instanceof MenuControllerContext menuContext)) {
+            return;
+        }
+
+        if (menuContext.activate.action().isJustPressed()) {
             screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
             screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
         }
 
-        if (isButtonJustPressed(ControllerButton.B)) {
-            screen.keyPressed(InputConstants.KEY_ESCAPE, 0, 0);
-            screen.keyReleased(InputConstants.KEY_ESCAPE, 0, 0);
-        } else if (isButtonJustPressed(ControllerButton.DPAD_UP)) {
-            screen.keyPressed(InputConstants.KEY_UP, 0, 0);
-            screen.keyReleased(InputConstants.KEY_UP, 0, 0);
-        } else if (isButtonJustPressed(ControllerButton.DPAD_LEFT)) {
-            screen.keyPressed(InputConstants.KEY_LEFT, 0, 0);
-            screen.keyReleased(InputConstants.KEY_LEFT, 0, 0);
-        } else if (isButtonJustPressed(ControllerButton.DPAD_DOWN)) {
-            screen.keyPressed(InputConstants.KEY_DOWN, 0, 0);
-            screen.keyReleased(InputConstants.KEY_DOWN, 0, 0);
-        } else if (isButtonJustPressed(ControllerButton.DPAD_RIGHT)) {
-            screen.keyPressed(InputConstants.KEY_RIGHT, 0, 0);
-            screen.keyReleased(InputConstants.KEY_RIGHT, 0, 0);
+        if (menuContext.scrollY.action().isPressed()) {
+            GuiEventListener focused = screen.getFocused();
+            if (focused instanceof AbstractWidget widget) {
+                screen.mouseScrolled(widget.getX(), widget.getY(), menuContext.scrollY.action().getAxisValue());
+            } else {
+                screen.mouseScrolled(0, 0, menuContext.scrollY.action().getAxisValue());
+            }
         }
+
+        if (menuContext.dpadMove.action().getValue() == 0) dPadDisabled = false;
+        if (!dPadDisabled) {
+            if (menuContext instanceof CloseableMenuControllerContext closeableMenuContext && closeableMenuContext.back.action().isJustPressed()) {
+                screen.keyPressed(InputConstants.KEY_ESCAPE, 0, 0);
+                screen.keyReleased(InputConstants.KEY_ESCAPE, 0, 0);
+                dPadDisabled = true;
+            } else if (menuContext.dpadMove.action().get2DValue().y > 0) {
+                screen.keyPressed(InputConstants.KEY_UP, 0, 0);
+                screen.keyReleased(InputConstants.KEY_UP, 0, 0);
+                dPadDisabled = true;
+            } else if (menuContext.dpadMove.action().get2DValue().x < 0) {
+                screen.keyPressed(InputConstants.KEY_LEFT, 0, 0);
+                screen.keyReleased(InputConstants.KEY_LEFT, 0, 0);
+                dPadDisabled = true;
+            } else if (menuContext.dpadMove.action().get2DValue().y < 0) {
+                screen.keyPressed(InputConstants.KEY_DOWN, 0, 0);
+                screen.keyReleased(InputConstants.KEY_DOWN, 0, 0);
+                dPadDisabled = true;
+            } else if (menuContext.dpadMove.action().get2DValue().x > 0) {
+                screen.keyPressed(InputConstants.KEY_RIGHT, 0, 0);
+                screen.keyReleased(InputConstants.KEY_RIGHT, 0, 0);
+                dPadDisabled = true;
+            }
+        }
+
 
         if (nextTick < System.currentTimeMillis()) {
             if (delay > 0) {
                 delay--;
                 return;
             }
-            nextTick = System.currentTimeMillis() + 50;
+            nextTick = System.currentTimeMillis() + 20;
         } else {
             return;
         }
 
-        if (isJoystickUp()) {
+        if (menuContext.joystickMove.action().get2DValue().y < 0) {
             screen.keyPressed(InputConstants.KEY_UP, 0, 0);
             screen.keyReleased(InputConstants.KEY_UP, 0, 0);
             delay = 10;
-        } else if (isJoystickLeft()) {
+        } else if (menuContext.joystickMove.action().get2DValue().x < 0) {
             screen.keyPressed(InputConstants.KEY_LEFT, 0, 0);
             screen.keyReleased(InputConstants.KEY_LEFT, 0, 0);
             delay = 10;
-        } else if (isJoystickDown()) {
+        } else if (menuContext.joystickMove.action().get2DValue().y > 0) {
             screen.keyPressed(InputConstants.KEY_DOWN, 0, 0);
             screen.keyReleased(InputConstants.KEY_DOWN, 0, 0);
             delay = 10;
-        } else if (isJoystickRight()) {
+        } else if (menuContext.joystickMove.action().get2DValue().x > 0) {
             screen.keyPressed(InputConstants.KEY_RIGHT, 0, 0);
             screen.keyReleased(InputConstants.KEY_RIGHT, 0, 0);
             delay = 10;
