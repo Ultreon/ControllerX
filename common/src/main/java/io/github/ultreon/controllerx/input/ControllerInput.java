@@ -13,10 +13,14 @@ import io.github.ultreon.controllerx.impl.CloseableMenuControllerContext;
 import io.github.ultreon.controllerx.impl.InGameControllerContext;
 import io.github.ultreon.controllerx.impl.InventoryMenuControllerContext;
 import io.github.ultreon.controllerx.impl.MenuControllerContext;
+import io.github.ultreon.controllerx.mixin.accessors.AbstractSelectionListAccessor;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.Input;
@@ -194,12 +198,29 @@ public class ControllerInput extends Input {
             screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
         }
 
-        if (menuContext.scrollY.action().isPressed()) {
+        float axisValue = menuContext.scrollY.action().getAxisValue();
+        if (axisValue != 0) {
+            axisValue = -axisValue;
             GuiEventListener focused = screen.getFocused();
-            if (focused instanceof AbstractWidget widget) {
-                screen.mouseScrolled(widget.getX(), widget.getY(), menuContext.scrollY.action().getAxisValue());
-            } else {
-                screen.mouseScrolled(0, 0, menuContext.scrollY.action().getAxisValue());
+            if (focused instanceof LayoutElement widget) {
+                screen.mouseScrolled(widget.getX(), widget.getY(), axisValue);
+            } else if (focused instanceof AbstractSelectionList<?> list) {
+                AbstractSelectionListAccessor list1 = (AbstractSelectionListAccessor) list;
+                screen.mouseScrolled(list1.getX0(), list1.getY0(), axisValue);
+            } else if (focused != null) {
+                screen.mouseScrolled(0, 0, axisValue);
+            } else for (GuiEventListener widget : screen.children()) {
+                if (widget instanceof LayoutElement w && widget.isFocused()) {
+                    screen.mouseScrolled(w.getX(), w.getY(), axisValue);
+                } else if (widget instanceof ContainerEventHandler container && container.isFocused()) {
+                    if (container instanceof LayoutElement w) {
+                        screen.mouseScrolled(w.getX(), w.getY(), axisValue);
+                    } else {
+                        screen.mouseScrolled(0, 0, axisValue);
+                    }
+                } else if (widget.isFocused()) {
+                    screen.mouseScrolled(0, 0, axisValue);
+                }
             }
         }
 
