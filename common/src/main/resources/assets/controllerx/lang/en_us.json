@@ -14,5 +14,6 @@
   "controllerx.action.menu.joystick_move": "Move Selection with Joystick",
   "controllerx.action.menu.activate": "Activate",
   "controllerx.action.menu.back": "Back",
-  "controllerx.action.menu.scroll_y": "Scroll"
+  "controllerx.action.menu.scroll_y": "Scroll",
+  "controllerx.text_input": "Text Input: %s"
 }

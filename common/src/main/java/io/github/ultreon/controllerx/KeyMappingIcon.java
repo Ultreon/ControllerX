@@ -86,11 +86,11 @@ public enum KeyMappingIcon {
     RIGHT(224, 64),
     DOWN(240, 64),
     LEFT(256, 64),
-    ALT(0, 80, 32, 16),
-    TAB(32, 80, 32, 16),
-    DELETE(64, 80, 32, 16),
-    END(96, 80, 32, 16),
-    NUM_LOCK(128, 80, 32, 16),
+    ALT(0, 80, 23, 16),
+    TAB(32, 80, 23, 16),
+    DELETE(64, 80, 23, 16),
+    END(96, 80, 23, 16),
+    NUM_LOCK(128, 80, 23, 16),
     PERIOD(160, 80),
     DOLLAR(176, 80),
     PERCENT(192, 80),
@@ -98,21 +98,21 @@ public enum KeyMappingIcon {
     CENT(224, 80),
     LEFT_PARENTHESIS(240, 80),
     RIGHT_PARENTHESIS(256, 80),
-    CTRL(0, 96, 32, 16),
-    CAPS(32, 96, 32, 16),
-    HOME(64, 96, 32, 16),
-    PAGE_UP(96, 96, 32, 16),
-    PAGE_DOWN(128, 96, 32, 16),
+    CTRL(0, 96, 27, 16),
+    CAPS(32, 96, 27, 16),
+    HOME(64, 96, 27, 16),
+    PAGE_UP(96, 96, 27, 16),
+    PAGE_DOWN(128, 96, 27, 16),
     COMMA(160, 96),
     ENLARGE(176, 96),
     EMPTY(192, 96),
     RECORD(208, 96),
     SPACE_BIG(224, 96, 48, 16),
-    SHIFT(0, 112, 32, 16),
-    INSERT(32, 112, 32, 16),
-    PRINT(64, 112, 32, 16),
-    SCROLL_LOCK(96, 112, 32, 16),
-    PAUSE_BREAK(128, 112, 32, 16),
+    SHIFT(0, 112, 33, 16),
+    INSERT(32, 112, 33, 16),
+    PRINT(64, 112, 33, 16),
+    SCROLL_LOCK(96, 112, 33, 16),
+    PAUSE_BREAK(128, 112, 3, 16),
     PLAY(160, 112),
     PAUSE(176, 112),
     STOP(192, 112),
@@ -148,6 +148,73 @@ public enum KeyMappingIcon {
         this.v = v + 128;
         this.width = width;
         this.height = height;
+    }
+
+    public static KeyMappingIcon byChar(char c) {
+        return switch (c) {
+            case '0' -> KEY_0;
+            case '1' -> KEY_1;
+            case '2' -> KEY_2;
+            case '3' -> KEY_3;
+            case '4' -> KEY_4;
+            case '5' -> KEY_5;
+            case '6' -> KEY_6;
+            case '7' -> KEY_7;
+            case '8' -> KEY_8;
+            case '9' -> KEY_9;
+            case 'a' -> A;
+            case 'b' -> B;
+            case 'c' -> C;
+            case 'd' -> D;
+            case 'e' -> E;
+            case 'f' -> F;
+            case 'g' -> G;
+            case 'h' -> H;
+            case 'i' -> I;
+            case 'j' -> J;
+            case 'k' -> K;
+            case 'l' -> L;
+            case 'm' -> M;
+            case 'n' -> N;
+            case 'o' -> O;
+            case 'p' -> P;
+            case 'q' -> Q;
+            case 'r' -> R;
+            case 's' -> S;
+            case 't' -> T;
+            case 'u' -> U;
+            case 'v' -> V;
+            case 'w' -> W;
+            case 'x' -> X;
+            case 'y' -> Y;
+            case 'z' -> Z;
+            case '~' -> TILDE;
+            case '-' -> MINUS;
+            case '=' -> EQUALS;
+            case '[' -> LEFT_BRACKET;
+            case ']' -> RIGHT_BRACKET;
+            case '\\' -> BACKSLASH;
+            case ':' -> COLON;
+            case ';' -> SEMICOLON;
+            case '\'' -> QUOTE;
+            case '"' -> DOUBLE_QUOTE;
+            case ',' -> COMMA;
+            case '.' -> PERIOD;
+            case '<' -> LESS;
+            case '>' -> GREATER;
+            case '/' -> SLASH;
+            case '?' -> QUESTION;
+            case ' ' -> SPACE_BIG;
+            case '\0' -> CTRL;
+            case '\3' -> CAPS;
+            case '\4' -> EMPTY;
+            case '\5', '\6' -> SHIFT;
+            case '\7' -> ENLARGE;
+            case '\b' -> BACKSPACE;
+            case '\t' -> TAB;
+            case '\n', '\r' -> ENTER;
+            default -> EMPTY;
+        };
     }
 
     public void render(GuiGraphics gfx, int x, int y) {
@@ -262,5 +329,9 @@ public enum KeyMappingIcon {
             case GLFW.GLFW_KEY_ENTER -> ENTER;
             default -> EMPTY;
         };
+    }
+
+    public ResourceLocation getTexture() {
+        return ControllerX.res("textures/gui/icons.png");
     }
 }

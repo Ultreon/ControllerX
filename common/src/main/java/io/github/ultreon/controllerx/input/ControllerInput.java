@@ -5,20 +5,24 @@ import com.ultreon.libs.commons.v0.Either;
 import com.ultreon.libs.functions.v0.misc.Mapper;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
-import io.github.libsdl4j.api.gamecontroller.SdlGamecontroller;
 import io.github.ultreon.controllerx.Config;
 import io.github.ultreon.controllerx.ControllerX;
+import io.github.ultreon.controllerx.VirtualKeyboardEditCallback;
+import io.github.ultreon.controllerx.VirtualKeyboardSubmitCallback;
 import io.github.ultreon.controllerx.api.ControllerContext;
 import io.github.ultreon.controllerx.impl.InGameControllerContext;
 import io.github.ultreon.controllerx.impl.MenuControllerContext;
+import io.github.ultreon.controllerx.input.keyboard.KeyboardLayout;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 
@@ -42,6 +46,9 @@ public class ControllerInput extends Input {
     private float delay;
     private long nextTick;
     private final ControllerX mod;
+    private KeyboardLayout layout;
+    private String virtualKeyboardValue = "";
+    private boolean virtualKeyboardOpen;
 
     public ControllerInput(ControllerX mod) {
         this.mod = mod;
@@ -119,7 +126,7 @@ public class ControllerInput extends Input {
             }
         }
 
-        if (!SdlGamecontroller.SDL_GameControllerGetAttached(sdlController)) {
+        if (!SDL_GameControllerGetAttached(sdlController)) {
             unsetController(0);
             return true;
         }
@@ -176,9 +183,27 @@ public class ControllerInput extends Input {
             player.closeContainer();
         }
 
+        if (isVirtualKeyboardOpen()) {
+            if (isButtonJustPressed(ControllerButton.B)) {
+                this.closeVirtualKeyboard();
+            }
+        }
+
         if (isButtonJustPressed(ControllerButton.A)) {
-            screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
-            screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
+            if (!(screen.getFocused() instanceof EditBox editBox)) {
+                screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
+                screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
+            } else {
+                screen.setFocused(true);
+                screen.setFocused(editBox);
+                this.openVirtualKeyboard(editBox.getValue(), input -> {
+                    if (input == null) {
+                        throw new IllegalArgumentException("Input cannot be null");
+                    }
+
+                    editBox.setValue(input);
+                });
+            }
         }
 
         if (isButtonJustPressed(ControllerButton.B)) {
@@ -225,6 +250,31 @@ public class ControllerInput extends Input {
             screen.keyReleased(InputConstants.KEY_RIGHT, 0, 0);
             delay = 10;
         }
+    }
+
+    private void closeVirtualKeyboard() {
+        this.virtualKeyboardValue = "";
+        this.virtualKeyboardOpen = false;
+        ControllerX.get().virtualKeyboard.close();
+    }
+
+    private void openVirtualKeyboard(VirtualKeyboardEditCallback callback) {
+        openVirtualKeyboard("", callback);
+    }
+
+    private void openVirtualKeyboard(@NotNull String value, VirtualKeyboardEditCallback callback) {
+        this.virtualKeyboardValue = value;
+        this.virtualKeyboardOpen = true;
+
+        ControllerX.get().virtualKeyboard.open(callback);
+    }
+
+    public @NotNull String getVirtualKeyboardValue() {
+        return virtualKeyboardValue;
+    }
+
+    public boolean isVirtualKeyboardOpen() {
+        return virtualKeyboardOpen;
     }
 
     public boolean isJoystickRight() {
@@ -418,6 +468,10 @@ public class ControllerInput extends Input {
 
         if (screen != null) {
             if (ControllerContext.get() instanceof MenuControllerContext) {
+                if (virtualKeyboardOpen) {
+                    handleScreen(null, mod.virtualKeyboard.getScreen());
+                    return;
+                }
                 handleScreen(player, screen);
             }
         }
@@ -425,5 +479,18 @@ public class ControllerInput extends Input {
 
     public ControllerX getMod() {
         return mod;
+    }
+
+    public void setLayout(KeyboardLayout layout) {
+        this.layout = layout;
+    }
+
+    public KeyboardLayout getLayout() {
+        return layout;
+    }
+
+    public void handleVirtualKeyboardClosed(String value) {
+        this.virtualKeyboardValue = value;
+        this.virtualKeyboardOpen = false;
     }
 }
