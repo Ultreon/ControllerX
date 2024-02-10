@@ -4,16 +4,23 @@
   "version": "${version}",
 
   "name": "ControllerX",
-  "description": "A simple controller mod for Minecraft!",
-  "authors": [],
-  "contact": {},
+  "description": "A simple controller mod for Minecraft!\n\nCREDITS:\nXyperCode - Head Developer\n    -> https://github.com/XyperCode\nKenney - Input Prompt Icons\n    -> https://kenney-assets.itch.io/input-prompts-pixel-16",
+  "authors": [
+    "Ultreon Team",
+    "XyperCode"
+  ],
+  "contact": {
+    "sources": "https://github.com/Ultreon/ControllerX",
+    "issues": "https://github.com/Ultreon/ControllerX/issues",
+    "wiki": "https://github.com/Ultreon/ControllerX/wiki"
+  },
 
   "license": "All Rights Reserved",
-  "icon": "icon.png",
+  "icon": "assets/controllerx/icon.png",
 
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
-    "main": [
+    "client": [
       "io.github.ultreon.controllerx.fabric.ControllerXFabric"
     ]
   },
@@ -23,6 +30,8 @@
   ],
   "depends": {
     "fabricloader": ">=0.15.6",
-    "minecraft": ">=1.20.1"
+    "fabric": "*",
+    "minecraft": ">=1.20 <1.21",
+    "ultreonlib": ">=1.5.0"
   }
 }

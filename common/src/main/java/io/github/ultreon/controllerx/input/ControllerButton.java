@@ -1,9 +1,10 @@
 package io.github.ultreon.controllerx.input;
 
-import io.github.libsdl4j.api.SdlSubSystemConst;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
+import io.github.ultreon.controllerx.Icon;
+import io.github.ultreon.controllerx.util.InputDefinition;
 
-public enum ControllerButton {
+public enum ControllerButton implements InputDefinition<ControllerButton> {
     A, B, X, Y, BACK, START, GUIDE, LEFT_STICK, RIGHT_STICK, DPAD_UP, DPAD_DOWN, DPAD_LEFT, DPAD_RIGHT, LEFT_SHOULDER, RIGHT_SHOULDER, MISC1, PADDLE1, PADDLE2, PADDLE3, PADDLE4, TOUCHPAD, MAX, INVALID, UNKNOWN;
 
     public static ControllerButton fromSDL(int value) {
@@ -61,5 +62,33 @@ public enum ControllerButton {
             case MAX -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_MAX;
             case INVALID, UNKNOWN -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_INVALID;
         };
+    }
+
+    @Override
+    public Icon getIcon() {
+        return switch (this) {
+            case A -> Icon.ButtonA;
+            case B -> Icon.ButtonB;
+            case X -> Icon.ButtonX;
+            case Y -> Icon.ButtonY;
+            case BACK, MAX, INVALID, UNKNOWN -> Icon.AnyButton;
+            case START -> Icon.XboxMenu;
+            case GUIDE -> Icon.XboxGuide;
+            case LEFT_STICK -> Icon.LeftJoyStickPress;
+            case RIGHT_STICK -> Icon.RightJoyStickPress;
+            case DPAD_UP -> Icon.DpadUp;
+            case DPAD_DOWN -> Icon.DpadDown;
+            case DPAD_LEFT -> Icon.DpadLeft;
+            case DPAD_RIGHT -> Icon.DpadRight;
+            case LEFT_SHOULDER -> Icon.LeftTrigger;
+            case RIGHT_SHOULDER -> Icon.RightTrigger;
+            case MISC1, PADDLE1, PADDLE2, PADDLE3, PADDLE4 -> Icon.AnyButton;
+            case TOUCHPAD -> Icon.PS4TouchPad;
+        };
+    }
+
+    @Override
+    public ControllerButton getValue() {
+        return null;
     }
 }

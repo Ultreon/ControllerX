@@ -6,6 +6,7 @@ import java.nio.file.Files;
 public class Config {
     private static Config instance;
     public float axisDeadZone = 0.3f;
+    public boolean enableKeyboardHud = false;
 
     public void save() {
         String json = ControllerX.GSON.toJson(this, Config.class);
@@ -26,15 +27,24 @@ public class Config {
 
     public static void load() {
         if (Files.exists(ModPaths.CONFIG)) {
-            try {
-                instance = ControllerX.GSON.fromJson(Files.readString(ModPaths.CONFIG), Config.class);
-            } catch (IOException e) {
-                ControllerX.LOGGER.error("Failed to load config", e);
-                instance = new Config();
-            }
+            loadExisting();
         } else {
-            instance = new Config();
-            instance.save();
+            firstLoad();
         }
+    }
+
+    private static void loadExisting() {
+        try {
+            instance = ControllerX.GSON.fromJson(Files.readString(ModPaths.CONFIG), Config.class);
+            instance.save();
+        } catch (IOException e) {
+            ControllerX.LOGGER.error("Failed to load config", e);
+            instance = new Config();
+        }
+    }
+
+    public static void firstLoad() {
+        instance = new Config();
+        instance.save();
     }
 }

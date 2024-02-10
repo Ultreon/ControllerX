@@ -1,0 +1,18 @@
+{
+  "controllerx.action.inGame.use": "Use Item",
+  "controllerx.action.inGame.drop": "Drop Item",
+  "controllerx.action.inGame.swapHands": "Swap Item in Hand",
+  "controllerx.action.inGame.jump": "Jump",
+  "controllerx.action.inGame.sneak": "Sneak",
+  "controllerx.action.inGame.run": "Sprint",
+  "controllerx.action.inGame.inventory": "Open Inventory",
+  "controllerx.action.inGame.movePlayer": "Move",
+  "controllerx.action.inGame.lookPlayer": "Look Around",
+  "controllerx.action.inGame.gameMenu": "Game Menu",
+  "controllerx.action.inGameMenu.close": "Close",
+  "controllerx.action.menu.dpad_move": "Move Selection with D-Pad",
+  "controllerx.action.menu.joystick_move": "Move Selection with Joystick",
+  "controllerx.action.menu.activate": "Activate",
+  "controllerx.action.menu.back": "Back",
+  "controllerx.action.menu.scroll_y": "Scroll"
+}

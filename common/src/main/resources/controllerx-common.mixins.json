@@ -1,15 +1,19 @@
 {
   "required": true,
-  "refmap": "ControllerX-refmap.json",
+  "refmap": "ControllerX-common-refmap.json",
   "minVersion": "0.8",
   "package": "io.github.ultreon.controllerx.mixin",
   "compatibilityLevel": "JAVA_17",
+  "plugin": "io.github.ultreon.controllerx.ControllerXMixinPlugin",
   "mixins": [
   ],
   "client": [
-    "GameRendererMixin",
     "KeyboardInputMixin",
-    "KeyMappingMixin"
+    "KeyMappingMixin",
+    "MinecraftMixin",
+    "accessors.ChatComponentAccessor",
+    "accessors.KeyMappingAccessor",
+    "accessors.MinecraftAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

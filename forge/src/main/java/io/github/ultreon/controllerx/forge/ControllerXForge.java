@@ -7,9 +7,15 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(ControllerX.MOD_ID)
 public class ControllerXForge {
+    private final ControllerX instance;
+
     public ControllerXForge() {
 		// Submit our event bus to let architectury register our content on the right time
         EventBuses.registerModEventBus(ControllerX.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
-        ControllerX.init();
+        instance = ControllerX.get();
+    }
+
+    public ControllerX getInstance() {
+        return instance;
     }
 }
