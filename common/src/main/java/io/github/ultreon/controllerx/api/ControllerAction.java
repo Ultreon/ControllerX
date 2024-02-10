@@ -53,6 +53,10 @@ public sealed interface ControllerAction<T extends InputDefinition<?>> {
         return new Vector2f(0, 0);
     }
 
+    default boolean isJustPressed() {
+        return false;
+    }
+
     final class Button implements ControllerAction<ControllerButton> {
         private ControllerButton button;
 
@@ -95,6 +99,11 @@ public sealed interface ControllerAction<T extends InputDefinition<?>> {
         @Override
         public void setMapping(ControllerButton mapping) {
             this.button = mapping;
+        }
+
+        @Override
+        public boolean isJustPressed() {
+            return ControllerX.get().controllerInput.isButtonJustPressed(button);
         }
     }
 

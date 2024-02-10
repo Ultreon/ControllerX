@@ -11,6 +11,7 @@
     "KeyboardInputMixin",
     "KeyMappingMixin",
     "MinecraftMixin",
+    "accessors.AbstractSelectionListAccessor",
     "accessors.ChatComponentAccessor",
     "accessors.KeyMappingAccessor",
     "accessors.MinecraftAccessor"
