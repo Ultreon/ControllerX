@@ -36,9 +36,9 @@ public class ControllerX {
 
     private static ControllerX instance;
 
-    public final ControllerInput controllerInput;
-    private final ControllerHud controllerHud;
-    private final KeyboardHud keyboardHud;
+    public ControllerInput controllerInput;
+    private ControllerHud controllerHud;
+    private KeyboardHud keyboardHud;
     private InputType inputType = InputType.KEYBOARD_AND_MOUSE;
     private int inputCooldown;
     private boolean canChangeInput = true;
@@ -48,6 +48,71 @@ public class ControllerX {
 
     private ControllerX() {
         instance = this;
+
+        ClientLifecycleEvent.CLIENT_STARTED.register(this::clientStarted);
+
+        LOGGER.info("ControllerX initialized");
+    }
+
+    private EventResult initGui(Screen screen, ScreenAccess screenAccess) {
+        if (controllerInput.isVirtualKeyboardOpen()) {
+            // SCARY!
+            virtualKeyboard.getScreen().resize(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
+            return EventResult.pass();
+        }
+        return EventResult.pass();
+    }
+
+    private void initKeyboardLayout() {
+        this.controllerInput.setLayout(KeyboardLayouts.QWERTY);
+    }
+
+    private void tickInput(Minecraft minecraft) {
+        Screen screen = minecraft.screen;
+
+        if (screen != null) {
+            controllerInput.updateScreen(screen);
+        }
+
+        if (inputCooldown > 0) {
+            inputCooldown--;
+            if (inputCooldown == 0) {
+                canChangeInput = true;
+            }
+        }
+    }
+
+    private void renderGui(Screen screen, GuiGraphics gfx, int mouseX, int mouseY, float partialTicks) {
+        if (controllerInput.isVirtualKeyboardOpen()) {
+            virtualKeyboard.render(gfx, mouseX, mouseY, partialTicks);
+            return;
+        }
+        controllerHud.render(gfx, partialTicks);
+    }
+
+    public static ResourceLocation res(String path) {
+        return new ResourceLocation(MOD_ID, path);
+    }
+
+    @ExpectPlatform
+    public static double getEntityReach(Player player) {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static double getBlockReach(Player player) {
+        throw new AssertionError();
+    }
+
+    private void clientStarted(Minecraft instance) {
+        ControllerContext.freeze();
+
+        KeyboardHud.addMapping(Minecraft.getInstance().options.keyAttack);
+        KeyboardHud.addMapping(Minecraft.getInstance().options.keyUse);
+        KeyboardHud.addMapping(Minecraft.getInstance().options.keyJump);
+        KeyboardHud.addMapping(Minecraft.getInstance().options.keyShift);
+        KeyboardHud.addMapping(Minecraft.getInstance().options.keyChat);
+        KeyboardHud.addMapping(Minecraft.getInstance().options.keyCommand);
 
         SDL_Init(SdlSubSystemConst.SDL_INIT_EVENTS | SdlSubSystemConst.SDL_INIT_GAMECONTROLLER | SdlSubSystemConst.SDL_INIT_JOYSTICK);
         ClientLifecycleEvent.CLIENT_STOPPING.register(ControllerX::quitGame);
@@ -62,14 +127,13 @@ public class ControllerX {
 
         ClientTickEvent.CLIENT_PRE.register(this::tickInput);
 
-        ClientLifecycleEvent.CLIENT_STARTED.register(ControllerX::clientStarted);
-
         if (controllerInput.isConnected()) {
             inputType = InputType.CONTROLLER;
         }
 
         this.initKeyboardLayout();
         virtualKeyboard = new VirtualKeyboard();
+
         ClientScreenInputEvent.KEY_PRESSED_PRE.register((client, screen, keyCode, scanCode, modifiers) -> {
             setInputType(InputType.KEYBOARD_AND_MOUSE);
 
@@ -128,68 +192,6 @@ public class ControllerX {
             return EventResult.pass();
         });
 
-        LOGGER.info("ControllerX initialized");
-    }
-
-    private EventResult initGui(Screen screen, ScreenAccess screenAccess) {
-        if (controllerInput.isVirtualKeyboardOpen()) {
-            // SCARY!
-            virtualKeyboard.getScreen().resize(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
-            return EventResult.pass();
-        }
-        return EventResult.pass();
-    }
-
-    private void initKeyboardLayout() {
-        this.controllerInput.setLayout(KeyboardLayouts.QWERTY);
-    }
-
-    private void tickInput(Minecraft minecraft) {
-        Screen screen = minecraft.screen;
-
-        if (screen != null) {
-            controllerInput.updateScreen(screen);
-        }
-
-        if (inputCooldown > 0) {
-            inputCooldown--;
-            if (inputCooldown == 0) {
-                canChangeInput = true;
-            }
-        }
-    }
-
-    private void renderGui(Screen screen, GuiGraphics gfx, int mouseX, int mouseY, float partialTicks) {
-        if (controllerInput.isVirtualKeyboardOpen()) {
-            virtualKeyboard.render(gfx, mouseX, mouseY, partialTicks);
-            return;
-        }
-        controllerHud.render(gfx, partialTicks);
-    }
-
-    public static ResourceLocation res(String path) {
-        return new ResourceLocation(MOD_ID, path);
-    }
-
-    @ExpectPlatform
-    public static double getEntityReach(Player player) {
-        throw new AssertionError();
-    }
-
-    @ExpectPlatform
-    public static double getBlockReach(Player player) {
-        throw new AssertionError();
-    }
-
-    private static void clientStarted(Minecraft instance) {
-        ControllerContext.freeze();
-
-        KeyboardHud.addMapping(Minecraft.getInstance().options.keyAttack);
-        KeyboardHud.addMapping(Minecraft.getInstance().options.keyUse);
-        KeyboardHud.addMapping(Minecraft.getInstance().options.keyJump);
-        KeyboardHud.addMapping(Minecraft.getInstance().options.keyShift);
-        KeyboardHud.addMapping(Minecraft.getInstance().options.keyChat);
-        KeyboardHud.addMapping(Minecraft.getInstance().options.keyCommand);
     }
 
     private void renderHud(GuiGraphics gfx, float ignoredPartialTicks) {
