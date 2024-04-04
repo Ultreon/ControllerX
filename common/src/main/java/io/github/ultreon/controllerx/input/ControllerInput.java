@@ -396,6 +396,8 @@ public class ControllerInput extends Input {
     }
 
     public void openVirtualKeyboard(@NotNull String value, VirtualKeyboardEditCallback callback) {
+        if (!Config.get().enableVirtualKeyboard) return;
+
         this.virtualKeyboardValue = value;
         this.virtualKeyboardOpen = true;
 
