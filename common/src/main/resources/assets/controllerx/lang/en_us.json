@@ -28,5 +28,9 @@
   "controllerx.action.chat.open_keyboard": "Open keyboard",
   "controllerx.action.chat.send": "Send message",
   "controllerx.action.inventory.closeInventory": "Close inventory",
-  "controllerx.text_input": "Text input: %s"
+  "controllerx.text_input": "Text input: %s",
+  "controllerx.toast.controller_disconnected.title": "Controller disconnected",
+  "controllerx.toast.controller_disconnected.description": "%s",
+  "controllerx.toast.controller_connected.title": "Controller connected",
+  "controllerx.toast.controller_connected.description": "%s"
 }

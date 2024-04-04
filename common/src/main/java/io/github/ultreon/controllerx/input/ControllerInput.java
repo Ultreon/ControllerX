@@ -17,6 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
@@ -24,6 +25,7 @@ import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -168,6 +170,8 @@ public class ControllerInput extends Input {
             this.justPressedButtons.set(i, false);
         }
 
+        SDL_GameControllerUpdate();
+
         if (this.sdlController == null) {
             this.setController(0);
             if (this.sdlController == null) {
@@ -179,8 +183,6 @@ public class ControllerInput extends Input {
             unsetController(0);
             return true;
         }
-
-        SDL_GameControllerUpdate();
 
         for (int idx = 0; idx < SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_MAX; idx++) {
             this.justPressedButtons.set(idx, false);
@@ -499,6 +501,7 @@ public class ControllerInput extends Input {
         this.controller = new Controller(sdlController, deviceIndex, productId, vendorId, name, mapping);
 
         ControllerEvent.CONTROLLER_CONNECTED.invoker().onConnectionStatus(this.controller);
+        Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToast.SystemToastIds.TUTORIAL_HINT, Component.translatable("controllerx.toast.controller_connected.title"), Component.translatable("controllerx.toast.controller_connected.description", name)));
 
         ControllerX.LOGGER.info("Controller {} connected", name);
     }
@@ -506,11 +509,14 @@ public class ControllerInput extends Input {
     private void unsetController(int deviceIndex) {
         if (deviceIndex != this.controller.deviceIndex()) return;
 
+        Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToast.SystemToastIds.PERIODIC_NOTIFICATION, Component.translatable("controllerx.toast.controller_disconnected.title"), Component.translatable("controllerx.toast.controller_disconnected.description", this.controller.name())));
+
         this.sdlController = null;
         this.controller = null;
-        ControllerEvent.CONTROLLER_DISCONNECTED.invoker().onConnectionStatus(this.controller);
 
+        ControllerEvent.CONTROLLER_DISCONNECTED.invoker().onConnectionStatus(this.controller);
         ControllerX.get().forceSetInputType(InputType.KEYBOARD_AND_MOUSE, 10);
+
         ControllerX.LOGGER.info("Controller disconnected");
     }
 
@@ -552,13 +558,6 @@ public class ControllerInput extends Input {
 
     public Boolean doInput(Minecraft mc, KeyMapping mapping, Mapper<Either<ControllerAxis, ControllerButton>, Boolean> controllerMapper) {
         if (ControllerContext.get() instanceof InGameControllerContext context) {
-//            if (mapping == mc.options.keyAttack && ControllerContext.get() instanceof BlockTargetControllerContext blockCtx)
-//                return blockCtx.destroyBlock.action().isPressed();
-//            if (mapping == mc.options.keyAttack && ControllerContext.get() instanceof EntityTargetControllerContext blockCtx)
-//                return blockCtx.attack.action().isPressed();
-//            if (mapping == mc.options.keyUse) {
-//                return context.use.action().isPressed();
-//            }
             if (mapping == mc.options.keyPickItem) {
                 return context.pickItem.action().isPressed();
             }
