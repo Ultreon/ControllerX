@@ -6,7 +6,8 @@ import java.nio.file.Files;
 public class Config {
     private static Config instance;
     public float axisDeadZone = 0.3f;
-    public boolean enableVirtualKeyboard = false;
+    public boolean enableKeyboardHud = false;
+    public boolean enableVirtualKeyboard = true;
 
     public void save() {
         String json = ControllerX.GSON.toJson(this, Config.class);

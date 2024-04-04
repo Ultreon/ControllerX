@@ -1,5 +1,6 @@
 package io.github.ultreon.controllerx.gui;
 
+import io.github.ultreon.controllerx.Config;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.KeyMappingIcon;
 import io.github.ultreon.controllerx.input.InputType;
@@ -12,7 +13,6 @@ import net.minecraft.network.chat.MutableComponent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class KeyboardHud {
     private static final List<KeyMapping> VISIBLE_MAPPINGS = new ArrayList<>();
@@ -23,8 +23,7 @@ public class KeyboardHud {
 
     public void render(GuiGraphics gfx, float ignoredPartialTicks) {
         if (ControllerX.get().getInputType() != InputType.KEYBOARD_AND_MOUSE) return;
-        
-        Minecraft mc = Minecraft.getInstance();
+        if (!Config.get().enableKeyboardHud) return;
 
         int leftY = 20;
         int rightY = 20;
