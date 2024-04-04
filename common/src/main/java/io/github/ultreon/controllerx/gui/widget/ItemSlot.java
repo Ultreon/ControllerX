@@ -1,11 +1,13 @@
 package io.github.ultreon.controllerx.gui.widget;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.architectury.event.CompoundEventResult;
 import io.github.ultreon.controllerx.ControllerX;
-import io.github.ultreon.controllerx.gui.ControllerInputHandler;
-import io.github.ultreon.controllerx.input.ControllerButton;
-import io.github.ultreon.controllerx.input.ControllerInput;
+import io.github.ultreon.controllerx.event.ItemSlotGuiEvent;
 import io.github.ultreon.controllerx.input.InputType;
+import io.github.ultreon.controllerx.mixin.accessors.AbstractContainerScreenAccessor;
+import io.github.ultreon.controllerx.mixin.accessors.KeyMappingAccessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -14,14 +16,21 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import org.jetbrains.annotations.NotNull;
 
-public class ItemSlot extends AbstractWidget implements ControllerInputHandler {
+public class ItemSlot extends AbstractWidget {
     private final AbstractContainerScreen<?> screen;
-    private final Slot slot;
 
-    public ItemSlot(int x, int y, int width, int height, AbstractContainerScreen<?> screen, Slot slot) {
+    protected ItemSlot(int x, int y, int width, int height, AbstractContainerScreen<?> screen) {
         super(x, y, width, height, Component.empty());
         this.screen = screen;
-        this.slot = slot;
+    }
+
+    public static ItemSlot getSlot(AbstractContainerScreen<?> screen, Slot slot) {
+        int x = slot.x + ((AbstractContainerScreenAccessor) screen).getLeftPos();
+        int y = slot.y + ((AbstractContainerScreenAccessor) screen).getTopPos();
+
+        CompoundEventResult<ItemSlot> eventResult = ItemSlotGuiEvent.EVENT.invoker().onSlot(x, y, screen, slot);
+        if (eventResult.isPresent()) return eventResult.object();
+        return new ItemSlot(x, y, 16, 16, screen);
     }
 
     @Override
@@ -77,17 +86,20 @@ public class ItemSlot extends AbstractWidget implements ControllerInputHandler {
         // Item slots don't have a message
     }
 
-    @Override
-    public boolean handleInput(ControllerInput input) {
-        if (input.isButtonJustPressed(ControllerButton.A)) {
-            boolean flag = screen.mouseClicked(getX() + 8, getY() + 8, InputConstants.MOUSE_BUTTON_LEFT);
-            flag |= screen.mouseReleased(getX() + 8, getY() + 8, InputConstants.MOUSE_BUTTON_LEFT);
-            return flag;
-        } else if (input.isButtonJustPressed(ControllerButton.X)) {
-            boolean flag = screen.mouseClicked(getX() + 8, getY() + 8, InputConstants.MOUSE_BUTTON_MIDDLE);
-            flag |= screen.mouseReleased(getX() + 8, getY() + 8, InputConstants.MOUSE_BUTTON_MIDDLE);
-            return flag;
-        }
-        return false;
+    public boolean pickUpOrPlace() {
+        boolean flag = screen.mouseClicked(getX() + 8, getY() + 8, InputConstants.MOUSE_BUTTON_LEFT);
+        flag |= screen.mouseReleased(getX() + 8, getY() + 8, InputConstants.MOUSE_BUTTON_LEFT);
+        return flag;
+    }
+
+    public boolean splitOrPutSingle() {
+        boolean flag = screen.mouseClicked(getX() + 8, getY() + 8, InputConstants.MOUSE_BUTTON_MIDDLE);
+        flag |= screen.mouseReleased(getX() + 8, getY() + 8, InputConstants.MOUSE_BUTTON_MIDDLE);
+        return flag;
+    }
+
+    public void drop() {
+        screen.keyPressed(getX() + 8, getY() + 8, ((KeyMappingAccessor)Minecraft.getInstance().options.keyDrop).getKey().getValue());
+        screen.keyReleased(getX() + 8, getY() + 8, ((KeyMappingAccessor)Minecraft.getInstance().options.keyDrop).getKey().getValue());
     }
 }

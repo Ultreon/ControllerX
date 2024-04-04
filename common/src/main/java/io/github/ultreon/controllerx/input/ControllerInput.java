@@ -3,7 +3,6 @@ package io.github.ultreon.controllerx.input;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.ultreon.libs.commons.v0.Either;
 import com.ultreon.libs.functions.v0.misc.Mapper;
-import com.ultreon.mods.lib.client.UltreonLibClient;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
 import io.github.ultreon.controllerx.*;
@@ -23,7 +22,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.ApiStatus;
@@ -256,6 +254,12 @@ public class ControllerInput extends Input {
                 && screen.getFocused() instanceof ControllerInputHandler handler
                 && handler.handleInput(this)) {
             return;
+        }
+
+        if (screen.getFocused() instanceof ItemSlot itemSlot && menuContext instanceof MenuOnSlotControllerContext menuOnSlotContext) {
+            if (menuOnSlotContext.pickupOrPlace.action().isJustPressed()) itemSlot.pickUpOrPlace();
+            if (menuOnSlotContext.splitOrPutSingle.action().isJustPressed()) itemSlot.splitOrPutSingle();
+            if (menuOnSlotContext.drop.action().isJustPressed()) itemSlot.drop();
         }
 
         if (menuContext.activate.action().isJustPressed()) {

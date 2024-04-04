@@ -11,7 +11,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -54,10 +53,7 @@ public class Hooks {
             T menu = containerScreen.getMenu();
 
             for (Slot slot : menu.slots) {
-                int x = slot.x + ((AbstractContainerScreenAccessor) containerScreen).getLeftPos();
-                int y = slot.y + ((AbstractContainerScreenAccessor) containerScreen).getTopPos();
-
-                screenAccess.addRenderableWidget(new ItemSlot(x, y, 16, 16, containerScreen, slot));
+                screenAccess.addRenderableWidget(ItemSlot.getSlot(containerScreen, slot));
             }
         }
     }

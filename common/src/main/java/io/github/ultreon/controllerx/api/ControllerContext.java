@@ -44,7 +44,7 @@ public abstract class ControllerContext {
         REGISTRY.put(ControllerContext::isChatting, ChatControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInGameTargetingBlock, BlockTargetControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInGame, EntityTargetControllerContext.INSTANCE);
-        REGISTRY.put(ControllerContext::isInMenuSelectedItemSlot, CloseableMenuControllerContext.INSTANCE);
+        REGISTRY.put(ControllerContext::isInMenuSelectedItemSlot, MenuOnSlotControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInCloseableMenu, CloseableMenuControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInMenu, MenuControllerContext.INSTANCE);
         REGISTRY.put(Predicate.isEqual(Minecraft.getInstance()), new ControllerContext() {
