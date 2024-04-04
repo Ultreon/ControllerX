@@ -3,6 +3,7 @@ package io.github.ultreon.controllerx.api;
 import com.ultreon.libs.collections.v0.maps.OrderedHashMap;
 import com.ultreon.mods.lib.world.Crosshair;
 import io.github.ultreon.controllerx.ControllerX;
+import io.github.ultreon.controllerx.gui.widget.ItemSlot;
 import io.github.ultreon.controllerx.impl.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
@@ -43,6 +44,7 @@ public abstract class ControllerContext {
         REGISTRY.put(ControllerContext::isChatting, ChatControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInGameTargetingBlock, BlockTargetControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInGame, EntityTargetControllerContext.INSTANCE);
+        REGISTRY.put(ControllerContext::isInMenuSelectedItemSlot, CloseableMenuControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInCloseableMenu, CloseableMenuControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInMenu, MenuControllerContext.INSTANCE);
         REGISTRY.put(Predicate.isEqual(Minecraft.getInstance()), new ControllerContext() {
@@ -82,6 +84,10 @@ public abstract class ControllerContext {
 
     public static boolean isInCloseableMenu(Minecraft minecraft) {
         return minecraft.screen != null && minecraft.screen.shouldCloseOnEsc();
+    }
+
+    public static boolean isInMenuSelectedItemSlot(Minecraft minecraft) {
+        return minecraft.screen != null && minecraft.screen.shouldCloseOnEsc() && minecraft.screen.getFocused() instanceof ItemSlot;
     }
 
     public static boolean isInGame(Minecraft minecraft) {

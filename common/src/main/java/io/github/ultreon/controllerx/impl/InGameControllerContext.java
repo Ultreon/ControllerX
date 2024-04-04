@@ -15,8 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 public class InGameControllerContext extends ControllerContext {
-    public static final InGameControllerContext INSTANCE = new InGameControllerContext();
-
     public final ControllerMapping<?> jump;
     public final ControllerMapping<?> run;
     public final ControllerMapping<?> sneak;

@@ -8,6 +8,8 @@ import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
 import io.github.ultreon.controllerx.*;
 import io.github.ultreon.controllerx.api.ControllerContext;
+import io.github.ultreon.controllerx.gui.ControllerInputHandler;
+import io.github.ultreon.controllerx.gui.widget.ItemSlot;
 import io.github.ultreon.controllerx.impl.*;
 import io.github.ultreon.controllerx.input.keyboard.KeyboardLayout;
 import io.github.ultreon.controllerx.mixin.accessors.AbstractSelectionListAccessor;
@@ -21,6 +23,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.ApiStatus;
@@ -247,6 +250,12 @@ public class ControllerInput extends Input {
             if (isButtonJustPressed(ControllerButton.B)) {
                 this.closeVirtualKeyboard();
             }
+        }
+
+        if (!isVirtualKeyboardOpen()
+                && screen.getFocused() instanceof ControllerInputHandler handler
+                && handler.handleInput(this)) {
+            return;
         }
 
         if (menuContext.activate.action().isJustPressed()) {

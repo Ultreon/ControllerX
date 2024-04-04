@@ -19,6 +19,7 @@ import io.github.ultreon.controllerx.input.keyboard.KeyboardLayouts;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.ApiStatus;
@@ -60,7 +61,14 @@ public class ControllerX {
             virtualKeyboard.getScreen().resize(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
             return EventResult.pass();
         }
+
         return EventResult.pass();
+    }
+
+    private void postInitGui(Screen screen, ScreenAccess screenAccess) {
+        if (screen instanceof AbstractContainerScreen<?> containerScreen) {
+            Hooks.hookContainerSlots(containerScreen, screenAccess);
+        }
     }
 
     private void initKeyboardLayout() {
@@ -124,6 +132,7 @@ public class ControllerX {
         ClientGuiEvent.RENDER_HUD.register(this::renderHud);
         ClientGuiEvent.RENDER_POST.register(this::renderGui);
         ClientGuiEvent.INIT_PRE.register(this::initGui);
+        ClientGuiEvent.INIT_POST.register(this::postInitGui);
 
         ClientTickEvent.CLIENT_PRE.register(this::tickInput);
 

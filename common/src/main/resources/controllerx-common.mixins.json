@@ -7,8 +7,11 @@
   "mixins": [
   ],
   "client": [
+    "AbstractContainerScreenMixin",
+    "GameRendererMixin",
     "KeyboardInputMixin",
     "KeyMappingMixin",
+    "accessors.AbstractContainerScreenAccessor",
     "accessors.AbstractSelectionListAccessor",
     "accessors.ChatComponentAccessor",
     "accessors.KeyMappingAccessor",
