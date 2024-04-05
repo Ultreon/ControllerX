@@ -1,7 +1,6 @@
 
 package io.github.ultreon.controllerx.config.gui;
 
-import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 
-public class ConfigMenu extends ContainerObjectSelectionList<ConfigMenu.ListEntry> {
-    public ConfigMenu(Minecraft minecraft, int width, int height, int i, int i1) {
+public class ConfigsList extends ContainerObjectSelectionList<ConfigsList.ListEntry> {
+    public ConfigsList(Minecraft minecraft, int width, int height, int i, int i1) {
         super(minecraft, width, height, i, i1, 28);
         this.centerListVertically = false;
     }
@@ -45,17 +44,17 @@ public class ConfigMenu extends ContainerObjectSelectionList<ConfigMenu.ListEntr
     }
 
     protected static class ListEntry extends Entry<ListEntry> {
-        private final ConfigMenu list;
+        private final ConfigsList list;
         final Config configEntry;
         final AbstractWidget widget;
 
-        private ListEntry(ConfigMenu list, Config configEntry, AbstractWidget widget) {
+        private ListEntry(ConfigsList list, Config configEntry, AbstractWidget widget) {
             this.list = list;
             this.configEntry = configEntry;
             this.widget = widget;
         }
 
-        public static ListEntry of(ConfigMenu list, Config config, int rowWidth, Config rightOption) {
+        public static ListEntry of(ConfigsList list, Config config, int rowWidth, Config rightOption) {
             return new ListEntry(list, rightOption, rightOption.createButton(config, rowWidth - 160, 0, 150));
         }
 

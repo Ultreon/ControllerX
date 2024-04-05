@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BindingsConfigScreen extends Screen {
     private final Screen back;
-    private ConfigList list;
+    private BindingsConfigList list;
     private Button doneButton;
     private final Config config;
 
@@ -26,7 +26,7 @@ public class BindingsConfigScreen extends Screen {
         this.clearWidgets();
         super.init();
 
-        this.list = new ConfigList(this.minecraft, this.width, this.height, 32, this.height - 32, config);
+        this.list = new BindingsConfigList(this.minecraft, this.width, this.height, 32, this.height - 32, config);
         this.list.addEntries(config.values());
         this.addRenderableWidget(this.list);
 
@@ -55,7 +55,7 @@ public class BindingsConfigScreen extends Screen {
         return this.back;
     }
 
-    public ConfigList getList() {
+    public BindingsConfigList getList() {
         return this.list;
     }
 

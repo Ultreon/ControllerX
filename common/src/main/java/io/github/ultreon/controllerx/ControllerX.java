@@ -40,7 +40,7 @@ public class ControllerX {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = LoggerFactory.getLogger("ControllerX");
     public static final byte MAX_CONTROLLERS = 1;
-    public static final String BINDINGS_JSON = "config/controllerx-bindings";
+    public static final String BINDINGS_DIRECTORY = "config/controllerx-bindings";
 
     private static ControllerX instance;
 
@@ -208,14 +208,14 @@ public class ControllerX {
             return EventResult.pass();
         });
 
-        Iterable<Config> configs = ControllerContext.createConfigs(this);
+        Iterable<Config> configs = ControllerContext.createConfigs();
 
-        Path dir = Paths.get(BINDINGS_JSON);
+        Path dir = Paths.get(BINDINGS_DIRECTORY);
         if (!Files.exists(dir)) {
             try {
                 Files.createDirectories(dir);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                LOGGER.error("Failed to create config directory", e);
             }
 
             for (Config config : configs) {

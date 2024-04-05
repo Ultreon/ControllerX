@@ -85,7 +85,6 @@ public class InGameControllerContext extends ControllerContext {
     public int getYOffset() {
         int chatYOffset = GameApi.getChatYOffset();
         if (chatYOffset > 9) {
-            System.out.println("chatYOffset = " + chatYOffset);
             return Math.min((int) (double) Minecraft.getInstance().options.chatHeightFocused().get(), chatYOffset);
         }
 

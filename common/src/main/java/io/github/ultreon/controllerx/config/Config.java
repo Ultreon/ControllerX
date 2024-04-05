@@ -1,7 +1,6 @@
 package io.github.ultreon.controllerx.config;
 
-import com.ultreon.libs.collections.v0.maps.OrderedHashMap;
-import dev.architectury.platform.Platform;
+import com.ultreon.commons.collection.map.OrderedMap;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.api.ControllerContext;
 import io.github.ultreon.controllerx.api.ControllerMapping;
@@ -17,13 +16,18 @@ import net.minecraft.resources.ResourceLocation;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Config {
-    private static final Map<ControllerContext, Config> CONFIGS = new OrderedHashMap<>();
+    private static final Map<ControllerContext, Config> CONFIGS = new OrderedMap<>();
 
-    private final Map<ControllerMapping<?>, ConfigEntry<?>> mappings = new OrderedHashMap<>();
-    private final OrderedHashMap<String, ConfigEntry<?>> entries = new OrderedHashMap<>();
+    private final Map<ControllerMapping<?>, ConfigEntry<?>> mappings = new HashMap<>();
+    private final Map<String, ConfigEntry<?>> entryMap = new HashMap<>();
+    private final List<ConfigEntry<?>> entries = new ArrayList<>();
     private final ResourceLocation key;
     private final ControllerContext context;
     private final Path file;
@@ -32,18 +36,11 @@ public class Config {
         this.key = key;
         this.context = context;
 
+        Path bindingsDir = Paths.get(ControllerX.BINDINGS_DIRECTORY);
         if (key.getNamespace().equals(ControllerX.MOD_ID))
-            file = Platform.getConfigFolder().resolve("controllerx/").resolve(key.getPath() + ".txt");
+            file = bindingsDir.resolve(key.getPath() + ".txt");
         else
-            file = Platform.getConfigFolder().resolve("controllerx/").resolve(key.getNamespace() + "/" + key.getPath() + ".txt");
-        Path parent = file.getParent();
-        if (!Files.exists(parent)) {
-            try {
-                Files.createDirectories(parent);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+            file = bindingsDir.resolve(key.getNamespace() + "/" + key.getPath() + ".txt");
 
         for (ControllerMapping<?> mapping : context.mappings.getAllMappings()) {
             ConfigEntry<?> entry = mapping.createEntry(this);
@@ -71,7 +68,8 @@ public class Config {
 
     public <T extends Enum<T>> ConfigEntry<T> add(String key, T defaultValue, Component description) {
         ConfigEntry<T> entry = new EnumEntry<>(key, defaultValue, description).comment(description.getString());
-        entries.put(key, entry);
+        entryMap.put(entry.getKey(), entry);
+        entries.add(entry);
 
         return entry;
     }
@@ -88,7 +86,7 @@ public class Config {
                     continue;
                 }
 
-                ConfigEntry<?> entry = entries.get(entryArr[0]);
+                ConfigEntry<?> entry = entryMap.get(entryArr[0]);
                 entry.readAndSet(entryArr[1]);
             }
         } catch (FileNotFoundException ignored) {
@@ -100,7 +98,7 @@ public class Config {
 
     public void save() {
         try (BufferedWriter writer = Files.newBufferedWriter(file)) {
-            for (ConfigEntry<?> e : entries.values()) {
+            for (ConfigEntry<?> e : entryMap.values()) {
                 String key = e.getKey();
                 String value = e.write();
 
@@ -115,15 +113,13 @@ public class Config {
                 writer.write(value);
                 writer.newLine();
             }
-        } catch (FileNotFoundException ignored) {
-
         } catch (Exception e) {
             ControllerX.LOGGER.error("Failed to save config", e);
         }
     }
 
     public ConfigEntry<?>[] values() {
-        return entries.values().toArray(new ConfigEntry[0]);
+        return entries.toArray(new ConfigEntry[0]);
     }
 
     public AbstractWidget createButton(Config config, int x, int y, int w) {

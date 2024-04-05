@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ConfigsScreen extends Screen {
     private final Screen back;
-    private ConfigMenu list;
+    private ConfigsList list;
     private Button doneButton;
 
     public ConfigsScreen(Screen back) {
@@ -24,7 +24,7 @@ public class ConfigsScreen extends Screen {
         this.clearWidgets();
         super.init();
 
-        this.list = new ConfigMenu(this.minecraft, this.width, this.height, 32, this.height - 32);
+        this.list = new ConfigsList(this.minecraft, this.width, this.height, 32, this.height - 32);
         this.list.addEntries(Config.getConfigs());
         this.addRenderableWidget(this.list);
 
@@ -53,7 +53,7 @@ public class ConfigsScreen extends Screen {
         return this.back;
     }
 
-    public ConfigMenu getList() {
+    public ConfigsList getList() {
         return this.list;
     }
 

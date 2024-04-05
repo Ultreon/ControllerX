@@ -93,7 +93,7 @@ public abstract class ConfigEntry<T> {
         this.value = this.defaultValue;
     }
 
-    private T getDefault() {
+    public T getDefault() {
         return defaultValue;
     }
 }

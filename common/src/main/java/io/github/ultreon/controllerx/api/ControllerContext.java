@@ -38,16 +38,16 @@ public abstract class ControllerContext {
         }
     }
 
-    public static Iterable<Config> createConfigs(ControllerX controllerX) {
+    public static Iterable<Config> createConfigs() {
         List<Config> configs = new ArrayList<>();
         for (Map.Entry<Predicate<Minecraft>, ControllerContext> entry : REGISTRY.entrySet()) {
-            configs.add(entry.getValue().createConfig(controllerX));
+            configs.add(entry.getValue().createConfig());
         }
 
         return configs;
     }
 
-    private Config createConfig(ControllerX controllerX) {
+    private Config createConfig() {
         this.config = new Config(this.id, this);
         Config.register(this.config);
         return this.config;

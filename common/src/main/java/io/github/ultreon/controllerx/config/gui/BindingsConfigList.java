@@ -16,11 +16,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConfigList extends ContainerObjectSelectionList<ConfigList.ListEntry> {
+public class BindingsConfigList extends ContainerObjectSelectionList<BindingsConfigList.ListEntry> {
     private final List<ListEntry> entries = new ArrayList<>();
     private final Config config;
 
-    public ConfigList(Minecraft minecraft, int width, int height, int i, int i1, Config config) {
+    public BindingsConfigList(Minecraft minecraft, int width, int height, int i, int i1, Config config) {
         super(minecraft, width, height, i, i1, 28);
         this.config = config;
         this.centerListVertically = false;
@@ -56,21 +56,24 @@ public class ConfigList extends ContainerObjectSelectionList<ConfigList.ListEntr
     }
 
     protected static class ListEntry extends Entry<ListEntry> {
-        private final ConfigList list;
+        private final BindingsConfigList list;
         final ConfigEntry<?> configEntry;
-        final AbstractWidget widget;
         final Button resetBtn;
+        AbstractWidget widget;
 
-        private ListEntry(ConfigList list, ConfigEntry<?> configEntry, AbstractWidget widget) {
+        private ListEntry(BindingsConfigList list, Config config, ConfigEntry<?> configEntry, int rowWidth) {
             this.list = list;
             this.configEntry = configEntry;
-            this.widget = widget;
+            this.widget = configEntry.createButton(config, rowWidth - 160, 0, 150);
 
-            this.resetBtn = new ImageButton(0, 0, 20, 20, 0, 0, 20, ControllerX.res("textures/gui/reset.png"), 20, 40, button -> configEntry.reset(), Texts.GUI_RESET);
+            this.resetBtn = new ImageButton(0, 0, 20, 20, 0, 0, 20, ControllerX.res("textures/gui/reset.png"), 20, 40, button -> {
+                configEntry.reset();
+                widget = configEntry.createButton(config, list.getRowWidth() - 160, 0, 150);
+            }, Texts.GUI_RESET);
         }
 
-        public static ListEntry of(ConfigList list, Config config, int rowWidth, ConfigEntry<?> entry) {
-            return new ListEntry(list, entry, entry.createButton(config, rowWidth - 160, 0, 150));
+        public static ListEntry of(BindingsConfigList list, Config config, int rowWidth, ConfigEntry<?> entry) {
+            return new ListEntry(list, config, entry, rowWidth);
         }
 
         public void render(@NotNull GuiGraphics gfx, int index, int y, int x, int rowWidth, int rowHeight, int mouseX, int mouseY, boolean selected, float partialTicks) {
