@@ -11,6 +11,7 @@ import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import io.github.libsdl4j.api.SdlSubSystemConst;
 import io.github.ultreon.controllerx.api.ControllerContext;
+import io.github.ultreon.controllerx.config.Config;
 import io.github.ultreon.controllerx.gui.ControllerHud;
 import io.github.ultreon.controllerx.gui.KeyboardHud;
 import io.github.ultreon.controllerx.input.ControllerInput;
@@ -26,6 +27,11 @@ import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import static io.github.libsdl4j.api.Sdl.SDL_Init;
 import static io.github.libsdl4j.api.Sdl.SDL_Quit;
 
@@ -34,6 +40,7 @@ public class ControllerX {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = LoggerFactory.getLogger("ControllerX");
     public static final byte MAX_CONTROLLERS = 1;
+    public static final String BINDINGS_JSON = "config/controllerx-bindings";
 
     private static ControllerX instance;
 
@@ -201,6 +208,22 @@ public class ControllerX {
             return EventResult.pass();
         });
 
+        Iterable<Config> configs = ControllerContext.createConfigs(this);
+
+        Path dir = Paths.get(BINDINGS_JSON);
+        if (!Files.exists(dir)) {
+            try {
+                Files.createDirectories(dir);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            for (Config config : configs) {
+                config.save();
+            }
+        } else for (Config config : configs) {
+            config.load();
+        }
     }
 
     private void renderHud(GuiGraphics gfx, float partialTicks) {

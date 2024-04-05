@@ -9,6 +9,8 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury:$architectury_version"
 
+    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-common:8.0.0"
+
     implementation("io.github.libsdl4j:libsdl4j:$libsdl4j_version")
     modImplementation("com.github.Ultreon.ultreonlib:ultreon-lib:$ultreonlib_version")
     api("com.github.Ultreon.corelibs:corelibs-collections-v0:$corelibs_version")

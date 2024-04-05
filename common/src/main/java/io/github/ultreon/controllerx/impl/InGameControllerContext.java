@@ -1,5 +1,6 @@
 package io.github.ultreon.controllerx.impl;
 
+import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.GameApi;
 import io.github.ultreon.controllerx.api.ControllerActions;
 import io.github.ultreon.controllerx.api.ControllerContext;
@@ -9,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -19,7 +21,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public class InGameControllerContext extends ControllerContext {
-    public static final InGameControllerContext INSTANCE = new InGameControllerContext();
+    public static final InGameControllerContext INSTANCE = new InGameControllerContext(ControllerX.res("in_game"));
 
     public final ControllerMapping<?> jump;
     public final ControllerMapping<?> run;
@@ -39,10 +41,10 @@ public class InGameControllerContext extends ControllerContext {
     public final ControllerMapping<?> attack;
     public final ControllerMapping<?> destroyBlock;
 
-    protected InGameControllerContext() {
-        super();
+    protected InGameControllerContext(ResourceLocation id) {
+        super(id);
 
-        this.jump = mappings.register(new ControllerMapping<>(ControllerActions.A, Side.LEFT, Component.translatable("controllerx.action.inGame.jump"), (mc) -> {
+        this.jump = mappings.register(new ControllerMapping<>(ControllerActions.A, Side.LEFT, Component.translatable("controllerx.action.inGame.jump"), "jump", (mc) -> {
             if (mc.player == null) return false;
             MobEffectInstance effect = mc.player.getEffect(MobEffects.JUMP);
             if (effect == null) return true;
@@ -52,23 +54,23 @@ public class InGameControllerContext extends ControllerContext {
             // !TODO This will be removed in 1.20.5
             return effect.getAmplifier() < 128;
         }));
-        this.run = mappings.register(new ControllerMapping<>(ControllerActions.PRESS_LEFT_STICK, Side.RIGHT, Component.translatable("controllerx.action.inGame.run"), (mc) -> checkPlayer(mc, player -> player.canSprint() && player.getFoodData().getFoodLevel() > 3)));
-        this.sneak = mappings.register(new ControllerMapping<>(ControllerActions.PRESS_RIGHT_STICK, Side.RIGHT, Component.translatable("controllerx.action.inGame.sneak")));
-        this.use = mappings.register(new ControllerMapping<>(ControllerActions.LEFT_TRIGGER, Side.LEFT, Component.translatable("controllerx.action.inGame.use"), (mc) -> checkPlayer(mc, player -> !player.getMainHandItem().isEmpty())));
-        this.inventory = mappings.register(new ControllerMapping<>(ControllerActions.Y, Side.RIGHT, Component.translatable("controllerx.action.inGame.inventory")));
-        this.swapHands = mappings.register(new ControllerMapping<>(ControllerActions.X, Side.RIGHT, Component.translatable("controllerx.action.inGame.swapHands"), (mc) -> checkPlayer(mc, player -> !(player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty()))));
-        this.lookPlayer = mappings.register(new ControllerMapping<>(ControllerActions.MOVE_RIGHT_STICK, Side.LEFT, Component.translatable("controllerx.action.inGame.lookPlayer")));
-        this.movePlayer = mappings.register(new ControllerMapping<>(ControllerActions.MOVE_LEFT_STICK, Side.LEFT, Component.translatable("controllerx.action.inGame.movePlayer")));
-        this.gameMenu = mappings.register(new ControllerMapping<>(ControllerActions.BACK, Side.RIGHT, Component.translatable("controllerx.action.inGame.gameMenu")));
-        this.pickItem = mappings.register(new ControllerMapping<>(ControllerActions.DPAD_UP, Side.LEFT, Component.translatable("controllerx.action.inGame.pickItem"), false, (mc) -> checkPlayer(mc, (player) -> player.getMainHandItem().isEmpty() && (mc.crosshairPickEntity != null || player.pick(player.getPickRadius(), Minecraft.getInstance().getDeltaFrameTime(), false).getType() != HitResult.Type.MISS))));
-        this.drop = mappings.register(new ControllerMapping<>(ControllerActions.DPAD_DOWN, Side.LEFT, Component.translatable("controllerx.action.inGame.drop"), (mc) -> checkPlayer(mc, (player) -> !player.getMainHandItem().isEmpty())));
-        this.playerList = mappings.register(new ControllerMapping<>(ControllerActions.DPAD_LEFT, Side.LEFT, Component.translatable("controllerx.action.inGame.playerList"), false));
-        this.chat = mappings.register(new ControllerMapping<>(ControllerActions.DPAD_RIGHT, Side.LEFT, Component.translatable("controllerx.action.inGame.chat"), false));
-        this.itemLeft = mappings.register(new ControllerMapping<>(ControllerActions.LEFT_SHOULDER, Side.LEFT, Component.translatable("controllerx.action.inGame.itemLeft"), false));
-        this.itemRight = mappings.register(new ControllerMapping<>(ControllerActions.RIGHT_SHOULDER, Side.LEFT, Component.translatable("controllerx.action.inGame.itemRight"), false));
+        this.run = mappings.register(new ControllerMapping<>(ControllerActions.PRESS_LEFT_STICK, Side.RIGHT, Component.translatable("controllerx.action.inGame.sprint"), "sprint", (mc) -> checkPlayer(mc, player -> player.canSprint() && player.getFoodData().getFoodLevel() > 3)));
+        this.sneak = mappings.register(new ControllerMapping<>(ControllerActions.PRESS_RIGHT_STICK, Side.RIGHT, Component.translatable("controllerx.action.inGame.sneak"), "sneak"));
+        this.use = mappings.register(new ControllerMapping<>(ControllerActions.LEFT_TRIGGER, Side.LEFT, Component.translatable("controllerx.action.inGame.useItem"), "use_item", (mc) -> checkPlayer(mc, player -> !player.getMainHandItem().isEmpty())));
+        this.inventory = mappings.register(new ControllerMapping<>(ControllerActions.Y, Side.RIGHT, Component.translatable("controllerx.action.inGame.openInventory"), "open_inventory"));
+        this.swapHands = mappings.register(new ControllerMapping<>(ControllerActions.X, Side.RIGHT, Component.translatable("controllerx.action.inGame.swapHands"), "swap_hands", (mc) -> checkPlayer(mc, player -> !(player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty()))));
+        this.lookPlayer = mappings.register(new ControllerMapping<>(ControllerActions.MOVE_RIGHT_STICK, Side.LEFT, Component.translatable("controllerx.action.inGame.lookPlayer"), "look_player"));
+        this.movePlayer = mappings.register(new ControllerMapping<>(ControllerActions.MOVE_LEFT_STICK, Side.LEFT, Component.translatable("controllerx.action.inGame.movePlayer"), "move_player"));
+        this.gameMenu = mappings.register(new ControllerMapping<>(ControllerActions.BACK, Side.RIGHT, Component.translatable("controllerx.action.inGame.openGameMenu"), "open_game_menu"));
+        this.pickItem = mappings.register(new ControllerMapping<>(ControllerActions.DPAD_UP, Side.LEFT, Component.translatable("controllerx.action.inGame.pickItem"), false, "pick_item", (mc) -> checkPlayer(mc, (player) -> player.getMainHandItem().isEmpty() && (mc.crosshairPickEntity != null || player.pick(player.getPickRadius(), Minecraft.getInstance().getDeltaFrameTime(), false).getType() != HitResult.Type.MISS))));
+        this.drop = mappings.register(new ControllerMapping<>(ControllerActions.DPAD_DOWN, Side.LEFT, Component.translatable("controllerx.action.inGame.dropItem"), "drop_item", (mc) -> checkPlayer(mc, (player) -> !player.getMainHandItem().isEmpty())));
+        this.playerList = mappings.register(new ControllerMapping<>(ControllerActions.DPAD_LEFT, Side.LEFT, Component.translatable("controllerx.action.inGame.showPlayerList"), false, "show_player_list"));
+        this.chat = mappings.register(new ControllerMapping<>(ControllerActions.DPAD_RIGHT, Side.LEFT, Component.translatable("controllerx.action.inGame.openChat"), false, "open_chat"));
+        this.itemLeft = mappings.register(new ControllerMapping<>(ControllerActions.LEFT_SHOULDER, Side.LEFT, Component.translatable("controllerx.action.inGame.selectLeft"), false, "select_left"));
+        this.itemRight = mappings.register(new ControllerMapping<>(ControllerActions.RIGHT_SHOULDER, Side.LEFT, Component.translatable("controllerx.action.inGame.selectRight"), false, "select_right"));
 
-        this.attack = mappings.register(new ControllerMapping<>(ControllerActions.RIGHT_TRIGGER_HOLD, ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.inGame.attack"), ControllerContext::isTargetingEntity));
-        this.destroyBlock = mappings.register(new ControllerMapping<>(ControllerActions.RIGHT_TRIGGER_HOLD, ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.inGame.destroyBlock"), ControllerContext::isTargetingBlock));
+        this.attack = mappings.register(new ControllerMapping<>(ControllerActions.RIGHT_TRIGGER_HOLD, ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.inGame.attack"), "attack", ControllerContext::isTargetingEntity));
+        this.destroyBlock = mappings.register(new ControllerMapping<>(ControllerActions.RIGHT_TRIGGER_HOLD, ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.inGame.destroyBlock"), "destroy_block", ControllerContext::isTargetingBlock));
     }
 
     private boolean checkPlayer(Minecraft mc, Predicate<Player> predicate) {
