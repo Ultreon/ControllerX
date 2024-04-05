@@ -1,7 +1,6 @@
 package io.github.ultreon.controllerx.input;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.impl.ScreenAccessImpl;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
@@ -62,6 +61,7 @@ public class ControllerInput extends Input {
     private boolean dPadDisabled;
     private float destroyDelay = 0;
     private boolean screenWasOpen;
+    private boolean wasItemUsePressed = false;
 
     public ControllerInput(ControllerX mod) {
         this.mod = mod;
@@ -99,7 +99,15 @@ public class ControllerInput extends Input {
             jumping = context.jump.getAction().isPressed();
             shiftKeyDown = context.sneak.getAction().isPressed();
 
-            if (context.use.getAction().isPressed() && GameApi.getRightClickDelay() == 0) GameApi.startUseItem();
+//            if (context.use.getAction().isJustPressed() && GameApi.getRightClickDelay() == 0) {
+//                GameApi.startUseItem();
+//                this.wasItemUsePressed = true;
+//            }
+//
+//            if (!context.use.getAction().isPressed() && wasItemUsePressed) {
+//                GameApi.stopUseItem();
+//                this.wasItemUsePressed = false;
+//            }
             if (context.itemLeft.getAction().isJustPressed()) GameApi.scrollHotbar(-1);
             if (context.itemRight.getAction().isJustPressed()) GameApi.scrollHotbar(1);
 
@@ -547,6 +555,9 @@ public class ControllerInput extends Input {
             }
             if (mapping == mc.options.keySprint) {
                 return context.run.getAction().isPressed();
+            }
+            if (mapping == mc.options.keyUse) {
+                return context.use.getAction().isPressed();
             }
         }
         return null;

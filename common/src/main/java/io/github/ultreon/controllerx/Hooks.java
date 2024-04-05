@@ -26,7 +26,7 @@ public class Hooks {
             return Optional.empty();
         }
 
-        if (ControllerX.get().getInputType() == InputType.KEYBOARD_AND_MOUSE) {
+        if (ControllerX.get().getInputType() != InputType.KEYBOARD_AND_MOUSE) {
             return Optional.ofNullable(ControllerX.get().controllerInput.doInput(mc, mapping));
         }
 
