@@ -7,6 +7,7 @@ import io.github.ultreon.controllerx.gui.widget.ItemSlot;
 import io.github.ultreon.controllerx.impl.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -42,14 +43,15 @@ public abstract class ControllerContext {
         frozen = true;
 
         REGISTRY.put(ControllerContext::isChatting, ChatControllerContext.INSTANCE);
-        REGISTRY.put(ControllerContext::isInGameTargetingBlock, BlockTargetControllerContext.INSTANCE);
-        REGISTRY.put(ControllerContext::isInGame, EntityTargetControllerContext.INSTANCE);
-        REGISTRY.put(ControllerContext::isInMenuSelectedItemSlot, MenuOnSlotControllerContext.INSTANCE);
-        REGISTRY.put(ControllerContext::isInCloseableMenu, CloseableMenuControllerContext.INSTANCE);
+        REGISTRY.put(ControllerContext::isInGame, InGameControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInMenu, MenuControllerContext.INSTANCE);
         REGISTRY.put(Predicate.isEqual(Minecraft.getInstance()), new ControllerContext() {
 
         });
+    }
+
+    private static boolean isInCreativeMenu(Minecraft minecraft) {
+        return minecraft.screen instanceof CreativeModeInventoryScreen;
     }
 
     public static boolean isChatting(Minecraft minecraft) {
@@ -57,25 +59,21 @@ public abstract class ControllerContext {
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private static boolean isInGameTargetingEntity(Minecraft minecraft) {
+    public static boolean isTargetingEntity(Minecraft minecraft) {
         Crosshair crosshair = Crosshair.get();
-        if (isInGame(minecraft) && crosshair != null) {
-            double entityReach = ControllerX.getEntityReach(minecraft.player);
-
-            if (entityReach <= 0) return false;
-            if (crosshair.entity(entityReach) == null) return false;
-            return crosshair.entity(entityReach) instanceof LivingEntity;
-        }
-
-        return false;
+        if (crosshair == null) return false;
+        double entityReach = ControllerX.getEntityReach(minecraft.player);
+        if (entityReach <= 0) return false;
+        return crosshair.entity(entityReach) instanceof LivingEntity;
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private static boolean isInGameTargetingBlock(Minecraft minecraft) {
-        if (isInGame(minecraft)) {
-            return Crosshair.get().block(ControllerX.getBlockReach(minecraft.player)) != null && minecraft.player.getAbilities().mayBuild;
-        }
-        return false;
+    public static boolean isTargetingBlock(Minecraft minecraft) {
+        Crosshair crosshair = Crosshair.get();
+        if (crosshair == null) return false;
+        double blockReach = ControllerX.getBlockReach(minecraft.player);
+        if (blockReach <= 0) return false;
+        return crosshair.block(blockReach) != null && minecraft.player.getAbilities().mayBuild;
     }
 
     public static boolean isInMenu(Minecraft minecraft) {

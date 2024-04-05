@@ -3,8 +3,7 @@ plugins {
 }
 loom {
     forge {
-        mixinConfig "controllerx-common.mixins.json"
-        mixinConfig "controllerx.mixins.json"
+        mixinConfigs "controllerx-common.mixins.json", "controllerx.mixins.json"
     }
 }
 architectury {
@@ -163,10 +162,5 @@ publishing {
             artifactId = archives_base_name + "-" + project.name
             from components.java
         }
-    }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
     }
 }

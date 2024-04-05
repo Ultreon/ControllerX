@@ -1,6 +1,7 @@
 package io.github.ultreon.controllerx.api;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import io.github.ultreon.controllerx.input.ControllerAxis;
 import io.github.ultreon.controllerx.input.ControllerButton;
 import io.github.ultreon.controllerx.input.ControllerJoystick;
@@ -37,7 +38,7 @@ public final class ControllerMappings {
         mappings.addAll(this.getAxisMappings());
         mappings.addAll(this.getTriggerMappings());
         mappings.addAll(this.getJoystickMappings());
-        return mappings.stream().filter(mapping -> mapping.side() == ControllerMapping.Side.LEFT).toList();
+        return mappings.stream().filter(mapping -> mapping.getSide() == ControllerMapping.Side.LEFT).toList();
     }
 
     public List<ControllerMapping<?>> getRightSideMappings() {
@@ -46,34 +47,29 @@ public final class ControllerMappings {
         mappings.addAll(this.getAxisMappings());
         mappings.addAll(this.getTriggerMappings());
         mappings.addAll(this.getJoystickMappings());
-        return mappings.stream().filter(mapping -> mapping.side() == ControllerMapping.Side.RIGHT).toList();
+        return mappings.stream().filter(mapping -> mapping.getSide() == ControllerMapping.Side.RIGHT).toList();
     }
 
     @SuppressWarnings("unchecked")
     public <T extends ControllerMapping<?>> T register(T mapping) {
         Preconditions.checkNotNull(mapping, "mapping cannot be null");
 
-        if (mapping.action() instanceof ControllerAction.Button) {
+        if (mapping.action instanceof ControllerAction.Button) {
             this.buttonMappings.add((ControllerMapping<ControllerButton>) mapping);
-        } else if (mapping.action() instanceof ControllerAction.Axis) {
+        } else if (mapping.action instanceof ControllerAction.Axis) {
             this.axisMappings.add((ControllerMapping<ControllerAxis>) mapping);
-        } else if (mapping.action() instanceof ControllerAction.Joystick) {
+        } else if (mapping.action instanceof ControllerAction.Joystick) {
             this.joystickMappings.add((ControllerMapping<ControllerJoystick>) mapping);
-        } else if (mapping.action() instanceof ControllerAction.Trigger) {
+        } else if (mapping.action instanceof ControllerAction.Trigger) {
             this.triggerMappings.add((ControllerMapping<ControllerTrigger>) mapping);
         } else {
-            throw new IllegalArgumentException("Unsupported controller action: " + mapping.action().getClass().getName());
+            throw new IllegalArgumentException("Unsupported controller action: " + mapping.action.getClass().getName());
         }
 
         return mapping;
     }
 
-    public List<ControllerMapping<?>> getAllMappings() {
-        List<ControllerMapping<?>> mappings = new ArrayList<>();
-        mappings.addAll(this.getButtonMappings());
-        mappings.addAll(this.getAxisMappings());
-        mappings.addAll(this.getTriggerMappings());
-        mappings.addAll(this.getJoystickMappings());
-        return mappings;
+    public Iterable<ControllerMapping<?>> getAllMappings() {
+        return Iterables.concat(this.getButtonMappings(), this.getAxisMappings(), this.getTriggerMappings(), this.getJoystickMappings());
     }
 }

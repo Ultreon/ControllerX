@@ -15,7 +15,7 @@ public abstract class KeyboardInputMixin extends Input {
     @Unique
     private boolean controllerX$wasJumpByController = false;
 
-    @Inject(method = "tick", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "tick", at = @At("RETURN"))
     private void onTick(boolean changedSpeed, float speedModifier, CallbackInfo ci) {
         ControllerInput input = ControllerX.get().controllerInput;
         if (input.isConnected()) {

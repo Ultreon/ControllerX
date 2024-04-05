@@ -31,7 +31,7 @@ public class VirtualKeyboard extends Overlay {
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0, 0, 1000);
+        guiGraphics.pose().translate(0, 0, 2000);
         guiGraphics.fill(0, 0, Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight(), 0x80000000);
         this.screen.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.pose().popPose();

@@ -9,6 +9,7 @@ architectury {
 
 subprojects {
     apply plugin: "dev.architectury.loom"
+    apply plugin: "maven-publish"
 
     loom {
         silentMojangMappingsLicense()
@@ -23,6 +24,21 @@ subprojects {
         }
         // The following line declares the yarn mappings you may select this one as well.
         // mappings "net.fabricmc:yarn:@YARN_MAPPINGS@:v2"
+    }
+
+    publishing {
+        // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+        repositories {
+            maven {
+                name "GitHubPackages"
+                url "https://maven.pkg.github.com/Ultreon/ControllerX"
+
+                credentials {
+                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                    password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+                }
+            }
+        }
     }
 }
 

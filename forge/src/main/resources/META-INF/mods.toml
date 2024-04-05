@@ -76,5 +76,13 @@ Kenney - Input Prompt Icons
    mandatory=true
    # This version range declares a minimum of the current minecraft version up to but not including the next major version
    versionRange="[1.5.0,)"
-   ordering="NONE"
-   side="BOTH"
+   ordering="AFTER"
+   side="CLIENT"
+# Here's another dependency
+[[dependencies.controllerx]]
+   modId="ultreonlib"
+   mandatory=true
+   # This version range declares a minimum of the current minecraft version up to but not including the next major version
+   versionRange="[1.5.0,)"
+   ordering="AFTER"
+   side="CLIENT"

@@ -8,7 +8,7 @@ import io.github.ultreon.controllerx.input.ControllerTrigger;
 import io.github.ultreon.controllerx.util.InputDefinition;
 import org.joml.Vector2f;
 
-public sealed interface ControllerAction<T extends InputDefinition<?>> {
+public sealed interface ControllerAction<T extends InputDefinition<?>> permits ControllerAction.Axis, ControllerAction.Button, ControllerAction.Joystick, ControllerAction.Trigger, ControllerMapping.NullAction {
     /**
      * Get the mapping of the action
      *
@@ -76,8 +76,8 @@ public sealed interface ControllerAction<T extends InputDefinition<?>> {
         @Override
         public float getAxisValue() {
             return switch (button) {
-                case DPAD_LEFT, DPAD_DOWN -> -1;
-                case DPAD_RIGHT, DPAD_UP -> 1;
+                case DPadLeft, DPadDOwn -> -1;
+                case RPadRight, DPadUp -> 1;
                 default -> 0;
             };
         }
@@ -85,8 +85,8 @@ public sealed interface ControllerAction<T extends InputDefinition<?>> {
         @Override
         public Vector2f get2DValue() {
             return switch (button) {
-                case DPAD_LEFT, DPAD_RIGHT -> new Vector2f(getAxisValue(), 0);
-                case DPAD_UP, DPAD_DOWN -> new Vector2f(0, getAxisValue());
+                case DPadLeft, RPadRight -> new Vector2f(getAxisValue(), 0);
+                case DPadUp, DPadDOwn -> new Vector2f(0, getAxisValue());
                 default -> new Vector2f(0, 0);
             };
         }

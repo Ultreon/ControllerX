@@ -12,17 +12,17 @@ public class ControllerActions {
     public static final Button B = new Button(ControllerButton.B);
     public static final Button X = new Button(ControllerButton.X);
     public static final Button Y = new Button(ControllerButton.Y);
-    public static final Button DPAD_UP = new Button(ControllerButton.DPAD_UP);
-    public static final Button DPAD_DOWN = new Button(ControllerButton.DPAD_DOWN);
-    public static final Button DPAD_LEFT = new Button(ControllerButton.DPAD_LEFT);
-    public static final Button DPAD_RIGHT = new Button(ControllerButton.DPAD_RIGHT);
-    public static final Button LEFT_SHOULDER = new Button(ControllerButton.LEFT_SHOULDER);
-    public static final Button RIGHT_SHOULDER = new Button(ControllerButton.RIGHT_SHOULDER);
-    public static final Button PRESS_LEFT_STICK = new Button(ControllerButton.LEFT_STICK);
-    public static final Button PRESS_RIGHT_STICK = new Button(ControllerButton.RIGHT_STICK);
-    public static final Button START = new Button(ControllerButton.START);
-    public static final Button BACK = new Button(ControllerButton.BACK);
-    public static final Button GUIDE = new Button(ControllerButton.GUIDE);
+    public static final Button DPAD_UP = new Button(ControllerButton.DPadUp);
+    public static final Button DPAD_DOWN = new Button(ControllerButton.DPadDOwn);
+    public static final Button DPAD_LEFT = new Button(ControllerButton.DPadLeft);
+    public static final Button DPAD_RIGHT = new Button(ControllerButton.RPadRight);
+    public static final Button LEFT_SHOULDER = new Button(ControllerButton.LeftShoulder);
+    public static final Button RIGHT_SHOULDER = new Button(ControllerButton.RightShoulder);
+    public static final Button PRESS_LEFT_STICK = new Button(ControllerButton.LeftStickClick);
+    public static final Button PRESS_RIGHT_STICK = new Button(ControllerButton.RightStickClick);
+    public static final Button START = new Button(ControllerButton.Start);
+    public static final Button BACK = new Button(ControllerButton.Back);
+    public static final Button GUIDE = new Button(ControllerButton.Guide);
     public static final Trigger LEFT_TRIGGER = new Trigger(ControllerTrigger.Left);
     public static final Trigger RIGHT_TRIGGER = new Trigger(ControllerTrigger.Right);
     public static final Joystick MOVE_LEFT_STICK = new Joystick(ControllerJoystick.Left);
@@ -33,4 +33,6 @@ public class ControllerActions {
     public static final Axis MOVE_RIGHT_STICK_Y = new Axis(ControllerAxis.RightStickY);
     public static final Axis MOVE_LEFT_TRIGGER = new Axis(ControllerAxis.LeftTrigger);
     public static final Axis MOVE_RIGHT_TRIGGER = new Axis(ControllerAxis.RightTrigger);
+    public static final Button RIGHT_TRIGGER_HOLD = new Button(ControllerButton.RightTrigger);
+    public static final Button LEFT_TRIGGER_HOLD = new Button(ControllerButton.LeftTrigger);
 }

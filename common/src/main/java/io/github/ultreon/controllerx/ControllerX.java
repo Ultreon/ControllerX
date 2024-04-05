@@ -203,11 +203,11 @@ public class ControllerX {
 
     }
 
-    private void renderHud(GuiGraphics gfx, float ignoredPartialTicks) {
+    private void renderHud(GuiGraphics gfx, float partialTicks) {
         if (Minecraft.getInstance().screen != null) return;
 
-        controllerHud.render(gfx, ignoredPartialTicks);
-        keyboardHud.render(gfx, ignoredPartialTicks);
+        controllerHud.render(gfx, partialTicks);
+        keyboardHud.render(gfx, partialTicks);
         controllerInput.update();
     }
 

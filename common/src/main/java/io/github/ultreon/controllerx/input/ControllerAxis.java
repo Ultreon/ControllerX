@@ -4,6 +4,7 @@ import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerAxis;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.Icon;
 import io.github.ultreon.controllerx.util.InputDefinition;
+import org.intellij.lang.annotations.MagicConstant;
 
 public enum ControllerAxis implements InputDefinition<Float> {
     LeftStickX,
@@ -43,7 +44,19 @@ public enum ControllerAxis implements InputDefinition<Float> {
         };
     }
 
-    public int sdlAxis() {
+    public static ControllerAxis fromButton(ControllerButton controllerButton) {
+        return switch (controllerButton) {
+            case LeftStickClick -> LeftStickX;
+            case RightStickClick -> RightStickX;
+            case LeftTrigger -> LeftTrigger;
+            case RightTrigger -> RightTrigger;
+            case DPadUp, DPadDOwn -> DpadY;
+            case DPadLeft, RPadRight -> DpadX;
+            default -> Unknown;
+        };
+    }
+
+    public @MagicConstant(valuesFromClass = SDL_GameControllerAxis.class) int sdlAxis() {
         return switch (this) {
             case LeftStickX -> SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX;
             case LeftStickY -> SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY;

@@ -18,10 +18,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class ItemSlot extends AbstractWidget {
     private final AbstractContainerScreen<?> screen;
+    private final Slot slot;
 
-    protected ItemSlot(int x, int y, int width, int height, AbstractContainerScreen<?> screen) {
+    protected ItemSlot(int x, int y, int width, int height, AbstractContainerScreen<?> screen, Slot slot) {
         super(x, y, width, height, Component.empty());
         this.screen = screen;
+        this.slot = slot;
     }
 
     public static ItemSlot getSlot(AbstractContainerScreen<?> screen, Slot slot) {
@@ -30,7 +32,7 @@ public class ItemSlot extends AbstractWidget {
 
         CompoundEventResult<ItemSlot> eventResult = ItemSlotGuiEvent.EVENT.invoker().onSlot(x, y, screen, slot);
         if (eventResult.isPresent()) return eventResult.object();
-        return new ItemSlot(x, y, 16, 16, screen);
+        return new ItemSlot(x, y, 16, 16, screen, slot);
     }
 
     @Override
@@ -93,13 +95,17 @@ public class ItemSlot extends AbstractWidget {
     }
 
     public boolean splitOrPutSingle() {
-        boolean flag = screen.mouseClicked(getX() + 8, getY() + 8, InputConstants.MOUSE_BUTTON_MIDDLE);
-        flag |= screen.mouseReleased(getX() + 8, getY() + 8, InputConstants.MOUSE_BUTTON_MIDDLE);
+        boolean flag = screen.mouseClicked(getX() + 8, getY() + 8, InputConstants.MOUSE_BUTTON_RIGHT);
+        flag |= screen.mouseReleased(getX() + 8, getY() + 8, InputConstants.MOUSE_BUTTON_RIGHT);
         return flag;
     }
 
     public void drop() {
         screen.keyPressed(getX() + 8, getY() + 8, ((KeyMappingAccessor)Minecraft.getInstance().options.keyDrop).getKey().getValue());
         screen.keyReleased(getX() + 8, getY() + 8, ((KeyMappingAccessor)Minecraft.getInstance().options.keyDrop).getKey().getValue());
+    }
+
+    public Slot getSlot() {
+        return slot;
     }
 }

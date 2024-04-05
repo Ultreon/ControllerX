@@ -10,7 +10,7 @@ public enum Icon {
     ButtonY(176, 16),
     AnyButton(192, 16),
 
-    AnyJoyStick(0, 80),
+    AnyJoyStick(128, 80),
     AnyJoyStickUp(144, 80),
     AnyJoyStickRight(160, 80),
     AnyJoyStickDown(176, 80),

@@ -15,7 +15,7 @@ public abstract class KeyMappingMixin implements MixinClickHandler {
 
     @Inject(method = "isDown", at = @At("RETURN"), cancellable = true)
     private void onIsDown(CallbackInfoReturnable<Boolean> cir) {
-        Hooks.hookControllerInput((KeyMapping) (Object) this, cir);
+        Hooks.hookControllerInput((KeyMapping) (Object) this, cir.getReturnValueZ()).ifPresent(cir::setReturnValue);
     }
 
     @Override

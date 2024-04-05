@@ -67,12 +67,12 @@ public enum ControllerJoystick implements InputDefinition<Vector2f> {
     public boolean isPressed() {
         ControllerInput input = ControllerX.get().controllerInput;
         return switch (this) {
-            case Left -> input.isButtonPressed(ControllerButton.LEFT_STICK);
-            case Right -> input.isButtonPressed(ControllerButton.RIGHT_STICK);
-            case Dpad -> input.isButtonPressed(ControllerButton.DPAD_UP) ||
-                    input.isButtonPressed(ControllerButton.DPAD_DOWN) ||
-                    input.isButtonPressed(ControllerButton.DPAD_LEFT) ||
-                    input.isButtonPressed(ControllerButton.DPAD_RIGHT);
+            case Left -> input.isButtonPressed(ControllerButton.LeftStickClick);
+            case Right -> input.isButtonPressed(ControllerButton.RightStickClick);
+            case Dpad -> input.isButtonPressed(ControllerButton.DPadUp) ||
+                    input.isButtonPressed(ControllerButton.DPadDOwn) ||
+                    input.isButtonPressed(ControllerButton.DPadLeft) ||
+                    input.isButtonPressed(ControllerButton.RPadRight);
         };
     }
 }
