@@ -26,7 +26,7 @@ public class EnumEntry<T extends Enum<T>> extends ConfigEntry<T> {
     public AbstractWidget createButton(Config options, int x, int y, int width) {
         CycleButton<T> cycleButton = CycleButton.<T>builder(enumValue -> Component.nullToEmpty(enumValue.name())).withValues(clazz.getEnumConstants()).withInitialValue(this.get()).displayOnlyValue().create(x, y, width, 20, Component.nullToEmpty("Value"), (cycler, enumValue) -> {
             cycler.setValue(enumValue);
-            cycler.setMessage(Component.nullToEmpty(this.get().name()));
+            cycler.setMessage(Component.nullToEmpty(enumValue.name()));
         });
         cycleButton.setValue(this.get());
         return cycleButton;

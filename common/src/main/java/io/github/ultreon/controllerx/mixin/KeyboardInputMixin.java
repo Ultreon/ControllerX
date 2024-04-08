@@ -17,7 +17,7 @@ public abstract class KeyboardInputMixin extends Input {
 
     @Inject(method = "tick", at = @At("RETURN"))
     private void onTick(boolean changedSpeed, float speedModifier, CallbackInfo ci) {
-        ControllerInput input = ControllerX.get().controllerInput;
+        ControllerInput input = ControllerX.get().input;
         if (input.isConnected()) {
             if (input.forwardImpulse != 0f || input.leftImpulse != 0f) {
                 this.forwardImpulse = input.forwardImpulse;

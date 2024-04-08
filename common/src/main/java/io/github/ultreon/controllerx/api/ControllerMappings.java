@@ -2,33 +2,33 @@ package io.github.ultreon.controllerx.api;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import io.github.ultreon.controllerx.input.ControllerAxis;
-import io.github.ultreon.controllerx.input.ControllerButton;
-import io.github.ultreon.controllerx.input.ControllerJoystick;
-import io.github.ultreon.controllerx.input.ControllerTrigger;
+import io.github.ultreon.controllerx.input.ControllerSignedFloat;
+import io.github.ultreon.controllerx.input.ControllerBoolean;
+import io.github.ultreon.controllerx.input.ControllerVec2;
+import io.github.ultreon.controllerx.input.ControllerUnsignedFloat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class ControllerMappings {
-    private final List<ControllerMapping<ControllerButton>> buttonMappings = new ArrayList<>();
-    private final List<ControllerMapping<ControllerAxis>> axisMappings = new ArrayList<>();
-    private final List<ControllerMapping<ControllerJoystick>> joystickMappings = new ArrayList<>();
-    private final List<ControllerMapping<ControllerTrigger>> triggerMappings = new ArrayList<>();
+    private final List<ControllerMapping<ControllerBoolean>> buttonMappings = new ArrayList<>();
+    private final List<ControllerMapping<ControllerSignedFloat>> axisMappings = new ArrayList<>();
+    private final List<ControllerMapping<ControllerVec2>> joystickMappings = new ArrayList<>();
+    private final List<ControllerMapping<ControllerUnsignedFloat>> triggerMappings = new ArrayList<>();
 
-    public List<ControllerMapping<ControllerButton>> getButtonMappings() {
+    public List<ControllerMapping<ControllerBoolean>> getButtonMappings() {
         return buttonMappings;
     }
 
-    public List<ControllerMapping<ControllerAxis>> getAxisMappings() {
+    public List<ControllerMapping<ControllerSignedFloat>> getAxisMappings() {
         return axisMappings;
     }
 
-    public List<ControllerMapping<ControllerJoystick>> getJoystickMappings() {
+    public List<ControllerMapping<ControllerVec2>> getJoystickMappings() {
         return joystickMappings;
     }
 
-    public List<ControllerMapping<ControllerTrigger>> getTriggerMappings() {
+    public List<ControllerMapping<ControllerUnsignedFloat>> getTriggerMappings() {
         return triggerMappings;
     }
 
@@ -55,13 +55,13 @@ public final class ControllerMappings {
         Preconditions.checkNotNull(mapping, "mapping cannot be null");
 
         if (mapping.action instanceof ControllerAction.Button) {
-            this.buttonMappings.add((ControllerMapping<ControllerButton>) mapping);
+            this.buttonMappings.add((ControllerMapping<ControllerBoolean>) mapping);
         } else if (mapping.action instanceof ControllerAction.Axis) {
-            this.axisMappings.add((ControllerMapping<ControllerAxis>) mapping);
+            this.axisMappings.add((ControllerMapping<ControllerSignedFloat>) mapping);
         } else if (mapping.action instanceof ControllerAction.Joystick) {
-            this.joystickMappings.add((ControllerMapping<ControllerJoystick>) mapping);
+            this.joystickMappings.add((ControllerMapping<ControllerVec2>) mapping);
         } else if (mapping.action instanceof ControllerAction.Trigger) {
-            this.triggerMappings.add((ControllerMapping<ControllerTrigger>) mapping);
+            this.triggerMappings.add((ControllerMapping<ControllerUnsignedFloat>) mapping);
         } else {
             throw new IllegalArgumentException("Unsupported controller action: " + mapping.action.getClass().getName());
         }

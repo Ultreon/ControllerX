@@ -23,7 +23,7 @@ public class GameRendererMixin {
         if (ControllerX.get().getInputType() != InputType.CONTROLLER
                 || !(instance instanceof AbstractContainerScreen<?> containerScreen)
                 || !(containerScreen.getFocused() instanceof ItemSlot itemSlot)) {
-            if (ControllerX.get().controllerInput.isVirtualKeyboardOpen())
+            if (ControllerX.get().input.isVirtualKeyboardOpen())
                 ForgeHooksClient.drawScreen(instance, gfx, Integer.MIN_VALUE, Integer.MIN_VALUE, partialTick);
             else
                 ForgeHooksClient.drawScreen(instance, gfx, mouseX, mouseY, partialTick);

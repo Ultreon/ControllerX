@@ -8,7 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
 public class ControllerHud {
-    private final ControllerInput input = ControllerX.get().controllerInput;
+    private final ControllerInput input = ControllerX.get().input;
 
     public void render(GuiGraphics gfx, float ignoredPartialTicks) {
         ControllerContext ctx = ControllerContext.get();

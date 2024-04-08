@@ -25,7 +25,7 @@ public class VirtualKeyboard extends Overlay {
         this.screen.close();
         this.screen.setSubmitCallback(() -> {});
         this.screen.setEditCallback(input -> {});
-        ControllerX.get().controllerInput.handleVirtualKeyboardClosed(this.screen.getInput());
+        ControllerX.get().input.handleVirtualKeyboardClosed(this.screen.getInput());
     }
 
     @Override

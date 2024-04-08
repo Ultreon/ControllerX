@@ -9,9 +9,9 @@ import io.github.ultreon.controllerx.api.ControllerContext;
 import io.github.ultreon.controllerx.api.ControllerMapping;
 import io.github.ultreon.controllerx.gui.widget.ItemSlot;
 import io.github.ultreon.controllerx.injection.CreativeModeInventoryScreenInjection;
-import io.github.ultreon.controllerx.input.ControllerAxis;
-import io.github.ultreon.controllerx.input.ControllerButton;
-import io.github.ultreon.controllerx.input.ControllerJoystick;
+import io.github.ultreon.controllerx.input.ControllerSignedFloat;
+import io.github.ultreon.controllerx.input.ControllerBoolean;
+import io.github.ultreon.controllerx.input.ControllerVec2;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -47,23 +47,23 @@ public class MenuControllerContext extends ControllerContext {
     protected MenuControllerContext(ResourceLocation id) {
         super(id);
 
-        this.joystickMove = mappings.register(new ControllerMapping<>(new ControllerAction.Joystick(ControllerJoystick.Left), ControllerMapping.Side.LEFT, Component.translatable("controllerx.action.menu.joystick_move"), "joystick_move"));
-        this.dpadMove = mappings.register(new ControllerMapping<>(new ControllerAction.Joystick(ControllerJoystick.Dpad), ControllerMapping.Side.LEFT, Component.translatable("controllerx.action.menu.dpad_move"), "dpad_move"));
-        this.activate = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerButton.A), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.activate"), "activate", this::canActivate));
-        this.scrollY = mappings.register(new ControllerMapping<>(new ControllerAction.Axis(ControllerAxis.RightStickY), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.scroll_y"), "scroll_y"));
+        this.joystickMove = mappings.register(new ControllerMapping<>(new ControllerAction.Joystick(ControllerVec2.LeftStick), ControllerMapping.Side.LEFT, Component.translatable("controllerx.action.menu.joystick_move"), "joystick_move"));
+        this.dpadMove = mappings.register(new ControllerMapping<>(new ControllerAction.Joystick(ControllerVec2.Dpad), ControllerMapping.Side.LEFT, Component.translatable("controllerx.action.menu.dpad_move"), "dpad_move"));
+        this.activate = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.A), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.activate"), "activate", this::canActivate));
+        this.scrollY = mappings.register(new ControllerMapping<>(new ControllerAction.Axis(ControllerSignedFloat.RightStickY), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.scroll_y"), "scroll_y"));
 
-        this.closeInventory = mappings.register(new ControllerMapping<>(ControllerActions.Y, ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.closeInventory"), "close_inventory", MenuControllerContext::isInventory));
-        this.back = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerButton.B), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.back"), "back", this::isCloseableInGame));
-        this.close = mappings.register(new ControllerMapping<>(ControllerActions.START, ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.close"), "close", this::isCloseableInMenu));
+        this.closeInventory = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.Y), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.closeInventory"), "close_inventory", MenuControllerContext::isInventory));
+        this.back = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.B), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.back"), "back", this::isCloseableInGame));
+        this.close = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.Start), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.close"), "close", this::isCloseableInMenu));
 
-        this.pickup = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerButton.A), ControllerMapping.Side.LEFT, Component.translatable("controllerx.action.menu.pickup"), "pickup", this::canPickup));
-        this.place = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerButton.A), ControllerMapping.Side.LEFT, Component.translatable("controllerx.action.menu.place"), "place", this::canPlace));
-        this.split = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerButton.X), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.split"), "split", this::canSplit));
-        this.putSingle = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerButton.X), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.putSingle"), "put_single", this::canPutSingle));
-        this.drop = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerButton.RightStickClick), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.drop"), "drop", this::canDrop));
+        this.pickup = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.A), ControllerMapping.Side.LEFT, Component.translatable("controllerx.action.menu.pickup"), "pickup", this::canPickup));
+        this.place = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.A), ControllerMapping.Side.LEFT, Component.translatable("controllerx.action.menu.place"), "place", this::canPlace));
+        this.split = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.X), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.split"), "split", this::canSplit));
+        this.putSingle = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.X), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.putSingle"), "put_single", this::canPutSingle));
+        this.drop = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.RightStickClick), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.drop"), "drop", this::canDrop));
 
-        this.prevPage = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerButton.LeftShoulder), ControllerMapping.Side.LEFT, Component.translatable("controllerx.action.menu.prevPage"), "prev_page", MenuControllerContext::hasPrevPage));
-        this.nextPage = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerButton.RightShoulder), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.nextPage"), "next_page", MenuControllerContext::hasNextPage));
+        this.prevPage = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.LeftShoulder), ControllerMapping.Side.LEFT, Component.translatable("controllerx.action.menu.prevPage"), "prev_page", MenuControllerContext::hasPrevPage));
+        this.nextPage = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.RightShoulder), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.nextPage"), "next_page", MenuControllerContext::hasNextPage));
     }
 
     private boolean canActivate(Minecraft minecraft) {

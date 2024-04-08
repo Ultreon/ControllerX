@@ -27,7 +27,7 @@ public abstract class ControllerContext {
     private Config config;
 
     private static boolean isUsingVirtualKeyboard(Minecraft minecraft) {
-        return ControllerX.get().controllerInput.isVirtualKeyboardOpen();
+        return ControllerX.get().input.isVirtualKeyboardOpen();
     }
 
     protected ControllerContext(ResourceLocation id) {

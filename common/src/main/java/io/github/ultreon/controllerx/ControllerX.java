@@ -44,7 +44,7 @@ public class ControllerX {
 
     private static ControllerX instance;
 
-    public ControllerInput controllerInput;
+    public ControllerInput input;
     private ControllerHud controllerHud;
     private KeyboardHud keyboardHud;
     private InputType inputType = InputType.KEYBOARD_AND_MOUSE;
@@ -63,7 +63,7 @@ public class ControllerX {
     }
 
     private EventResult initGui(Screen screen, ScreenAccess screenAccess) {
-        if (controllerInput.isVirtualKeyboardOpen()) {
+        if (input.isVirtualKeyboardOpen()) {
             // SCARY!
             virtualKeyboard.getScreen().resize(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
             return EventResult.pass();
@@ -79,14 +79,14 @@ public class ControllerX {
     }
 
     private void initKeyboardLayout() {
-        this.controllerInput.setLayout(KeyboardLayouts.QWERTY);
+        this.input.setLayout(KeyboardLayouts.QWERTY);
     }
 
     private void tickInput(Minecraft minecraft) {
         Screen screen = minecraft.screen;
 
         if (screen != null) {
-            controllerInput.updateScreen(screen);
+            input.updateScreen(screen);
         }
 
         if (inputCooldown > 0) {
@@ -98,7 +98,7 @@ public class ControllerX {
     }
 
     private void renderGui(Screen screen, GuiGraphics gfx, int mouseX, int mouseY, float partialTicks) {
-        if (controllerInput.isVirtualKeyboardOpen()) {
+        if (input.isVirtualKeyboardOpen()) {
             virtualKeyboard.render(gfx, mouseX, mouseY, partialTicks);
             return;
         }
@@ -131,7 +131,7 @@ public class ControllerX {
 
         SDL_Init(SdlSubSystemConst.SDL_INIT_EVENTS | SdlSubSystemConst.SDL_INIT_GAMECONTROLLER | SdlSubSystemConst.SDL_INIT_JOYSTICK);
         ClientLifecycleEvent.CLIENT_STOPPING.register(ControllerX::quitGame);
-        controllerInput = new ControllerInput(this);
+        input = new ControllerInput(this);
 
         controllerHud = new ControllerHud();
         keyboardHud = new KeyboardHud();
@@ -143,7 +143,7 @@ public class ControllerX {
 
         ClientTickEvent.CLIENT_PRE.register(this::tickInput);
 
-        if (controllerInput.isConnected()) {
+        if (input.isConnected()) {
             inputType = InputType.CONTROLLER;
         }
 
@@ -153,7 +153,7 @@ public class ControllerX {
         ClientScreenInputEvent.KEY_PRESSED_PRE.register((client, screen, keyCode, scanCode, modifiers) -> {
             setInputType(InputType.KEYBOARD_AND_MOUSE);
 
-            if (controllerInput.isVirtualKeyboardOpen()) {
+            if (input.isVirtualKeyboardOpen()) {
                 virtualKeyboard.getScreen().keyPressed(keyCode, scanCode, modifiers);
                 return EventResult.interruptFalse();
             }
@@ -161,7 +161,7 @@ public class ControllerX {
         });
         ClientScreenInputEvent.KEY_RELEASED_PRE.register((client, screen, keyCode, scanCode, modifiers) -> {
             setInputType(InputType.KEYBOARD_AND_MOUSE);
-            if (controllerInput.isVirtualKeyboardOpen()) {
+            if (input.isVirtualKeyboardOpen()) {
                 virtualKeyboard.getScreen().keyReleased(keyCode, scanCode, modifiers);
                 return EventResult.interruptFalse();
             }
@@ -169,7 +169,7 @@ public class ControllerX {
         });
         ClientScreenInputEvent.CHAR_TYPED_PRE.register((client, screen, character, keyCode) -> {
             setInputType(InputType.KEYBOARD_AND_MOUSE);
-            if (controllerInput.isVirtualKeyboardOpen()) {
+            if (input.isVirtualKeyboardOpen()) {
                 virtualKeyboard.getScreen().charTyped(character, keyCode);
                 return EventResult.interruptFalse();
             }
@@ -177,7 +177,7 @@ public class ControllerX {
         });
         ClientScreenInputEvent.MOUSE_CLICKED_PRE.register((client, screen, x, y, button) -> {
             setInputType(InputType.KEYBOARD_AND_MOUSE);
-            if (controllerInput.isVirtualKeyboardOpen()) {
+            if (input.isVirtualKeyboardOpen()) {
                 virtualKeyboard.getScreen().mouseClicked(x, y, button);
                 return EventResult.interruptFalse();
             }
@@ -185,7 +185,7 @@ public class ControllerX {
         });
         ClientScreenInputEvent.MOUSE_DRAGGED_PRE.register((client, screen, mouseX1, mouseY1, button, mouseX2, mouseY2) -> {
             setInputType(InputType.KEYBOARD_AND_MOUSE);
-            if (controllerInput.isVirtualKeyboardOpen()) {
+            if (input.isVirtualKeyboardOpen()) {
                 virtualKeyboard.getScreen().mouseDragged(mouseX1, mouseY1, button, mouseX2, mouseY2);
                 return EventResult.interruptFalse();
             }
@@ -193,7 +193,7 @@ public class ControllerX {
         });
         ClientScreenInputEvent.MOUSE_SCROLLED_PRE.register((client, screen, mouseX, mouseY, amount) -> {
             setInputType(InputType.KEYBOARD_AND_MOUSE);
-            if (controllerInput.isVirtualKeyboardOpen()) {
+            if (input.isVirtualKeyboardOpen()) {
                 virtualKeyboard.getScreen().mouseScrolled(mouseX, mouseY, amount);
                 return EventResult.interruptFalse();
             }
@@ -201,7 +201,7 @@ public class ControllerX {
         });
         ClientScreenInputEvent.MOUSE_RELEASED_PRE.register((client, screen, mouseX, mouseY, button) -> {
             setInputType(InputType.KEYBOARD_AND_MOUSE);
-            if (controllerInput.isVirtualKeyboardOpen()) {
+            if (input.isVirtualKeyboardOpen()) {
                 virtualKeyboard.getScreen().mouseReleased(mouseX, mouseY, button);
                 return EventResult.interruptFalse();
             }
@@ -231,7 +231,7 @@ public class ControllerX {
 
         controllerHud.render(gfx, partialTicks);
         keyboardHud.render(gfx, partialTicks);
-        controllerInput.update();
+        input.update();
     }
 
     private static void quitGame(Minecraft instance) {
