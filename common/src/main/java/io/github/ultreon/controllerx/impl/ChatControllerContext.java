@@ -2,7 +2,6 @@ package io.github.ultreon.controllerx.impl;
 
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.api.ControllerAction;
-import io.github.ultreon.controllerx.api.ControllerActions;
 import io.github.ultreon.controllerx.api.ControllerContext;
 import io.github.ultreon.controllerx.api.ControllerMapping;
 import io.github.ultreon.controllerx.input.ControllerBoolean;

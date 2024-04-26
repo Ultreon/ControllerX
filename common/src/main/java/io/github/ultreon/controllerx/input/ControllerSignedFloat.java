@@ -9,24 +9,26 @@ import org.intellij.lang.annotations.MagicConstant;
 import org.joml.Vector2f;
 
 public enum ControllerSignedFloat implements ControllerInterDynamic<Float> {
+    TriggerMagnitude,
+    LeftStickMagnitude,
+    RightStickMagnitude,
+    DpadMagnitude,
     LeftTrigger,
     RightTrigger,
+    Triggers,
     LeftStickX,
     LeftStickY,
     RightStickX,
     RightStickY,
     DpadX,
     DpadY,
-    LeftStickMagnitude,
-    RightStickMagnitude,
-    DpadMagnitude,
-    TriggerMagnitude,
     Unknown;
 
     public float getValue() {
         return switch (this) {
             case LeftTrigger -> ControllerX.get().input.getAxis1(ControllerSignedFloat.LeftTrigger) * 2 - 1;
             case RightTrigger -> ControllerX.get().input.getAxis1(ControllerSignedFloat.RightTrigger) * 2 - 1;
+            case Triggers -> ControllerX.get().input.getAxis1(ControllerSignedFloat.LeftTrigger) - ControllerX.get().input.getAxis1(ControllerSignedFloat.RightTrigger);
             case LeftStickX -> ControllerX.get().input.getAxis1(ControllerSignedFloat.LeftStickX);
             case LeftStickY -> ControllerX.get().input.getAxis1(ControllerSignedFloat.LeftStickY);
             case RightStickX -> ControllerX.get().input.getAxis1(ControllerSignedFloat.RightStickX);
@@ -53,6 +55,7 @@ public enum ControllerSignedFloat implements ControllerInterDynamic<Float> {
         return switch (this) {
             case LeftTrigger -> ControllerBoolean.LeftTrigger;
             case RightTrigger -> ControllerBoolean.RightTrigger;
+            case Triggers, TriggerMagnitude -> ControllerBoolean.AnyTrigger;
             case LeftStickX -> ControllerBoolean.LeftStickLeft;
             case LeftStickY -> ControllerBoolean.LeftStickUp;
             case RightStickX -> ControllerBoolean.RightStickLeft;
@@ -62,7 +65,6 @@ public enum ControllerSignedFloat implements ControllerInterDynamic<Float> {
             case LeftStickMagnitude -> ControllerBoolean.LeftStickUsed;
             case RightStickMagnitude -> ControllerBoolean.RightStickUsed;
             case DpadMagnitude -> ControllerBoolean.DpadUsed;
-            case TriggerMagnitude -> ControllerBoolean.AnyTrigger;
             default -> ControllerBoolean.Unknown;
         };
     }

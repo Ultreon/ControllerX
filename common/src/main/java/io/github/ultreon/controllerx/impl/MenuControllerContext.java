@@ -4,7 +4,6 @@ import dev.architectury.platform.Platform;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.Hooks;
 import io.github.ultreon.controllerx.api.ControllerAction;
-import io.github.ultreon.controllerx.api.ControllerActions;
 import io.github.ultreon.controllerx.api.ControllerContext;
 import io.github.ultreon.controllerx.api.ControllerMapping;
 import io.github.ultreon.controllerx.gui.widget.ItemSlot;
@@ -54,7 +53,7 @@ public class MenuControllerContext extends ControllerContext {
 
         this.closeInventory = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.Y), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.closeInventory"), "close_inventory", MenuControllerContext::isInventory));
         this.back = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.B), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.back"), "back", this::isCloseableInGame));
-        this.close = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.Start), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.close"), "close", this::isCloseableInMenu));
+        this.close = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.B), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.menu.close"), "close", this::isCloseableInMenu));
 
         this.pickup = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.A), ControllerMapping.Side.LEFT, Component.translatable("controllerx.action.menu.pickup"), "pickup", this::canPickup));
         this.place = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.A), ControllerMapping.Side.LEFT, Component.translatable("controllerx.action.menu.place"), "place", this::canPlace));

@@ -9,6 +9,7 @@ import org.intellij.lang.annotations.MagicConstant;
 import org.joml.Vector2f;
 
 public enum ControllerBoolean implements ControllerInterDynamic<Boolean> {
+    AnyButton,
     A,
     B,
     X,
@@ -16,6 +17,15 @@ public enum ControllerBoolean implements ControllerInterDynamic<Boolean> {
     Back,
     Start,
     Guide,
+    AnyJoyStick,
+    LeftStickAny,
+    RightStickAny,
+    LeftStickUsed,
+    RightStickUsed,
+    LeftStickX,
+    LeftStickY,
+    RightStickX,
+    RightStickY,
     LeftStickLeft,
     LeftStickRight,
     LeftStickUp,
@@ -24,32 +34,22 @@ public enum ControllerBoolean implements ControllerInterDynamic<Boolean> {
     RightStickRight,
     RightStickUp,
     RightStickDown,
-    LeftStickX,
-    LeftStickY,
-    RightStickX,
-    RightStickY,
-    LeftStickUsed,
-    RightStickUsed,
     Touchpad,
+    AnyDpad,
+    DpadX,
+    DpadY,
     DpadLeft,
     DpadRight,
     DpadUp,
     DpadDown,
-    DpadX,
-    DpadY,
     DpadUsed,
     LeftStickClick,
     RightStickClick,
     LeftShoulder,
     RightShoulder,
+    AnyTrigger,
     LeftTrigger,
     RightTrigger,
-    LeftStickAny,
-    RightStickAny,
-    AnyButton,
-    AnyDpad,
-    AnyJoyStick,
-    AnyTrigger,
     Unknown;
 
     private boolean lastValue = false;
@@ -182,18 +182,21 @@ public enum ControllerBoolean implements ControllerInterDynamic<Boolean> {
             case Back -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.Back);
             case Start -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.Start);
             case Guide -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.Guide);
-            case LeftStickLeft -> ControllerUnsignedFloat.LeftStickX.getValue() < 0;
-            case LeftStickRight -> ControllerUnsignedFloat.LeftStickX.getValue() > 0;
-            case LeftStickUp -> ControllerUnsignedFloat.LeftStickY.getValue() > 0;
-            case LeftStickDown -> ControllerUnsignedFloat.LeftStickY.getValue() < 0;
-            case RightStickLeft -> ControllerUnsignedFloat.RightStickX.getValue() < 0;
-            case RightStickRight -> ControllerUnsignedFloat.RightStickX.getValue() > 0;
-            case RightStickUp -> ControllerUnsignedFloat.RightStickY.getValue() > 0;
-            case RightStickDown -> ControllerUnsignedFloat.RightStickY.getValue() < 0;
-            case LeftStickX -> ControllerUnsignedFloat.LeftStickX.getValue() != 0;
-            case LeftStickY -> ControllerUnsignedFloat.LeftStickY.getValue() != 0;
-            case RightStickX -> ControllerUnsignedFloat.RightStickX.getValue() != 0;
-            case RightStickY -> ControllerUnsignedFloat.RightStickY.getValue() != 0;
+            case LeftStickLeft -> ControllerSignedFloat.LeftStickX.getValue() < 0;
+            case LeftStickRight -> ControllerSignedFloat.LeftStickX.getValue() > 0;
+            case LeftStickUp -> ControllerSignedFloat.LeftStickY.getValue() < 0;
+            case LeftStickDown -> ControllerSignedFloat.LeftStickY.getValue() > 0;
+            case LeftStickAny -> ControllerSignedFloat.LeftStickY.getValue() != 0 || ControllerSignedFloat.LeftStickX.getValue() != 0;
+            case RightStickLeft -> ControllerSignedFloat.RightStickX.getValue() < 0;
+            case RightStickRight -> ControllerSignedFloat.RightStickX.getValue() > 0;
+            case RightStickUp -> ControllerSignedFloat.RightStickY.getValue() < 0;
+            case RightStickDown -> ControllerSignedFloat.RightStickY.getValue() > 0;
+            case RightStickAny -> ControllerSignedFloat.RightStickY.getValue() != 0 || ControllerSignedFloat.RightStickX.getValue() != 0;
+            case AnyJoyStick -> ControllerSignedFloat.LeftStickY.getValue() != 0 || ControllerSignedFloat.LeftStickX.getValue() != 0 || ControllerUnsignedFloat.RightStickY.getValue() != 0 || ControllerUnsignedFloat.RightStickX.getValue() != 0;
+            case LeftStickX -> ControllerSignedFloat.LeftStickX.getValue() != 0;
+            case LeftStickY -> ControllerSignedFloat.LeftStickY.getValue() != 0;
+            case RightStickX -> ControllerSignedFloat.RightStickX.getValue() != 0;
+            case RightStickY -> ControllerSignedFloat.RightStickY.getValue() != 0;
             case LeftStickUsed -> ControllerUnsignedFloat.LeftStickMagnitude.getValue() != 0;
             case RightStickUsed -> ControllerUnsignedFloat.RightStickMagnitude.getValue() != 0;
             case Touchpad -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.Touchpad);
@@ -201,14 +204,16 @@ public enum ControllerBoolean implements ControllerInterDynamic<Boolean> {
             case DpadRight -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.DpadRight);
             case DpadUp -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.DpadUp);
             case DpadDown -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.DpadDown);
+            case AnyDpad -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.DpadUp) || ControllerX.get().input.isButtonPressed0(ControllerBoolean.DpadLeft) || ControllerX.get().input.isButtonPressed0(ControllerBoolean.DpadRight) || ControllerX.get().input.isButtonPressed0(ControllerBoolean.DpadDown);
             case LeftStickClick -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.LeftStickClick);
             case RightStickClick -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.RightStickClick);
             case LeftShoulder -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.LeftShoulder);
             case RightShoulder -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.RightShoulder);
             case LeftTrigger -> ControllerX.get().input.getTrigger(ControllerUnsignedFloat.LeftTrigger) != 0;
             case RightTrigger -> ControllerX.get().input.getTrigger(ControllerUnsignedFloat.RightTrigger) != 0;
-            case DpadX -> ControllerSignedFloat.DpadX.getValue() != 0;
-            case DpadY -> ControllerSignedFloat.DpadY.getValue() != 0;
+            case AnyTrigger -> ControllerX.get().input.getTrigger(ControllerUnsignedFloat.LeftTrigger) != 0 || ControllerX.get().input.getTrigger(ControllerUnsignedFloat.RightTrigger) != 0;
+            case DpadX -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.DpadLeft) || ControllerX.get().input.isButtonPressed0(ControllerBoolean.DpadRight);
+            case DpadY -> ControllerX.get().input.isButtonPressed0(ControllerBoolean.DpadUp) || ControllerX.get().input.isButtonPressed0(ControllerBoolean.DpadDown);
             case DpadUsed -> ControllerSignedFloat.DpadMagnitude.getValue() != 0;
             default -> false;
         };

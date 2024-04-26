@@ -9,6 +9,10 @@ import org.intellij.lang.annotations.MagicConstant;
 import org.joml.Vector2f;
 
 public enum ControllerUnsignedFloat implements ControllerInterDynamic<Float> {
+    TriggerMagnitude,
+    LeftStickMagnitude,
+    RightStickMagnitude,
+    DpadMagnitude,
     LeftTrigger,
     RightTrigger,
     LeftStickX,
@@ -17,10 +21,6 @@ public enum ControllerUnsignedFloat implements ControllerInterDynamic<Float> {
     RightStickY,
     DpadX,
     DpadY,
-    LeftStickMagnitude,
-    RightStickMagnitude,
-    DpadMagnitude,
-    TriggerMagnitude,
     Unknown;
 
     public float getValue() {

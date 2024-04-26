@@ -173,7 +173,7 @@ public final class ControllerMapping<T extends Enum<T> & ControllerInterDynamic<
 
     public ConfigEntry<?> createEntry(Config config) {
         ResourceLocation id = config.getContext().id;
-        return action.createEntry(config, id.getNamespace() + ".action." + id.getPath().replace('/', '.') + "." + this.id, name);
+        return action.createEntry(config, this, id.getNamespace() + ".action." + id.getPath().replace('/', '.') + "." + this.id, name);
     }
 
     public ControllerMapping<T> withValue(Class<T> clazz, String text) {

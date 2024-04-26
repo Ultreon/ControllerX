@@ -17,6 +17,7 @@ import org.joml.Vector2f;
 public sealed class ControllerAction<T extends Enum<T> & ControllerInterDynamic<?>> permits ControllerAction.Axis, ControllerAction.Button, ControllerAction.Joystick, ControllerAction.Nulled, ControllerAction.Trigger {
     private final T defaultValue;
     private final Type type;
+    private final Vector2f tmp = new Vector2f();
     private ControllerAction<T> nullAction;
     private ConfigEntry<T> entry;
 
@@ -49,7 +50,7 @@ public sealed class ControllerAction<T extends Enum<T> & ControllerInterDynamic<
      * @return the mapping
      */
     public T getMapping() {
-        return entry == null ? defaultValue : entry.get();
+        return entry == null ? getDefaultValue() : entry.get();
     }
 
 
@@ -96,7 +97,7 @@ public sealed class ControllerAction<T extends Enum<T> & ControllerInterDynamic<
      * @return a 2D vector with values between -1..1
      */
     public Vector2f get2DValue() {
-        return getMapping().asVec2().get();
+        return getMapping().asVec2().get(this.tmp);
     }
 
     public boolean isJustPressed() {
@@ -108,12 +109,12 @@ public sealed class ControllerAction<T extends Enum<T> & ControllerInterDynamic<
     }
 
 
-    private ConfigEntry<T> createEntry0(Config config, String id, Component description) {
-        return config.add(id, getMapping(), description);
+    private ConfigEntry<T> createEntry0(Config config, ControllerMapping<T> mapping, String id, Component description) {
+        return config.add(id, mapping, description);
     }
 
-    public ConfigEntry<T> createEntry(Config config, String id, Component description) {
-        return this.entry = createEntry0(config, id, description);
+    public ConfigEntry<T> createEntry(Config config, ControllerMapping<T> mapping, String id, Component description) {
+        return this.entry = createEntry0(config, mapping, id, description);
     }
 
     public @NotNull ControllerAction<T> nulled() {
@@ -184,6 +185,16 @@ public sealed class ControllerAction<T extends Enum<T> & ControllerInterDynamic<
         @Override
         public boolean isJustReleased() {
             return false;
+        }
+
+        @Override
+        public ConfigEntry<T> createEntry(Config config, ControllerMapping<T> mapping, String id, Component description) {
+            return ControllerAction.this.createEntry(config, mapping, id, description);
+        }
+
+        @Override
+        public T getDefaultValue() {
+            return ControllerAction.this.getDefaultValue();
         }
 
         @Override

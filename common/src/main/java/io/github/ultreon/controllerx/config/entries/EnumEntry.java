@@ -2,7 +2,6 @@ package io.github.ultreon.controllerx.config.entries;
 
 import io.github.ultreon.controllerx.config.Config;
 import io.github.ultreon.controllerx.config.gui.ConfigEntry;
-import io.github.ultreon.controllerx.debug.DebugLog;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.network.chat.Component;

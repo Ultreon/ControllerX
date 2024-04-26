@@ -2,7 +2,6 @@ package io.github.ultreon.controllerx.gui.screen;
 
 import com.ultreon.mods.lib.client.gui.screen.GenericMenuScreen;
 import com.ultreon.mods.lib.client.gui.widget.BaseButton;
-import io.github.ultreon.controllerx.config.gui.BindingsConfigScreen;
 import io.github.ultreon.controllerx.config.gui.ConfigsScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -23,5 +22,10 @@ public class ControllerXConfigScreen extends GenericMenuScreen {
 
     private void openBindings(BaseButton button) {
         new ConfigsScreen(this).open();
+    }
+
+    @Override
+    public void onClose() {
+        back();
     }
 }

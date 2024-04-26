@@ -20,6 +20,12 @@ public class ConfigsScreen extends Screen {
     }
 
     @Override
+    public void onClose() {
+        assert this.minecraft != null;
+        this.minecraft.setScreen(this.back);
+    }
+
+    @Override
     protected void init() {
         this.clearWidgets();
         super.init();

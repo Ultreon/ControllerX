@@ -2,13 +2,10 @@ package io.github.ultreon.controllerx.gui.screen;
 
 import com.ultreon.mods.lib.client.gui.Theme;
 import com.ultreon.mods.lib.client.gui.screen.PanoramaScreen;
-import com.ultreon.mods.lib.client.gui.widget.BaseWidget;
 import com.ultreon.mods.lib.client.gui.widget.ListWidget;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public abstract class BaseConfigScreen extends PanoramaScreen {
     private ListWidget list;
@@ -30,10 +27,6 @@ public abstract class BaseConfigScreen extends PanoramaScreen {
     protected abstract boolean hasSearch();
 
     protected abstract int getCount();
-
-    public final void addConfigRow(Component title, BaseWidget widget) {
-
-    }
 
     @Override
     public @Nullable Vec2 getCloseButtonPos() {

@@ -1,6 +1,7 @@
 package io.github.ultreon.controllerx.input;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.ultreon.mods.lib.client.gui.widget.BaseWidget;
 import dev.architectury.impl.ScreenAccessImpl;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerAxis;
@@ -36,7 +37,6 @@ import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 import org.joml.Vector2f;
 
 import java.time.Duration;
@@ -45,24 +45,21 @@ import java.util.BitSet;
 import static io.github.libsdl4j.api.event.SdlEventsConst.SDL_PRESSED;
 import static io.github.libsdl4j.api.gamecontroller.SdlGamecontroller.*;
 
+@SuppressWarnings("MagicConstant")
 public class ControllerInput extends Input {
     private final Vector2f leftStick = new Vector2f();
     private final Vector2f rightStick = new Vector2f();
 
     private final BitSet pressedButtons = new BitSet(SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_MAX);
-    private final BitSet justPressedButtons = new BitSet(ControllerBoolean.values().length);
-    private final BitSet justReleasedButtons = new BitSet(ControllerBoolean.values().length);
     private SDL_GameController sdlController;
     private Controller controller;
     private final float[] oldAxes = new float[ControllerSignedFloat.values().length];
     private final float[] axes = new float[ControllerSignedFloat.values().length];
-    private float delay;
-    private long nextTick;
+    private final Vector2f tmp = new Vector2f();
     private final ControllerX mod;
     private KeyboardLayout layout;
     private String virtualKeyboardValue = "";
     private boolean virtualKeyboardOpen;
-    private boolean dPadDisabled;
     private float destroyDelay = 0;
     private boolean screenWasOpen;
     private InterceptCallback interceptCallback;
@@ -114,15 +111,6 @@ public class ControllerInput extends Input {
             jumping = context.jump.getAction().isPressed();
             shiftKeyDown = context.sneak.getAction().isPressed();
 
-//            if (context.use.getAction().isJustPressed() && GameApi.getRightClickDelay() == 0) {
-//                GameApi.startUseItem();
-//                this.wasItemUsePressed = true;
-//            }
-//
-//            if (!context.use.getAction().isPressed() && wasItemUsePressed) {
-//                GameApi.stopUseItem();
-//                this.wasItemUsePressed = false;
-//            }
             if (context.itemLeft.getAction().isJustPressed()) GameApi.scrollHotbar(-1);
             if (context.itemRight.getAction().isJustPressed()) GameApi.scrollHotbar(1);
 
@@ -177,24 +165,16 @@ public class ControllerInput extends Input {
         }
 
         if (!SDL_GameControllerGetAttached(sdlController)) {
-            unsetController(0);
+            unsetController();
             return true;
         }
 
         for (@MagicConstant(valuesFromClass = SDL_GameControllerButton.class) int idx = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A; idx < SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_MAX; idx++) {
-            this.justPressedButtons.set(idx, false);
-            boolean wasPressedBefore = this.pressedButtons.get(idx);
             boolean pressed = SDL_GameControllerGetButton(this.sdlController, idx) == SDL_PRESSED;
             this.pressedButtons.set(idx, pressed);
-            this.justReleasedButtons.clear(idx);
-            this.justPressedButtons.clear(idx);
 
             if (pressed) {
                 ControllerX.get().setInputType(InputType.CONTROLLER);
-                if (wasPressedBefore) continue;
-                this.justPressedButtons.set(idx, true);
-            } else if (wasPressedBefore) {
-                this.justReleasedButtons.set(idx, true);
             }
         }
 
@@ -216,27 +196,42 @@ public class ControllerInput extends Input {
         ControllerContext context = ControllerContext.get();
 
         if (interceptInvalidation.isStillValid()) {
-            interceptInvalidation.onIntercept(this.interceptCallback);
+            boolean input = false;
+            for (ControllerVec2 joystick : ControllerVec2.values()) {
+                if (joystick.asBoolean().isJustPressed()) {
+                    this.interceptCallback.onIntercept(new EventObject<>(EventType.JOYSTICK, joystick, joystick.get(this.tmp)));
+                    input = true;
+                }
+            }
 
             for (ControllerSignedFloat axis : ControllerSignedFloat.values()) {
-                int sdlAxis = axis.sdlAxis();
+                if (axis.asBoolean().isJustPressed()) {
+                    this.interceptCallback.onIntercept(new EventObject<>(EventType.AXIS, axis, axis.getValue()));
+                    input = true;
+                }
+            }
 
-                if (sdlAxis == -1) continue;
-
-                if (this.axes[sdlAxis] != this.oldAxes[sdlAxis]) {
-                    this.interceptCallback.onIntercept(new EventObject<>(EventType.AXIS, axis, this.axes[sdlAxis]));
+            for (ControllerUnsignedFloat axis : ControllerUnsignedFloat.values()) {
+                if (axis.asBoolean().isJustPressed()) {
+                    this.interceptCallback.onIntercept(new EventObject<>(EventType.TRIGGER, axis, axis.getValue()));
+                    input = true;
                 }
             }
 
             for (ControllerBoolean button : ControllerBoolean.values()) {
-                int bitIndex = button.sdlButton();
-                if (bitIndex < 0 || bitIndex >= this.pressedButtons.length()) continue;
-                if (this.justPressedButtons.get(bitIndex)) {
+                if (button.isJustPressed()) {
                     this.interceptCallback.onIntercept(new EventObject<>(EventType.BUTTON, button, true));
-                } else if (this.justReleasedButtons.get(bitIndex)) {
+                    input = true;
+                } else if (button.isJustReleased()) {
                     this.interceptCallback.onIntercept(new EventObject<>(EventType.BUTTON, button, false));
                 }
             }
+
+            if (input) {
+                interceptInvalidation.onIntercept(this.interceptCallback);
+            }
+
+            return;
         }
 
         if (context instanceof ChatControllerContext ctx) this.handleChat(screen, ctx);
@@ -284,6 +279,8 @@ public class ControllerInput extends Input {
 
                     editBox.setValue(input);
                 });
+            } else if (screen.getFocused() instanceof BaseWidget baseWidget) {
+                baseWidget.leftClick();
             } else {
                 screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
                 screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
@@ -316,27 +313,22 @@ public class ControllerInput extends Input {
             }
         }
 
-        if (ctx.back.getAction().isJustPressed()) {
+        if (ctx.back.getAction().isJustPressed() || ctx.close.getAction().isJustPressed()) {
             screen.keyPressed(InputConstants.KEY_ESCAPE, 0, 0);
             screen.keyReleased(InputConstants.KEY_ESCAPE, 0, 0);
-            dPadDisabled = true;
         } else if (ctx.dpadMove.getAction().isJustPressed()) {
             if (ctx.dpadMove.getAction().get2DValue().y > 0) {
                 screen.keyPressed(InputConstants.KEY_UP, 0, 0);
                 screen.keyReleased(InputConstants.KEY_UP, 0, 0);
-                dPadDisabled = true;
             } else if (ctx.dpadMove.getAction().get2DValue().x < 0) {
                 screen.keyPressed(InputConstants.KEY_LEFT, 0, 0);
                 screen.keyReleased(InputConstants.KEY_LEFT, 0, 0);
-                dPadDisabled = true;
             } else if (ctx.dpadMove.getAction().get2DValue().y < 0) {
                 screen.keyPressed(InputConstants.KEY_DOWN, 0, 0);
                 screen.keyReleased(InputConstants.KEY_DOWN, 0, 0);
-                dPadDisabled = true;
             } else if (ctx.dpadMove.getAction().get2DValue().x > 0) {
                 screen.keyPressed(InputConstants.KEY_RIGHT, 0, 0);
                 screen.keyReleased(InputConstants.KEY_RIGHT, 0, 0);
-                dPadDisabled = true;
             }
         }
 
@@ -344,19 +336,15 @@ public class ControllerInput extends Input {
             if (ctx.joystickMove.getAction().get2DValue().y < 0) {
                 screen.keyPressed(InputConstants.KEY_UP, 0, 0);
                 screen.keyReleased(InputConstants.KEY_UP, 0, 0);
-                delay = 10;
             } else if (ctx.joystickMove.getAction().get2DValue().x < 0) {
                 screen.keyPressed(InputConstants.KEY_LEFT, 0, 0);
                 screen.keyReleased(InputConstants.KEY_LEFT, 0, 0);
-                delay = 10;
             } else if (ctx.joystickMove.getAction().get2DValue().y > 0) {
                 screen.keyPressed(InputConstants.KEY_DOWN, 0, 0);
                 screen.keyReleased(InputConstants.KEY_DOWN, 0, 0);
-                delay = 10;
             } else if (ctx.joystickMove.getAction().get2DValue().x > 0) {
                 screen.keyPressed(InputConstants.KEY_RIGHT, 0, 0);
                 screen.keyReleased(InputConstants.KEY_RIGHT, 0, 0);
-                delay = 10;
             }
         }
     }
@@ -488,6 +476,9 @@ public class ControllerInput extends Input {
         } else {
             v *= signum;
         }
+
+        if (v == 0) return 0f;
+
         return v;
     }
 
@@ -513,8 +504,8 @@ public class ControllerInput extends Input {
         ControllerX.LOGGER.info("Controller {} connected", name);
     }
 
-    private void unsetController(@Range(from = 0, to = 256) int deviceIndex) {
-        if (deviceIndex != this.controller.deviceIndex()) return;
+    private void unsetController() {
+        if (0 != this.controller.deviceIndex()) return;
 
         Minecraft.getInstance().getToasts().addToast(new ControllerToast(Icon.AnyJoyStick, Component.translatable("controllerx.toast.controller_disconnected.title"), Component.translatable("controllerx.toast.controller_disconnected.description", this.controller.name())).hideIn(Duration.ofSeconds(5)));
 
@@ -548,7 +539,7 @@ public class ControllerInput extends Input {
     }
 
     public Vector2f getJoystick(ControllerVec2 joystick) {
-        return joystick.get();
+        return joystick.get(this.tmp);
     }
 
     public float getTrigger(ControllerUnsignedFloat trigger) {

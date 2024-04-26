@@ -1,7 +1,5 @@
 package io.github.ultreon.controllerx;
 
-import io.github.ultreon.controllerx.input.InputType;
-
 import java.io.IOException;
 import java.nio.file.Files;
 

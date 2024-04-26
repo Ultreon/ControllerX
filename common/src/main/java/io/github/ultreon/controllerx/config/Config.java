@@ -7,6 +7,7 @@ import io.github.ultreon.controllerx.api.ControllerMapping;
 import io.github.ultreon.controllerx.config.entries.*;
 import io.github.ultreon.controllerx.config.gui.BindingsConfigScreen;
 import io.github.ultreon.controllerx.config.gui.ConfigEntry;
+import io.github.ultreon.controllerx.input.dyn.ControllerInterDynamic;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -66,8 +67,8 @@ public class Config {
         }
     }
 
-    public <T extends Enum<T>> ConfigEntry<T> add(String key, T defaultValue, Component description) {
-        ConfigEntry<T> entry = new EnumEntry<>(key, defaultValue, description).comment(description.getString());
+    public <T extends Enum<T> & ControllerInterDynamic<?>> ConfigEntry<T> add(String key, ControllerMapping<T> defaultValue, Component description) {
+        ConfigEntry<T> entry = new ControllerBindingEntry<>(key, defaultValue, defaultValue, description).comment(description.getString());
         entryMap.put(entry.getKey(), entry);
         entries.add(entry);
 
