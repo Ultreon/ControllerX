@@ -1,17 +1,21 @@
 package io.github.ultreon.controllerx.input;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.ultreon.mods.lib.client.gui.widget.BaseWidget;
 import dev.architectury.impl.ScreenAccessImpl;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
+import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerAxis;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
 import io.github.ultreon.controllerx.*;
+import io.github.ultreon.controllerx.api.ControllerAction;
 import io.github.ultreon.controllerx.api.ControllerContext;
 import io.github.ultreon.controllerx.gui.ControllerInputHandler;
 import io.github.ultreon.controllerx.gui.ControllerToast;
 import io.github.ultreon.controllerx.gui.widget.ItemSlot;
 import io.github.ultreon.controllerx.impl.*;
-import io.github.ultreon.controllerx.input.keyboard.KeyboardLayout;
+import io.github.ultreon.controllerx.input.dyn.*;
 import io.github.ultreon.controllerx.injection.CreativeModeInventoryScreenInjection;
+import io.github.ultreon.controllerx.input.keyboard.KeyboardLayout;
 import io.github.ultreon.controllerx.mixin.accessors.AbstractSelectionListAccessor;
 import io.github.ultreon.controllerx.mixin.accessors.ScreenAccessor;
 import net.minecraft.client.KeyMapping;
@@ -33,7 +37,6 @@ import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 import org.joml.Vector2f;
 
 import java.time.Duration;
@@ -42,26 +45,35 @@ import java.util.BitSet;
 import static io.github.libsdl4j.api.event.SdlEventsConst.SDL_PRESSED;
 import static io.github.libsdl4j.api.gamecontroller.SdlGamecontroller.*;
 
+@SuppressWarnings("MagicConstant")
 public class ControllerInput extends Input {
     private final Vector2f leftStick = new Vector2f();
     private final Vector2f rightStick = new Vector2f();
 
     private final BitSet pressedButtons = new BitSet(SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_MAX);
-    private final BitSet justPressedButtons = new BitSet(ControllerButton.values().length);
     private SDL_GameController sdlController;
     private Controller controller;
-    private final float[] oldAxes = new float[ControllerAxis.values().length];
-    private final float[] axes = new float[ControllerAxis.values().length];
-    private float delay;
-    private long nextTick;
+    private final float[] oldAxes = new float[ControllerSignedFloat.values().length];
+    private final float[] axes = new float[ControllerSignedFloat.values().length];
+    private final Vector2f tmp = new Vector2f();
     private final ControllerX mod;
     private KeyboardLayout layout;
     private String virtualKeyboardValue = "";
     private boolean virtualKeyboardOpen;
-    private boolean dPadDisabled;
     private float destroyDelay = 0;
     private boolean screenWasOpen;
-    private boolean wasItemUsePressed = false;
+    private InterceptCallback interceptCallback;
+    private InterceptInvalidation interceptInvalidation = new InterceptInvalidation() {
+        @Override
+        public void onIntercept(InterceptCallback callback) {
+            // Do nothing
+        }
+
+        @Override
+        public boolean isStillValid() {
+            return false;
+        }
+    };
 
     public ControllerInput(ControllerX mod) {
         this.mod = mod;
@@ -75,7 +87,7 @@ public class ControllerInput extends Input {
 
         Minecraft mc = Minecraft.getInstance();
 
-        if (mod.controllerInput.isVirtualKeyboardOpen()) {
+        if (mod.input.isVirtualKeyboardOpen()) {
             this.handleScreen(mc.player, mod.virtualKeyboard.getScreen());
             return;
         }
@@ -85,8 +97,8 @@ public class ControllerInput extends Input {
             return;
         }
 
-        this.leftStick.set(this.getJoystick(ControllerJoystick.Left));
-        this.rightStick.set(this.getJoystick(ControllerJoystick.Right));
+        this.leftStick.set(this.getJoystick(ControllerVec2.LeftStick));
+        this.rightStick.set(this.getJoystick(ControllerVec2.RightStick));
         if ((ControllerContext.get()) instanceof InGameControllerContext context) {
             LocalPlayer player = context.player();
 
@@ -99,15 +111,6 @@ public class ControllerInput extends Input {
             jumping = context.jump.getAction().isPressed();
             shiftKeyDown = context.sneak.getAction().isPressed();
 
-//            if (context.use.getAction().isJustPressed() && GameApi.getRightClickDelay() == 0) {
-//                GameApi.startUseItem();
-//                this.wasItemUsePressed = true;
-//            }
-//
-//            if (!context.use.getAction().isPressed() && wasItemUsePressed) {
-//                GameApi.stopUseItem();
-//                this.wasItemUsePressed = false;
-//            }
             if (context.itemLeft.getAction().isJustPressed()) GameApi.scrollHotbar(-1);
             if (context.itemRight.getAction().isJustPressed()) GameApi.scrollHotbar(1);
 
@@ -149,11 +152,11 @@ public class ControllerInput extends Input {
     }
 
     private boolean pollEvents() {
-        for (int i = 0; i < SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_MAX; i++) {
-            this.justPressedButtons.set(i, false);
-        }
-
         SDL_GameControllerUpdate();
+
+        if (ControllerX.get().input != null) {
+            ControllerBoolean.pollAll();
+        }
 
         if (this.sdlController == null) {
             this.setController(0);
@@ -162,24 +165,21 @@ public class ControllerInput extends Input {
         }
 
         if (!SDL_GameControllerGetAttached(sdlController)) {
-            unsetController(0);
+            unsetController();
             return true;
         }
 
         for (@MagicConstant(valuesFromClass = SDL_GameControllerButton.class) int idx = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A; idx < SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_MAX; idx++) {
-            this.justPressedButtons.set(idx, false);
-            boolean wasPressedBefore = this.pressedButtons.get(idx);
             boolean pressed = SDL_GameControllerGetButton(this.sdlController, idx) == SDL_PRESSED;
             this.pressedButtons.set(idx, pressed);
 
             if (pressed) {
                 ControllerX.get().setInputType(InputType.CONTROLLER);
-                if (!wasPressedBefore) this.justPressedButtons.set(idx, true);
             }
         }
 
-        for (int i = 0; i < ControllerAxis.values().length; i++) {
-            ControllerAxis axis = ControllerAxis.values()[i];
+        for (int i = 0; i < ControllerSignedFloat.values().length; i++) {
+            ControllerSignedFloat axis = ControllerSignedFloat.values()[i];
             Float axisValue = getAxis0(axis);
             if (axisValue == null) axisValue = 0.0F;
             this.oldAxes[i] = this.axes[i];
@@ -195,6 +195,45 @@ public class ControllerInput extends Input {
     private void handleScreen(LocalPlayer player, Screen screen) {
         ControllerContext context = ControllerContext.get();
 
+        if (interceptInvalidation.isStillValid()) {
+            boolean input = false;
+            for (ControllerVec2 joystick : ControllerVec2.values()) {
+                if (joystick.asBoolean().isJustPressed()) {
+                    this.interceptCallback.onIntercept(new EventObject<>(EventType.JOYSTICK, joystick, joystick.get(this.tmp)));
+                    input = true;
+                }
+            }
+
+            for (ControllerSignedFloat axis : ControllerSignedFloat.values()) {
+                if (axis.asBoolean().isJustPressed()) {
+                    this.interceptCallback.onIntercept(new EventObject<>(EventType.AXIS, axis, axis.getValue()));
+                    input = true;
+                }
+            }
+
+            for (ControllerUnsignedFloat axis : ControllerUnsignedFloat.values()) {
+                if (axis.asBoolean().isJustPressed()) {
+                    this.interceptCallback.onIntercept(new EventObject<>(EventType.TRIGGER, axis, axis.getValue()));
+                    input = true;
+                }
+            }
+
+            for (ControllerBoolean button : ControllerBoolean.values()) {
+                if (button.isJustPressed()) {
+                    this.interceptCallback.onIntercept(new EventObject<>(EventType.BUTTON, button, true));
+                    input = true;
+                } else if (button.isJustReleased()) {
+                    this.interceptCallback.onIntercept(new EventObject<>(EventType.BUTTON, button, false));
+                }
+            }
+
+            if (input) {
+                interceptInvalidation.onIntercept(this.interceptCallback);
+            }
+
+            return;
+        }
+
         if (context instanceof ChatControllerContext ctx) this.handleChat(screen, ctx);
         if (!(context instanceof MenuControllerContext ctx)) return;
 
@@ -203,7 +242,7 @@ public class ControllerInput extends Input {
             return;
         }
 
-        if (isVirtualKeyboardOpen() && isButtonJustPressed(ControllerButton.B))
+        if (isVirtualKeyboardOpen() && isButtonJustPressed(ControllerBoolean.B))
             this.closeVirtualKeyboard();
         if (!isVirtualKeyboardOpen() && screen.getFocused() instanceof ControllerInputHandler handler && handler.handleInput(this))
             return;
@@ -240,6 +279,8 @@ public class ControllerInput extends Input {
 
                     editBox.setValue(input);
                 });
+            } else if (screen.getFocused() instanceof BaseWidget baseWidget) {
+                baseWidget.leftClick();
             } else {
                 screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
                 screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
@@ -272,58 +313,39 @@ public class ControllerInput extends Input {
             }
         }
 
-        if (ctx.dpadMove.getAction().getValue() == 0) dPadDisabled = false;
-        if (!dPadDisabled) {
-            if (ctx.back.getAction().isJustPressed()) {
-                screen.keyPressed(InputConstants.KEY_ESCAPE, 0, 0);
-                screen.keyReleased(InputConstants.KEY_ESCAPE, 0, 0);
-                dPadDisabled = true;
-            } else if (ctx.dpadMove.getAction().get2DValue().y > 0) {
+        if (ctx.back.getAction().isJustPressed() || ctx.close.getAction().isJustPressed()) {
+            screen.keyPressed(InputConstants.KEY_ESCAPE, 0, 0);
+            screen.keyReleased(InputConstants.KEY_ESCAPE, 0, 0);
+        } else if (ctx.dpadMove.getAction().isJustPressed()) {
+            if (ctx.dpadMove.getAction().get2DValue().y > 0) {
                 screen.keyPressed(InputConstants.KEY_UP, 0, 0);
                 screen.keyReleased(InputConstants.KEY_UP, 0, 0);
-                dPadDisabled = true;
             } else if (ctx.dpadMove.getAction().get2DValue().x < 0) {
                 screen.keyPressed(InputConstants.KEY_LEFT, 0, 0);
                 screen.keyReleased(InputConstants.KEY_LEFT, 0, 0);
-                dPadDisabled = true;
             } else if (ctx.dpadMove.getAction().get2DValue().y < 0) {
                 screen.keyPressed(InputConstants.KEY_DOWN, 0, 0);
                 screen.keyReleased(InputConstants.KEY_DOWN, 0, 0);
-                dPadDisabled = true;
             } else if (ctx.dpadMove.getAction().get2DValue().x > 0) {
                 screen.keyPressed(InputConstants.KEY_RIGHT, 0, 0);
                 screen.keyReleased(InputConstants.KEY_RIGHT, 0, 0);
-                dPadDisabled = true;
             }
         }
 
-
-        if (nextTick < System.currentTimeMillis()) {
-            if (delay > 0) {
-                delay -= Minecraft.getInstance().getDeltaFrameTime();
-                return;
+        if (ctx.joystickMove.getAction().isJustPressed()) {
+            if (ctx.joystickMove.getAction().get2DValue().y < 0) {
+                screen.keyPressed(InputConstants.KEY_UP, 0, 0);
+                screen.keyReleased(InputConstants.KEY_UP, 0, 0);
+            } else if (ctx.joystickMove.getAction().get2DValue().x < 0) {
+                screen.keyPressed(InputConstants.KEY_LEFT, 0, 0);
+                screen.keyReleased(InputConstants.KEY_LEFT, 0, 0);
+            } else if (ctx.joystickMove.getAction().get2DValue().y > 0) {
+                screen.keyPressed(InputConstants.KEY_DOWN, 0, 0);
+                screen.keyReleased(InputConstants.KEY_DOWN, 0, 0);
+            } else if (ctx.joystickMove.getAction().get2DValue().x > 0) {
+                screen.keyPressed(InputConstants.KEY_RIGHT, 0, 0);
+                screen.keyReleased(InputConstants.KEY_RIGHT, 0, 0);
             }
-            nextTick = System.currentTimeMillis() + 20;
-        } else {
-            return;
-        }
-
-        if (ctx.joystickMove.getAction().get2DValue().y < 0) {
-            screen.keyPressed(InputConstants.KEY_UP, 0, 0);
-            screen.keyReleased(InputConstants.KEY_UP, 0, 0);
-            delay = 10;
-        } else if (ctx.joystickMove.getAction().get2DValue().x < 0) {
-            screen.keyPressed(InputConstants.KEY_LEFT, 0, 0);
-            screen.keyReleased(InputConstants.KEY_LEFT, 0, 0);
-            delay = 10;
-        } else if (ctx.joystickMove.getAction().get2DValue().y > 0) {
-            screen.keyPressed(InputConstants.KEY_DOWN, 0, 0);
-            screen.keyReleased(InputConstants.KEY_DOWN, 0, 0);
-            delay = 10;
-        } else if (ctx.joystickMove.getAction().get2DValue().x > 0) {
-            screen.keyPressed(InputConstants.KEY_RIGHT, 0, 0);
-            screen.keyReleased(InputConstants.KEY_RIGHT, 0, 0);
-            delay = 10;
         }
     }
 
@@ -352,6 +374,23 @@ public class ControllerInput extends Input {
         } else if (chatContext.close.getAction().isJustPressed()) {
             screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
             screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
+        }
+    }
+
+    public void updateScreen(Screen screen) {
+        this.screenWasOpen = screen != null;
+
+        if (pollEvents()) return;
+
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
+
+        if (screen != null) {
+            if (virtualKeyboardOpen) {
+                handleScreen(null, mod.virtualKeyboard.getScreen());
+                return;
+            }
+            handleScreen(player, screen);
         }
     }
 
@@ -413,7 +452,7 @@ public class ControllerInput extends Input {
         return Math.abs(leftStick.x) > Math.abs(leftStick.y);
     }
 
-    public float getAxis(ControllerAxis controllerAxis) {
+    float getAxis1(ControllerSignedFloat controllerAxis) {
         Float v = getAxis0(controllerAxis);
         if (v == null) return 0f;
 
@@ -424,15 +463,9 @@ public class ControllerInput extends Input {
         return 0;
     }
 
-    private @Nullable Float getAxis0(ControllerAxis controllerAxis) {
-        if (controllerAxis == ControllerAxis.DpadX) {
-            return (float) (isButtonPressed(ControllerButton.DPadLeft) ? -1 : (isButtonPressed(ControllerButton.RPadRight) ? 1 : 0));
-        } else if (controllerAxis == ControllerAxis.DpadY) {
-            return (float) (isButtonPressed(ControllerButton.DPadDOwn) ? -1 : (isButtonPressed(ControllerButton.DPadUp) ? 1 : 0));
-        }
-
-        int axis = controllerAxis.sdlAxis();
-        if (axis == -1) return null;
+    private @Nullable Float getAxis0(ControllerSignedFloat controllerAxis) {
+        @MagicConstant(valuesFromClass = SDL_GameControllerAxis.class) int axis = controllerAxis.sdlAxis();
+        if (axis == SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_INVALID) return null;
         float v = SDL_GameControllerGetAxis(sdlController, axis) / 32767f;
 
         float deadZone = Config.get().axisDeadZone;
@@ -443,19 +476,14 @@ public class ControllerInput extends Input {
         } else {
             v *= signum;
         }
+
+        if (v == 0) return 0f;
+
         return v;
     }
 
-    private float getOldAxis(ControllerAxis controllerAxis) {
+    private float getOldAxis(ControllerSignedFloat controllerAxis) {
         return oldAxes[controllerAxis.sdlAxis()];
-    }
-
-    public Vector2f getJoystick(ControllerJoystick joystick) {
-        return joystick.getValue();
-    }
-
-    public float getTrigger(ControllerTrigger trigger) {
-        return trigger.getValue();
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -476,8 +504,8 @@ public class ControllerInput extends Input {
         ControllerX.LOGGER.info("Controller {} connected", name);
     }
 
-    private void unsetController(@Range(from = 0, to = 256) int deviceIndex) {
-        if (deviceIndex != this.controller.deviceIndex()) return;
+    private void unsetController() {
+        if (0 != this.controller.deviceIndex()) return;
 
         Minecraft.getInstance().getToasts().addToast(new ControllerToast(Icon.AnyJoyStick, Component.translatable("controllerx.toast.controller_disconnected.title"), Component.translatable("controllerx.toast.controller_disconnected.description", this.controller.name())).hideIn(Duration.ofSeconds(5)));
 
@@ -498,25 +526,30 @@ public class ControllerInput extends Input {
         return sdlController;
     }
 
-    public boolean isButtonPressed(ControllerButton button) {
-        if (button.isAxis()) return button.getValue();
+    public boolean isButtonPressed(ControllerBoolean button) {
+        return button.isPressed();
+    }
 
+    public boolean isButtonJustPressed(ControllerBoolean button) {
+        return button.isJustPressed();
+    }
+
+    public boolean isButtonJustReleased(ControllerBoolean button) {
+        return button.isJustReleased();
+    }
+
+    public Vector2f getJoystick(ControllerVec2 joystick) {
+        return joystick.get(this.tmp);
+    }
+
+    public float getTrigger(ControllerUnsignedFloat trigger) {
+        return trigger.getValue();
+    }
+
+    boolean isButtonPressed0(ControllerBoolean button) {
         int idx = button.sdlButton();
         boolean pressed = SDL_GameControllerGetButton(sdlController, idx) == SDL_PRESSED;
 
-        if (ControllerX.get().getInputType() == InputType.CONTROLLER) return pressed;
-
-        return false;
-    }
-
-    public boolean isButtonJustPressed(ControllerButton button) {
-        if (button.isAxis()) {
-            return getAxis(ControllerAxis.fromButton(button)) != 0 && getOldAxis(ControllerAxis.fromButton(button)) == 0;
-        };
-
-        int idx = button.sdlButton();
-
-        boolean pressed = this.justPressedButtons.get(idx);
         if (ControllerX.get().getInputType() == InputType.CONTROLLER) return pressed;
 
         return false;
@@ -563,41 +596,6 @@ public class ControllerInput extends Input {
         return null;
     }
 
-    public boolean isAxisPressed(ControllerAxis axis) {
-        return switch (axis) {
-            case LeftStickX, LeftStickY -> isButtonPressed(ControllerButton.LeftStickClick);
-            case RightStickX, RightStickY -> isButtonPressed(ControllerButton.RightStickClick);
-            case LeftTrigger -> getAxis(ControllerAxis.LeftTrigger) > 0;
-            case RightTrigger -> getAxis(ControllerAxis.RightTrigger) > 0;
-            default -> false;
-        };
-    }
-
-    public Vector2f tryGetAxis(ControllerAxis axis) {
-        return switch (axis) {
-            case LeftStickX, LeftStickY -> getJoystick(ControllerJoystick.Left);
-            case RightStickX, RightStickY -> getJoystick(ControllerJoystick.Right);
-            default -> new Vector2f(0, 0);
-        };
-    }
-
-    public void updateScreen(Screen screen) {
-        this.screenWasOpen = screen != null;
-
-        if (pollEvents()) return;
-
-        Minecraft mc = Minecraft.getInstance();
-        LocalPlayer player = mc.player;
-
-        if (screen != null) {
-            if (virtualKeyboardOpen) {
-                handleScreen(null, mod.virtualKeyboard.getScreen());
-                return;
-            }
-            handleScreen(player, screen);
-        }
-    }
-
     public ControllerX getMod() {
         return mod;
     }
@@ -615,8 +613,8 @@ public class ControllerInput extends Input {
         this.virtualKeyboardOpen = false;
     }
 
-    public boolean isTriggerJustPressed(ControllerAxis axis) {
-        return getAxis(axis) > 0 && getOldAxis(axis) == 0;
+    public boolean isTriggerJustPressed(ControllerSignedFloat axis) {
+        return getAxis1(axis) > 0 && getOldAxis(axis) == 0;
     }
 
     public boolean hasAnyInput() {
@@ -634,4 +632,60 @@ public class ControllerInput extends Input {
 
         return false;
     }
+
+    public void interceptInputOnce(InterceptCallback callback) {
+        interceptCallback = callback;
+        interceptInvalidation = new CountInvalidation(1);
+    }
+
+    @FunctionalInterface
+    public interface InterceptCallback {
+        void onIntercept(EventObject<?, ?> type);
+    }
+
+    public static class EventType<T> {
+        public static final EventType<ControllerSignedFloat> AXIS = new EventType<>(ControllerSignedFloat.class);
+        public static final EventType<ControllerBoolean> BUTTON = new EventType<>(ControllerBoolean.class);
+        public static final EventType<ControllerVec2> JOYSTICK = new EventType<>(ControllerVec2.class);
+        public static final EventType<ControllerUnsignedFloat> TRIGGER = new EventType<>(ControllerUnsignedFloat.class);
+
+        private final Class<T> type;
+
+        private EventType(Class<T> type) {
+            this.type = type;
+        }
+
+        @ApiStatus.Internal
+        @SuppressWarnings("unchecked")
+        public static <T extends ControllerInterDynamic<?>> EventType<T> get(Class<?> aClass) {
+            if (aClass == ControllerAction.Button.class) return (EventType<T>) BUTTON;
+            if (aClass == ControllerAction.Axis.class) return (EventType<T>) AXIS;
+
+            throw new IllegalArgumentException("Invalid type: " + aClass);
+        }
+
+        public Class<T> getType() {
+            return type;
+        }
+    }
+
+    public record EventObject<V, T extends Enum<T> & ControllerInterDynamic<V>>(EventType<? extends T> type, T mapping,
+                                                                                V value) {
+
+        public static EventObject<Boolean, ControllerBoolean> of(ControllerBoolean controllerButton, boolean value) {
+                return new EventObject<>(EventType.BUTTON, controllerButton, value);
+            }
+
+            public static EventObject<Float, ControllerSignedFloat> of(ControllerSignedFloat controllerAxis, float value) {
+                return new EventObject<>(EventType.AXIS, controllerAxis, value);
+            }
+
+            public static EventObject<Vector2f, ControllerVec2> of(ControllerVec2 controllerJoystick, Vector2f value) {
+                return new EventObject<>(EventType.JOYSTICK, controllerJoystick, value);
+            }
+
+            public static EventObject<Float, ControllerUnsignedFloat> of(ControllerUnsignedFloat controllerTrigger, float value) {
+                return new EventObject<>(EventType.TRIGGER, controllerTrigger, value);
+            }
+        }
 }

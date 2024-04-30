@@ -27,6 +27,8 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
+    modImplementation("fuzs.forgeconfigscreens:forgeconfigscreens-forge:8.0.2")
+
     include(forgeRuntimeLibrary(implementation("io.github.libsdl4j:libsdl4j:$libsdl4j_version")))
     modImplementation("com.github.Ultreon.ultreonlib:ultreon-lib-forge:$ultreonlib_version") {
         exclude group: "com.google.code.gson"

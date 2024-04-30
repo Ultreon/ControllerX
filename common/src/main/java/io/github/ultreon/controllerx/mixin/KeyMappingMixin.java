@@ -1,7 +1,7 @@
 package io.github.ultreon.controllerx.mixin;
 
 import io.github.ultreon.controllerx.Hooks;
-import io.github.ultreon.controllerx.input.*;
+import io.github.ultreon.controllerx.input.MixinClickHandler;
 import net.minecraft.client.KeyMapping;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

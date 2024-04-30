@@ -32,7 +32,7 @@ public class TextInputScreen extends BaseScreen {
         this.minecraft = Minecraft.getInstance();
         this.font = Minecraft.getInstance().font;
 
-        this.layout = ControllerX.get().controllerInput.getLayout();
+        this.layout = ControllerX.get().input.getLayout();
     }
 
     public void setSubmitCallback(VirtualKeyboardSubmitCallback callback) {
@@ -55,7 +55,7 @@ public class TextInputScreen extends BaseScreen {
 
     @Override
     protected void init() {
-        this.setInput(ControllerX.get().controllerInput.getVirtualKeyboardValue());
+        this.setInput(ControllerX.get().input.getVirtualKeyboardValue());
 
         for (ImageButton button : this.buttons) {
             this.removeWidget(button);

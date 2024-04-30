@@ -3,14 +3,18 @@ package io.github.ultreon.controllerx.api;
 import com.ultreon.libs.collections.v0.maps.OrderedHashMap;
 import com.ultreon.mods.lib.world.Crosshair;
 import io.github.ultreon.controllerx.ControllerX;
+import io.github.ultreon.controllerx.config.Config;
 import io.github.ultreon.controllerx.gui.widget.ItemSlot;
 import io.github.ultreon.controllerx.impl.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -19,16 +23,38 @@ public abstract class ControllerContext {
     private static volatile boolean frozen = false;
     public final ControllerMappings mappings = new ControllerMappings();
     private static boolean initialized = false;
+    final ResourceLocation id;
+    private Config config;
 
     private static boolean isUsingVirtualKeyboard(Minecraft minecraft) {
-        return ControllerX.get().controllerInput.isVirtualKeyboardOpen();
+        return ControllerX.get().input.isVirtualKeyboardOpen();
     }
 
-    protected ControllerContext() {
+    protected ControllerContext(ResourceLocation id) {
+        this.id = id;
         if (!initialized) {
             REGISTRY.put(ControllerContext::isUsingVirtualKeyboard, VirtKeyboardControllerContext.INSTANCE);
             initialized = true;
         }
+    }
+
+    public static Iterable<Config> createConfigs() {
+        List<Config> configs = new ArrayList<>();
+        for (Map.Entry<Predicate<Minecraft>, ControllerContext> entry : REGISTRY.entrySet()) {
+            configs.add(entry.getValue().createConfig());
+        }
+
+        return configs;
+    }
+
+    private Config createConfig() {
+        this.config = new Config(this.id, this);
+        Config.register(this.config);
+        return this.config;
+    }
+
+    public String getId() {
+        return this.id.toString();
     }
 
     public static void register(ControllerContext context, Predicate<Minecraft> predicate) {
@@ -45,7 +71,7 @@ public abstract class ControllerContext {
         REGISTRY.put(ControllerContext::isChatting, ChatControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInGame, InGameControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInMenu, MenuControllerContext.INSTANCE);
-        REGISTRY.put(Predicate.isEqual(Minecraft.getInstance()), new ControllerContext() {
+        REGISTRY.put(Predicate.isEqual(Minecraft.getInstance()), new ControllerContext(new ResourceLocation("controllerx", "default")) {
 
         });
     }
@@ -111,5 +137,9 @@ public abstract class ControllerContext {
 
     public int getRightXOffset() {
         return 0;
+    }
+
+    public Config getConfig() {
+        return config;
     }
 }

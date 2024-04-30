@@ -29,8 +29,13 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
+    modLocalRuntime "fuzs.forgeconfigscreens:forgeconfigscreens-fabric:8.0.2"
+    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:8.0.0"
+
     include(implementation("io.github.libsdl4j:libsdl4j:$libsdl4j_version"))
     modImplementation("com.github.Ultreon.ultreonlib:ultreon-lib-fabric:$ultreonlib_version")
+
+    modImplementation("com.terraformersmc:modmenu:7.2.2")
 
     implementation("com.github.Ultreon.corelibs:corelibs-collections-v0:$corelibs_version")
     implementation("com.github.Ultreon.corelibs:corelibs-commons-v0:$corelibs_version")

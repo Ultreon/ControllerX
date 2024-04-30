@@ -1,217 +1,227 @@
 package io.github.ultreon.controllerx.api;
 
-import io.github.ultreon.controllerx.ControllerX;
-import io.github.ultreon.controllerx.input.ControllerAxis;
-import io.github.ultreon.controllerx.input.ControllerButton;
-import io.github.ultreon.controllerx.input.ControllerJoystick;
-import io.github.ultreon.controllerx.input.ControllerTrigger;
-import io.github.ultreon.controllerx.util.InputDefinition;
+import com.google.common.base.Preconditions;
+import io.github.ultreon.controllerx.config.Config;
+import io.github.ultreon.controllerx.config.gui.ConfigEntry;
+import io.github.ultreon.controllerx.input.ControllerBoolean;
+import io.github.ultreon.controllerx.input.ControllerSignedFloat;
+import io.github.ultreon.controllerx.input.ControllerUnsignedFloat;
+import io.github.ultreon.controllerx.input.ControllerVec2;
+import io.github.ultreon.controllerx.input.dyn.*;
+import net.minecraft.network.chat.Component;
+import org.apache.commons.lang3.EnumUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 import org.joml.Vector2f;
 
-public sealed interface ControllerAction<T extends InputDefinition<?>> permits ControllerAction.Axis, ControllerAction.Button, ControllerAction.Joystick, ControllerAction.Trigger, ControllerMapping.NullAction {
+public sealed class ControllerAction<T extends Enum<T> & ControllerInterDynamic<?>> permits ControllerAction.Axis, ControllerAction.Button, ControllerAction.Joystick, ControllerAction.Nulled, ControllerAction.Trigger {
+    private final T defaultValue;
+    private final Type type;
+    private final Vector2f tmp = new Vector2f();
+    private ControllerAction<T> nullAction;
+    private ConfigEntry<T> entry;
+
+    protected ControllerAction(@UnknownNullability T value, Type type) {
+        if (this.getClass() != Nulled.class)
+            Preconditions.checkNotNull(value, "Controller action value shouldn't be null.");
+
+        this.type = type;
+        this.defaultValue = value;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static <T extends Enum<T> & ControllerInterDynamic<?>> ControllerAction<T> create(Class<T> type, String text) {
+        @SuppressWarnings("UnnecessaryLocalVariable")
+        Class clazz = type;
+        if (clazz == ControllerBoolean.class)
+            return (ControllerAction<T>) new Button((ControllerBoolean) EnumUtils.getEnum(clazz, text));
+        else if (clazz == ControllerSignedFloat.class)
+            return (ControllerAction<T>) new Axis((ControllerSignedFloat) EnumUtils.getEnum(clazz, text));
+        else if (clazz == ControllerVec2.class)
+            return (ControllerAction<T>) new Joystick((ControllerVec2) EnumUtils.getEnum(clazz, text));
+        else if (clazz == ControllerUnsignedFloat.class)
+            return (ControllerAction<T>) new Trigger((ControllerUnsignedFloat) EnumUtils.getEnum(clazz, text));
+        else throw new IllegalArgumentException("Unknown controller action type: " + clazz);
+    }
+
     /**
      * Get the mapping of the action
      *
      * @return the mapping
      */
-    T getMapping();
+    public T getMapping() {
+        return entry == null ? getDefaultValue() : entry.get();
+    }
+
 
     /**
      * Set the mapping of the action
      *
      * @param mapping the mapping
      */
-    void setMapping(T mapping);
+    public void setMapping(T mapping) {
+        if (entry == null) return;
+        this.entry.set(mapping);
+    }
 
     /**
      * Check if the action is pressed
      *
      * @return true if the action is pressed, false otherwise.
      */
-    boolean isPressed();
+    public boolean isPressed() {
+        return getMapping().asBoolean().isPressed();
+    }
 
     /**
      * Get the value of the action
      *
      * @return a value between 0..1
      */
-    float getValue();
+    public float getValue() {
+        return getMapping().asUnsignedFloat().getValue();
+    }
 
     /**
      * Get the axis value of the action
      *
      * @return a value between -1..1
      */
-    float getAxisValue();
+    public float getAxisValue() {
+        return getMapping().asSignedFloat().getValue();
+    }
 
     /**
      * Get the 2D value of the action
      *
      * @return a 2D vector with values between -1..1
      */
-    default Vector2f get2DValue() {
-        return new Vector2f(0, 0);
+    public Vector2f get2DValue() {
+        return getMapping().asVec2().get(this.tmp);
     }
 
-    default boolean isJustPressed() {
-        return false;
+    public boolean isJustPressed() {
+        return getMapping().asBoolean().isJustPressed();
     }
 
-    final class Button implements ControllerAction<ControllerButton> {
-        private ControllerButton button;
+    public boolean isJustReleased() {
+        return getMapping().asBoolean().isJustReleased();
+    }
 
-        public Button(ControllerButton button) {
-            this.button = button;
+
+    private ConfigEntry<T> createEntry0(Config config, ControllerMapping<T> mapping, String id, Component description) {
+        return config.add(id, mapping, description);
+    }
+
+    public ConfigEntry<T> createEntry(Config config, ControllerMapping<T> mapping, String id, Component description) {
+        return this.entry = createEntry0(config, mapping, id, description);
+    }
+
+    public @NotNull ControllerAction<T> nulled() {
+        if (this.nullAction == null) {
+            this.nullAction = new Nulled();
         }
 
+        return this.nullAction;
+    }
+
+    public T getDefaultValue() {
+        return defaultValue;
+    }
+
+    protected Type getType() {
+        return type;
+    }
+
+    public static final class Button extends ControllerAction<ControllerBoolean> {
+        public Button(ControllerBoolean value) {
+            super(value, Type.BOOLEAN);
+        }
+    }
+
+    public static final class Axis extends ControllerAction<ControllerSignedFloat> {
+        public Axis(ControllerSignedFloat value) {
+            super(value, Type.SIGNED_FLOAT);
+        }
+
+    }
+    public static final class Trigger extends ControllerAction<ControllerUnsignedFloat> {
+        public Trigger(ControllerUnsignedFloat trigger) {
+            super(trigger, Type.UNSIGNED_FLOAT);
+        }
+    }
+
+    public static final class Joystick extends ControllerAction<ControllerVec2> {
+        public Joystick(ControllerVec2 value) {
+            super(value, Type.VEC2);
+        }
+    }
+
+    final class Nulled extends ControllerAction<T> {
+        private Nulled() {
+            super(null, Type.BOOLEAN /* Placeholder */);
+        }
+
+        @Override
+        public T getMapping() {
+            return ControllerAction.this.getMapping();
+        }
+
+        @Override
+        public void setMapping(T mapping) {
+            ControllerAction.this.setMapping(mapping);
+        }
+
+        @Override
         public boolean isPressed() {
-            return ControllerX.get().controllerInput.isButtonPressed(button);
-        }
-
-        @Override
-        public float getValue() {
-            return isPressed() ? 1 : 0;
-        }
-
-        @Override
-        public float getAxisValue() {
-            return switch (button) {
-                case DPadLeft, DPadDOwn -> -1;
-                case RPadRight, DPadUp -> 1;
-                default -> 0;
-            };
-        }
-
-        @Override
-        public Vector2f get2DValue() {
-            return switch (button) {
-                case DPadLeft, RPadRight -> new Vector2f(getAxisValue(), 0);
-                case DPadUp, DPadDOwn -> new Vector2f(0, getAxisValue());
-                default -> new Vector2f(0, 0);
-            };
-        }
-
-        @Override
-        public ControllerButton getMapping() {
-            return button;
-        }
-
-        @Override
-        public void setMapping(ControllerButton mapping) {
-            this.button = mapping;
+            return false;
         }
 
         @Override
         public boolean isJustPressed() {
-            return ControllerX.get().controllerInput.isButtonJustPressed(button);
-        }
-    }
-
-    final class Axis implements ControllerAction<ControllerAxis> {
-        private ControllerAxis axis;
-
-        public Axis(ControllerAxis axis) {
-            this.axis = axis;
+            return false;
         }
 
         @Override
-        public ControllerAxis getMapping() {
-            return axis;
+        public boolean isJustReleased() {
+            return false;
         }
 
         @Override
-        public void setMapping(ControllerAxis mapping) {
-            this.axis = mapping;
+        public ConfigEntry<T> createEntry(Config config, ControllerMapping<T> mapping, String id, Component description) {
+            return ControllerAction.this.createEntry(config, mapping, id, description);
         }
 
+        @Override
+        public T getDefaultValue() {
+            return ControllerAction.this.getDefaultValue();
+        }
+
+        @Override
         public float getValue() {
-            return ControllerX.get().controllerInput.getAxis(axis);
+            return 0;
         }
 
         @Override
         public float getAxisValue() {
-            return axis.getValue();
+            return 0;
         }
 
         @Override
         public Vector2f get2DValue() {
-            return ControllerX.get().controllerInput.tryGetAxis(axis);
+            return new Vector2f(0, 0);
+        }
+        @Override
+        public Type getType() {
+            return ControllerAction.this.getType();
         }
 
-        public boolean isPressed() {
-            return ControllerX.get().controllerInput.isAxisPressed(axis);
-        }
     }
 
-    final class Joystick implements ControllerAction<ControllerJoystick> {
-        private ControllerJoystick joystick;
-
-        public Joystick(ControllerJoystick joystick) {
-            this.joystick = joystick;
-        }
-
-        @Override
-        public ControllerJoystick getMapping() {
-            return joystick;
-        }
-
-        @Override
-        public void setMapping(ControllerJoystick mapping) {
-            this.joystick = mapping;
-        }
-
-        public boolean isPressed() {
-            return joystick.getJoystickLength() > 0;
-        }
-
-        @Override
-        public float getValue() {
-            return joystick.getJoystickLength();
-        }
-
-        @Override
-        public float getAxisValue() {
-            return joystick.getAxisY();
-        }
-
-        public Vector2f get2DValue() {
-            return ControllerX.get().controllerInput.getJoystick(joystick);
-        }
-    }
-
-    final class Trigger implements ControllerAction<ControllerTrigger> {
-        private ControllerTrigger trigger;
-
-        public Trigger(ControllerTrigger trigger) {
-            this.trigger = trigger;
-        }
-
-        @Override
-        public ControllerTrigger getMapping() {
-            return trigger;
-        }
-
-        @Override
-        public void setMapping(ControllerTrigger mapping) {
-            this.trigger = mapping;
-        }
-
-        public float getValue() {
-            return ControllerX.get().controllerInput.getTrigger(trigger);
-        }
-
-        public boolean isPressed() {
-            return trigger.isPressed();
-        }
-
-        @Override
-        public boolean isJustPressed() {
-            return trigger.isJustPressed();
-        }
-
-        @Override
-        public float getAxisValue() {
-            return getValue() * 2 - 1;
-        }
+    public enum Type {
+        BOOLEAN,
+        SIGNED_FLOAT,
+        UNSIGNED_FLOAT,
+        VEC2
     }
 }

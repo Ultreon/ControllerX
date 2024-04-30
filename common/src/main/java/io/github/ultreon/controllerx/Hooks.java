@@ -10,14 +10,13 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 
 public class Hooks {
     public static Optional<Boolean> hookControllerInput(KeyMapping mapping, boolean isKeyDown) {
         Minecraft mc = Minecraft.getInstance();
-        ControllerInput input = ControllerX.get().controllerInput;
+        ControllerInput input = ControllerX.get().input;
         if (isKeyDown) {
             ControllerX.get().setInputType(InputType.KEYBOARD_AND_MOUSE);
             return Optional.empty();
@@ -27,7 +26,7 @@ public class Hooks {
         }
 
         if (ControllerX.get().getInputType() != InputType.KEYBOARD_AND_MOUSE) {
-            return Optional.ofNullable(ControllerX.get().controllerInput.doInput(mc, mapping));
+            return Optional.ofNullable(ControllerX.get().input.doInput(mc, mapping));
         }
 
         return Optional.empty();
