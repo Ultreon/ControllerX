@@ -17,10 +17,14 @@ import io.github.ultreon.controllerx.gui.KeyboardHud;
 import io.github.ultreon.controllerx.input.ControllerInput;
 import io.github.ultreon.controllerx.input.InputType;
 import io.github.ultreon.controllerx.input.keyboard.KeyboardLayouts;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.ApiStatus;
@@ -31,6 +35,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.github.libsdl4j.api.Sdl.SDL_Init;
 import static io.github.libsdl4j.api.Sdl.SDL_Quit;
@@ -56,6 +61,25 @@ public class ControllerX {
 
     private ControllerX() {
         instance = this;
+
+        if (Util.getPlatform() == Util.OS.OSX) {
+            AtomicBoolean initialized = new AtomicBoolean(false);
+            ClientGuiEvent.INIT_PRE.register((screen, access) -> {
+                if (initialized.get()) return EventResult.pass();
+
+                if (screen instanceof TitleScreen) {
+                    initialized.set(true);
+                    Minecraft.getInstance().setScreen(new IncomatibilityWarning(
+                            Component.translatable("controllerx.screen.incompat"),
+                            Component.translatable("controllerx.screen.incompat.macos")
+                    ));
+                    return EventResult.interruptFalse();
+                }
+
+                return EventResult.pass();
+            });
+            return;
+        }
 
         ClientLifecycleEvent.CLIENT_STARTED.register(this::clientStarted);
 

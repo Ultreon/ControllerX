@@ -42,6 +42,8 @@
   "controllerx.screen.config.generic.title": "ControllerX Settings",
   "controllerx.screen.config.bindings": "Bindings",
   "controllerx.screen.config.generic": "Generic",
+  "controllerx.screen.incompat": "§6Incompatibility!",
+  "controllerx.screen.incompat.macos": "Your current operating system \"macOS\" is not supported by ControllerX",
   "controllerx.open_config": "Open config",
   "controllerx.config.controllerx.in_game": "In-Game",
   "controllerx.config.controllerx.menu": "Menu",
