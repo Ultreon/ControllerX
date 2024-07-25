@@ -1,6 +1,6 @@
 package io.github.ultreon.controllerx.config;
 
-import com.ultreon.commons.collection.map.OrderedMap;
+import dev.ultreon.mods.lib.collections.maps.OrderedHashMap;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.api.ControllerContext;
 import io.github.ultreon.controllerx.api.ControllerMapping;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Config {
-    private static final Map<ControllerContext, Config> CONFIGS = new OrderedMap<>();
+    private static final Map<ControllerContext, Config> CONFIGS = new OrderedHashMap<>();
 
     private final Map<ControllerMapping<?>, ConfigEntry<?>> mappings = new HashMap<>();
     private final Map<String, ConfigEntry<?>> entryMap = new HashMap<>();

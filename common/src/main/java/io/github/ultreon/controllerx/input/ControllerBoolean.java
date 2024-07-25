@@ -1,6 +1,6 @@
 package io.github.ultreon.controllerx.input;
 
-import com.ultreon.commons.collection.Pair;
+import dev.ultreon.mods.lib.common.tuple.Pair;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.Icon;

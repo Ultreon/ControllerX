@@ -1,13 +1,13 @@
 package io.github.ultreon.controllerx.gui.screen;
 
-import com.ultreon.mods.lib.client.gui.Theme;
-import com.ultreon.mods.lib.client.gui.screen.PanoramaScreen;
-import com.ultreon.mods.lib.client.gui.widget.ListWidget;
+import dev.ultreon.mods.lib.client.gui.screen.BaseScreen;
+import dev.ultreon.mods.lib.client.gui.widget.ListWidget;
+import dev.ultreon.mods.lib.client.theme.GlobalTheme;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class BaseConfigScreen extends PanoramaScreen {
+public abstract class BaseConfigScreen extends BaseScreen {
     private ListWidget list;
 
     /**
@@ -21,7 +21,7 @@ public abstract class BaseConfigScreen extends PanoramaScreen {
 
     @Override
     protected final void init() {
-        this.list = new ListWidget(this, 0, 0, 0, getCount(), hasSearch(), title, Theme.NORMAL);
+        this.list = new ListWidget(this, 0, 0, 0, getCount(), hasSearch(), title, GlobalTheme.VANILLA);
     }
 
     protected abstract boolean hasSearch();

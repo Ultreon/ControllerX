@@ -13,7 +13,6 @@
     "KeyboardInputMixin",
     "KeyMappingMixin",
     "accessors.AbstractContainerScreenAccessor",
-    "accessors.AbstractSelectionListAccessor",
     "accessors.ChatComponentAccessor",
     "accessors.KeyMappingAccessor",
     "accessors.MinecraftAccessor"

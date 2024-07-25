@@ -5,6 +5,7 @@ import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.KeyMappingIcon;
 import io.github.ultreon.controllerx.input.InputType;
 import io.github.ultreon.controllerx.mixin.accessors.KeyMappingAccessor;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -21,7 +22,7 @@ public class KeyboardHud {
         VISIBLE_MAPPINGS.add(mapping);
     }
 
-    public void render(GuiGraphics gfx, float ignoredPartialTicks) {
+    public void render(GuiGraphics gfx, DeltaTracker ignoredPartialTicks) {
         if (ControllerX.get().getInputType() != InputType.KEYBOARD_AND_MOUSE) return;
         if (!Config.get().enableKeyboardHud) return;
 

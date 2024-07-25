@@ -1,7 +1,7 @@
 package io.github.ultreon.controllerx.input;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.ultreon.mods.lib.client.gui.widget.BaseWidget;
+import dev.ultreon.mods.lib.client.gui.widget.BaseWidget;
 import dev.architectury.impl.ScreenAccessImpl;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerAxis;
@@ -16,7 +16,6 @@ import io.github.ultreon.controllerx.impl.*;
 import io.github.ultreon.controllerx.input.dyn.*;
 import io.github.ultreon.controllerx.injection.CreativeModeInventoryScreenInjection;
 import io.github.ultreon.controllerx.input.keyboard.KeyboardLayout;
-import io.github.ultreon.controllerx.mixin.accessors.AbstractSelectionListAccessor;
 import io.github.ultreon.controllerx.mixin.accessors.ScreenAccessor;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -105,8 +104,8 @@ public class ControllerInput extends Input {
             this.leftImpulse = -context.movePlayer.getAction().get2DValue().x;
             this.forwardImpulse = -context.movePlayer.getAction().get2DValue().y;
 
-            player.setXRot(Mth.clamp((float) (player.getXRot() + context.lookPlayer.getAction().get2DValue().y * mc.options.sensitivity().get() * mc.getDeltaFrameTime() * 10), -90, 90));
-            player.setYRot((float) (player.getYRot() + context.lookPlayer.getAction().get2DValue().x * mc.options.sensitivity().get() * mc.getDeltaFrameTime() * 10));
+            player.setXRot(Mth.clamp((float) (player.getXRot() + context.lookPlayer.getAction().get2DValue().y * mc.options.sensitivity().get() * mc.getTimer().getGameTimeDeltaTicks() * 10), -90, 90));
+            player.setYRot((float) (player.getYRot() + context.lookPlayer.getAction().get2DValue().x * mc.options.sensitivity().get() * mc.getTimer().getGameTimeDeltaTicks() * 10));
 
             jumping = context.jump.getAction().isPressed();
             shiftKeyDown = context.sneak.getAction().isPressed();
@@ -292,23 +291,22 @@ public class ControllerInput extends Input {
             axisValue = -axisValue;
             GuiEventListener focused = screen.getFocused();
             if (focused instanceof LayoutElement widget) {
-                screen.mouseScrolled(widget.getX(), widget.getY(), axisValue);
+                screen.mouseScrolled(widget.getX(), widget.getY(), 0f, axisValue);
             } else if (focused instanceof AbstractSelectionList<?> list) {
-                AbstractSelectionListAccessor list1 = (AbstractSelectionListAccessor) list;
-                screen.mouseScrolled(list1.getX0(), list1.getY0(), axisValue);
+                screen.mouseScrolled(list.getX(), list.getY(), 0f, axisValue);
             } else if (focused != null) {
-                screen.mouseScrolled(0, 0, axisValue);
+                screen.mouseScrolled(0, 0, 0f, axisValue);
             } else for (GuiEventListener widget : screen.children()) {
                 if (widget instanceof LayoutElement w && widget.isFocused()) {
-                    screen.mouseScrolled(w.getX(), w.getY(), axisValue);
+                    screen.mouseScrolled(w.getX(), w.getY(), 0f, axisValue);
                 } else if (widget instanceof ContainerEventHandler container && container.isFocused()) {
                     if (container instanceof LayoutElement w) {
-                        screen.mouseScrolled(w.getX(), w.getY(), axisValue);
+                        screen.mouseScrolled(w.getX(), w.getY(), 0f, axisValue);
                     } else {
-                        screen.mouseScrolled(0, 0, axisValue);
+                        screen.mouseScrolled(0, 0, 0f, axisValue);
                     }
                 } else if (widget.isFocused()) {
-                    screen.mouseScrolled(0, 0, axisValue);
+                    screen.mouseScrolled(0, 0, 0f, axisValue);
                 }
             }
         }

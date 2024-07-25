@@ -1,10 +1,12 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
 }
+loom {
 
+}
 architectury {
     platformSetupLoomIde()
-    fabric()
+    neoForge()
 }
 
 configurations {
@@ -12,47 +14,49 @@ configurations {
     shadowCommon // Don't use shadow from the shadow plugin since it *excludes* files.
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
-    developmentFabric.extendsFrom common
-}
-
-repositories {
-    maven { url "https://maven.terraformersmc.com/releases" }
-    maven { url "https://fuzs.github.com/modresources/raw" }
+    developmentNeoForge.extendsFrom common
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
-    modApi "net.fabricmc.fabric-api:fabric-api:$fabric_api_version"
+    neoForge "net.neoforged:neoforge:$neoforge_version"
     // Remove the next line if you don't want to depend on the API
-    modApi "dev.architectury:architectury-fabric:$architectury_version"
+    modApi "dev.architectury:architectury-neoforge:$architectury_version"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 
-    include(implementation("io.github.libsdl4j:libsdl4j:$libsdl4j_version"))
-    modImplementation("dev.ultreon.ultreonlib:ultreonlib-fabric:$ultreonlib_version")
+    modImplementation("fuzs.forgeconfigscreens:forgeconfigscreens-forge:8.0.2")
 
-    modImplementation("com.terraformersmc:modmenu:7.2.2")
+    include(forgeRuntimeLibrary(implementation("io.github.libsdl4j:libsdl4j:$libsdl4j_version")))
+    modImplementation("dev.ultreon.ultreonlib:ultreonlib-neoforge:$ultreonlib_version") {
+        exclude group: "com.google.code.gson"
+        exclude group: "com.google.code.findbugs"
+        exclude group: "com.google.guava"
+        exclude group: "com.google.l2objc"
+        exclude group: "org.jetbrains"
+        exclude group: "org.checkerframework"
+    }
 }
 
 processResources {
     inputs.property "version", project.version
 
-    filesMatching("fabric.mod.json") {
+    filesMatching("META-INF/neoforge.mods.toml") {
         expand "version": project.version
     }
 }
 
 shadowJar {
+    exclude "fabric.mod.json"
+
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = "dev-shadow"
 }
 
 remapJar {
-    injectAccessWidener = true
     inputFile.set(shadowJar.archiveFile)
     dependsOn shadowJar
-    archiveClassifier = null
+    archiveClassifier.set(null)
 }
 
 jar {
@@ -73,14 +77,9 @@ components.java {
 
 publishing {
     publications {
-        mavenFabric(MavenPublication) {
-            artifactId = rootProject.archives_base_name + "-" + project.name
+        mavenForge(MavenPublication) {
+            artifactId = archives_base_name + "-" + project.name
             from components.java
         }
-    }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
     }
 }

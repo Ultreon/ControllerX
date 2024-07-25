@@ -1,6 +1,7 @@
 package io.github.ultreon.controllerx;
 
 import io.github.ultreon.controllerx.gui.screen.TextInputScreen;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Overlay;

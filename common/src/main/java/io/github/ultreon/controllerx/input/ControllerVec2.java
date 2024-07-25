@@ -1,6 +1,6 @@
 package io.github.ultreon.controllerx.input;
 
-import com.ultreon.commons.collection.Pair;
+import dev.ultreon.mods.lib.common.tuple.Pair;
 import io.github.ultreon.controllerx.Icon;
 import io.github.ultreon.controllerx.input.dyn.ControllerInterDynamic;
 import org.joml.Vector2f;

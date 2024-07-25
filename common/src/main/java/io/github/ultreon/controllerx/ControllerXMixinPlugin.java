@@ -12,7 +12,7 @@ public class ControllerXMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
-        if (System.getProperty("os.name").startsWith("Mac OS X")) {
+        if (System.getProperty("os.name").toLowerCase().startsWith("mac")) {
             this.disabled = true;
         }
 
@@ -40,6 +40,9 @@ public class ControllerXMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public List<String> getMixins() {
+        if (!disabled) {
+            return List.of();
+        }
         return null;
     }
 

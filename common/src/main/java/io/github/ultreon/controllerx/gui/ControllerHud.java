@@ -4,13 +4,14 @@ import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.api.ControllerContext;
 import io.github.ultreon.controllerx.api.ControllerMapping;
 import io.github.ultreon.controllerx.input.ControllerInput;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
 public class ControllerHud {
     private final ControllerInput input = ControllerX.get().input;
 
-    public void render(GuiGraphics gfx, float ignoredPartialTicks) {
+    public void render(GuiGraphics gfx, DeltaTracker ignoredPartialTicks) {
         ControllerContext ctx = ControllerContext.get();
 
         if (ctx == null) return;

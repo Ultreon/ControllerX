@@ -17,6 +17,7 @@ import io.github.ultreon.controllerx.gui.KeyboardHud;
 import io.github.ultreon.controllerx.input.ControllerInput;
 import io.github.ultreon.controllerx.input.InputType;
 import io.github.ultreon.controllerx.input.keyboard.KeyboardLayouts;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -121,16 +122,16 @@ public class ControllerX {
         }
     }
 
-    private void renderGui(Screen screen, GuiGraphics gfx, int mouseX, int mouseY, float partialTicks) {
+    private void renderGui(Screen screen, GuiGraphics gfx, int mouseX, int mouseY, DeltaTracker partialTicks) {
         if (input.isVirtualKeyboardOpen()) {
-            virtualKeyboard.render(gfx, mouseX, mouseY, partialTicks);
+            virtualKeyboard.render(gfx, mouseX, mouseY, partialTicks.getGameTimeDeltaPartialTick(!(Minecraft.getInstance().level != null || Minecraft.getInstance().screen != null) || Minecraft.getInstance().level == null));
             return;
         }
         controllerHud.render(gfx, partialTicks);
     }
 
     public static ResourceLocation res(String path) {
-        return new ResourceLocation(MOD_ID, path);
+        return ResourceLocation.tryBuild(MOD_ID, path);
     }
 
     @ExpectPlatform
@@ -215,10 +216,10 @@ public class ControllerX {
             }
             return EventResult.pass();
         });
-        ClientScreenInputEvent.MOUSE_SCROLLED_PRE.register((client, screen, mouseX, mouseY, amount) -> {
+        ClientScreenInputEvent.MOUSE_SCROLLED_PRE.register((client, screen, mouseX, mouseY, amountX, amountY) -> {
             setInputType(InputType.KEYBOARD_AND_MOUSE);
             if (input.isVirtualKeyboardOpen()) {
-                virtualKeyboard.getScreen().mouseScrolled(mouseX, mouseY, amount);
+                virtualKeyboard.getScreen().mouseScrolled(mouseX, mouseY, amountX, amountY);
                 return EventResult.interruptFalse();
             }
             return EventResult.pass();
@@ -250,7 +251,7 @@ public class ControllerX {
         }
     }
 
-    private void renderHud(GuiGraphics gfx, float partialTicks) {
+    private void renderHud(GuiGraphics gfx, DeltaTracker partialTicks) {
         if (Minecraft.getInstance().screen != null) return;
 
         controllerHud.render(gfx, partialTicks);

@@ -1,8 +1,9 @@
 package io.github.ultreon.controllerx.gui.screen;
 
-import com.ultreon.mods.lib.client.gui.screen.BaseScreen;
+import dev.ultreon.mods.lib.client.gui.screen.BaseScreen;
 import io.github.ultreon.controllerx.*;
 import io.github.ultreon.controllerx.input.keyboard.KeyboardLayout;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -23,7 +24,7 @@ public class TextInputScreen extends BaseScreen {
     private boolean caps;
     private VirtualKeyboardSubmitCallback submitCallback = () -> {};
     private VirtualKeyboardEditCallback editCallback = s -> {};
-    private final List<ImageButton> buttons = new ArrayList<>();
+    private final List<IconButton> buttons = new ArrayList<>();
 
     public TextInputScreen(VirtualKeyboard virtualKeyboard) {
         super(Component.literal("Text Input"));
@@ -57,7 +58,7 @@ public class TextInputScreen extends BaseScreen {
     protected void init() {
         this.setInput(ControllerX.get().input.getVirtualKeyboardValue());
 
-        for (ImageButton button : this.buttons) {
+        for (IconButton button : this.buttons) {
             this.removeWidget(button);
         }
 
@@ -89,12 +90,12 @@ public class TextInputScreen extends BaseScreen {
     }
 
     @Override
-    public void renderBackground(@NotNull GuiGraphics gfx) {
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 
     }
 
     private void addButton(char c, int x, int rowIdx, KeyMappingIcon icon) {
-        ImageButton imageButton = this.addRenderableWidget(new ImageButton(x, rowIdx * 16 + height - 85 - getYOffset(), icon.width, icon.height, icon.u, icon.v, -128, icon.getTexture(), 544, 384, button -> {
+        IconButton imageButton = this.addRenderableWidget(new IconButton(x, rowIdx * 16 + height - 85 - getYOffset(), icon.width, icon.height, icon.u, icon.v, -128, icon.getTexture(), 544, 384, button -> {
             if (c >= 0x20) {
                 setInput(getInput() + c);
                 return;

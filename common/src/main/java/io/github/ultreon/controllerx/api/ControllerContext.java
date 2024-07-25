@@ -1,7 +1,7 @@
 package io.github.ultreon.controllerx.api;
 
-import com.ultreon.libs.collections.v0.maps.OrderedHashMap;
-import com.ultreon.mods.lib.world.Crosshair;
+import dev.ultreon.mods.lib.collections.maps.OrderedHashMap;
+import dev.ultreon.mods.lib.world.Crosshair;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.config.Config;
 import io.github.ultreon.controllerx.gui.widget.ItemSlot;
@@ -71,7 +71,7 @@ public abstract class ControllerContext {
         REGISTRY.put(ControllerContext::isChatting, ChatControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInGame, InGameControllerContext.INSTANCE);
         REGISTRY.put(ControllerContext::isInMenu, MenuControllerContext.INSTANCE);
-        REGISTRY.put(Predicate.isEqual(Minecraft.getInstance()), new ControllerContext(new ResourceLocation("controllerx", "default")) {
+        REGISTRY.put(Predicate.isEqual(Minecraft.getInstance()), new ControllerContext(ResourceLocation.tryBuild("controllerx", "default")) {
 
         });
     }

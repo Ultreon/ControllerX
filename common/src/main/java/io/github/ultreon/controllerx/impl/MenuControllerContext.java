@@ -160,7 +160,7 @@ public class MenuControllerContext extends ControllerContext {
         }
 
         if (screen instanceof TitleScreen) {
-            if (Platform.isForge()) return 36;
+            if (Platform.isForgeLike()) return 36;
             return 12;
         }
 

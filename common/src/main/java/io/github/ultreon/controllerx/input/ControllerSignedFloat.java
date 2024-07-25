@@ -1,6 +1,6 @@
 package io.github.ultreon.controllerx.input;
 
-import com.ultreon.commons.collection.Pair;
+import dev.ultreon.mods.lib.common.tuple.Pair;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerAxis;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.Icon;
@@ -123,7 +123,7 @@ public enum ControllerSignedFloat implements ControllerInterDynamic<Float> {
     @Override
     public Pair<ControllerVec2, Vector2f> asVec2(Float value, Vector2f result) {
         Pair<ControllerSignedFloat, Float> signedFloat = asSignedFloat(value);
-        return signedFloat.first().asVec2(signedFloat.second(), result);
+        return signedFloat.getFirst().asVec2(signedFloat.getSecond(), result);
     }
 
     @Override

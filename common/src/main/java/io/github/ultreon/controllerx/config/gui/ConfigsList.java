@@ -14,9 +14,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class ConfigsList extends ContainerObjectSelectionList<ConfigsList.ListEntry> {
-    public ConfigsList(Minecraft minecraft, int width, int height, int i, int i1) {
-        super(minecraft, width, height, i, i1, 28);
+    public ConfigsList(Minecraft minecraft, int width, int height, int x, int y) {
+        super(minecraft, width, height, y, 28);
         this.centerListVertically = false;
+        this.setX(x);
     }
 
     public static void open() {

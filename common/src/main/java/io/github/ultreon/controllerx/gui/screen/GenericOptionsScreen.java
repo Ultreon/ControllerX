@@ -11,7 +11,7 @@ public class GenericOptionsScreen extends BaseConfigScreen {
 
     @Override
     public void render(@NotNull GuiGraphics gfx, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(gfx, partialTicks);
+        renderBackground(gfx, mouseX, mouseY, partialTicks);
     }
 
     @Override

@@ -5,10 +5,7 @@ import io.github.ultreon.controllerx.config.Config;
 import io.github.ultreon.controllerx.text.Texts;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ContainerObjectSelectionList;
-import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import org.jetbrains.annotations.NotNull;
@@ -20,8 +17,9 @@ public class BindingsConfigList extends ContainerObjectSelectionList<BindingsCon
     private final List<ListEntry> entries = new ArrayList<>();
     private final Config config;
 
-    public BindingsConfigList(Minecraft minecraft, int width, int height, int i, int i1, Config config) {
-        super(minecraft, width, height, i, i1, 28);
+    public BindingsConfigList(Minecraft minecraft, int width, int height, int x, int i1, Config config) {
+        super(minecraft, width, height, i1, 28);
+        this.setX(x);
         this.config = config;
         this.centerListVertically = false;
     }
@@ -66,7 +64,7 @@ public class BindingsConfigList extends ContainerObjectSelectionList<BindingsCon
             this.configEntry = configEntry;
             this.widget = configEntry.createButton(config, rowWidth - 160, 0, 150);
 
-            this.resetBtn = new ImageButton(0, 0, 20, 20, 0, 0, 20, ControllerX.res("textures/gui/reset.png"), 20, 40, button -> {
+            this.resetBtn = new ImageButton(0, 0, 20, 20, new WidgetSprites(ControllerX.res("textures/gui/reset.png"), ControllerX.res("textures/gui/reset_disabled.png"), ControllerX.res("textures/gui/reset_highlighted.png")), button -> {
                 configEntry.reset();
                 widget = configEntry.createButton(config, list.getRowWidth() - 160, 0, 150);
             }, Texts.GUI_RESET);

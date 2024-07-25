@@ -12,6 +12,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +21,7 @@ import java.time.Instant;
 
 @Environment(EnvType.CLIENT)
 public class ControllerToast implements Toast {
+    private static final ResourceLocation BACKGROUND_SPRITE = ResourceLocation.withDefaultNamespace("toast/tutorial");
     public static final int PROGRESS_BAR_WIDTH = 154;
     public static final int PROGRESS_BAR_HEIGHT = 1;
     public static final int PROGRESS_BAR_X = 3;
@@ -39,7 +41,7 @@ public class ControllerToast implements Toast {
     }
 
     public Toast.@NotNull Visibility render(GuiGraphics gfx, @NotNull ToastComponent toastComponent, long timeSinceLastVisible) {
-        gfx.blit(TEXTURE, 0, 0, 0, 96, this.width(), this.height());
+        gfx.blit(BACKGROUND_SPRITE, 0, 0, 0, 96, this.width(), this.height());
         this.icon.render(gfx, 6, 6);
         if (this.message == null) {
             gfx.drawString(toastComponent.getMinecraft().font, this.title, 30, 12, -11534256, false);
