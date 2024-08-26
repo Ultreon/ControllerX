@@ -41,7 +41,6 @@ public class InGameControllerContext extends ControllerContext {
     public final ControllerMapping<?> itemLeft;
     public final ControllerMapping<?> itemRight;
     public final ControllerMapping<?> attack;
-    public final ControllerMapping<?> destroyBlock;
 
     protected InGameControllerContext(ResourceLocation id) {
         super(id);
@@ -70,9 +69,7 @@ public class InGameControllerContext extends ControllerContext {
         this.chat = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.DpadRight), Side.LEFT, Component.translatable("controllerx.action.inGame.openChat"), false, "open_chat"));
         this.itemLeft = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.LeftShoulder), Side.LEFT, Component.translatable("controllerx.action.inGame.selectLeft"), false, "select_left"));
         this.itemRight = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.RightShoulder), Side.LEFT, Component.translatable("controllerx.action.inGame.selectRight"), false, "select_right"));
-
-        this.attack = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.RightTrigger), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.inGame.attack"), "attack", ControllerContext::isTargetingEntity));
-        this.destroyBlock = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.RightTrigger), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.inGame.destroyBlock"), "destroy_block", ControllerContext::isTargetingBlock));
+        this.attack = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.RightTrigger), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.inGame.attack"), "attack", (mc) -> isTargetingBlock(mc) || isTargetingEntity(mc)));
     }
 
     private boolean checkPlayer(Minecraft mc, Predicate<Player> predicate) {

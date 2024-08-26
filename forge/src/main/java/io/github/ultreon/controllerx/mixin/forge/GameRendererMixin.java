@@ -3,6 +3,7 @@ package io.github.ultreon.controllerx.mixin.forge;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.gui.widget.ItemSlot;
 import io.github.ultreon.controllerx.input.InputType;
+import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -20,6 +21,10 @@ public class GameRendererMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/ForgeHooksClient;drawScreen(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/client/gui/GuiGraphics;IIF)V")
     )
     private void onRenderScreen(Screen instance, GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
+        if (Util.getPlatform() == Util.OS.OSX && !ControllerX.get().skippedWarning) {
+            ForgeHooksClient.drawScreen(instance, gfx, mouseX, mouseY, partialTick);
+            return;
+        }
         if (ControllerX.get().getInputType() != InputType.CONTROLLER
                 || !(instance instanceof AbstractContainerScreen<?> containerScreen)
                 || !(containerScreen.getFocused() instanceof ItemSlot itemSlot)) {

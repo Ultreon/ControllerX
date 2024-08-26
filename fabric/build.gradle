@@ -7,6 +7,10 @@ architectury {
     fabric()
 }
 
+loom {
+    accessWidenerPath = file("$projectDir/../common/src/main/resources/controllerx.accesswidener")
+}
+
 configurations {
     common
     shadowCommon // Don't use shadow from the shadow plugin since it *excludes* files.
@@ -15,9 +19,19 @@ configurations {
     developmentFabric.extendsFrom common
 }
 
+loom {
+    runs {
+        client {
+            // Disable refmaps
+            property "mixin.env.refmap.enabled", "false"
+        }
+    }
+}
+
 repositories {
     maven { url "https://maven.terraformersmc.com/releases" }
     maven { url "https://fuzs.github.com/modresources/raw" }
+    maven { url "https://gitlab.com/api/v4/groups/9962021/-/packages/maven" }
 }
 
 dependencies {
@@ -33,20 +47,20 @@ dependencies {
     modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:8.0.0"
 
     include(implementation("io.github.libsdl4j:libsdl4j:$libsdl4j_version"))
-    modImplementation("com.github.Ultreon.ultreonlib:ultreon-lib-fabric:$ultreonlib_version")
+    modImplementation("dev.ultreon.mods:ultreonlib-fabric:$ultreonlib_version")
 
     modImplementation("com.terraformersmc:modmenu:7.2.2")
 
-    implementation("com.github.Ultreon.corelibs:corelibs-collections-v0:$corelibs_version")
-    implementation("com.github.Ultreon.corelibs:corelibs-commons-v0:$corelibs_version")
-    implementation("com.github.Ultreon.corelibs:corelibs-crash-v0:$corelibs_version")
-    implementation("com.github.Ultreon.corelibs:corelibs-datetime-v0:$corelibs_version")
-    implementation("com.github.Ultreon.corelibs:corelibs-events-v1:$corelibs_version")
-    implementation("com.github.Ultreon.corelibs:corelibs-functions-v0:$corelibs_version")
-    implementation("com.github.Ultreon.corelibs:corelibs-registries-v0:$corelibs_version")
-    implementation("com.github.Ultreon.corelibs:corelibs-resources-v0:$corelibs_version")
-    implementation("com.github.Ultreon.corelibs:corelibs-text-v0:$corelibs_version")
-    implementation("com.github.Ultreon.corelibs:corelibs-translations-v0:$corelibs_version")
+    implementation("dev.ultreon.corelibs:corelibs-collections-v0:$corelibs_version")
+    implementation("dev.ultreon.corelibs:corelibs-commons-v0:$corelibs_version")
+    implementation("dev.ultreon.corelibs:corelibs-crash-v0:$corelibs_version")
+    implementation("dev.ultreon.corelibs:corelibs-datetime-v0:$corelibs_version")
+    implementation("dev.ultreon.corelibs:corelibs-events-v1:$corelibs_version")
+    implementation("dev.ultreon.corelibs:corelibs-functions-v0:$corelibs_version")
+    implementation("dev.ultreon.corelibs:corelibs-registries-v0:$corelibs_version")
+    implementation("dev.ultreon.corelibs:corelibs-resources-v0:$corelibs_version")
+    implementation("dev.ultreon.corelibs:corelibs-text-v0:$corelibs_version")
+    implementation("dev.ultreon.corelibs:corelibs-translations-v0:$corelibs_version")
 }
 
 processResources {

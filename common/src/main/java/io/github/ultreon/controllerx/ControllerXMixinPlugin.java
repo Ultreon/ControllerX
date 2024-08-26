@@ -12,10 +12,6 @@ public class ControllerXMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
-        if (System.getProperty("os.name").startsWith("Mac OS X")) {
-            this.disabled = true;
-        }
-
         if (mixinPackage.startsWith("io.github.ultreon.controllerx.")) {
             if (getClass().getClassLoader().getResource("com/ultreon/mods/lib/UltreonLib.class") == null) {
                 this.disabled = true;

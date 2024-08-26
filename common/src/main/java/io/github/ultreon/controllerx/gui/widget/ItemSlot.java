@@ -5,8 +5,6 @@ import dev.architectury.event.CompoundEventResult;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.event.ItemSlotGuiEvent;
 import io.github.ultreon.controllerx.input.InputType;
-import io.github.ultreon.controllerx.mixin.accessors.AbstractContainerScreenAccessor;
-import io.github.ultreon.controllerx.mixin.accessors.KeyMappingAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -27,8 +25,8 @@ public class ItemSlot extends AbstractWidget {
     }
 
     public static ItemSlot getSlot(AbstractContainerScreen<?> screen, Slot slot) {
-        int x = slot.x + ((AbstractContainerScreenAccessor) screen).getLeftPos();
-        int y = slot.y + ((AbstractContainerScreenAccessor) screen).getTopPos();
+        int x = slot.x + screen.leftPos;
+        int y = slot.y + screen.topPos;
 
         CompoundEventResult<ItemSlot> eventResult = ItemSlotGuiEvent.EVENT.invoker().onSlot(x, y, screen, slot);
         if (eventResult.isPresent()) return eventResult.object();
@@ -101,8 +99,8 @@ public class ItemSlot extends AbstractWidget {
     }
 
     public void drop() {
-        screen.keyPressed(getX() + 8, getY() + 8, ((KeyMappingAccessor)Minecraft.getInstance().options.keyDrop).getKey().getValue());
-        screen.keyReleased(getX() + 8, getY() + 8, ((KeyMappingAccessor)Minecraft.getInstance().options.keyDrop).getKey().getValue());
+        screen.keyPressed(getX() + 8, getY() + 8, Minecraft.getInstance().options.keyDrop.key.getValue());
+        screen.keyReleased(getX() + 8, getY() + 8, Minecraft.getInstance().options.keyDrop.key.getValue());
     }
 
     public Slot getSlot() {

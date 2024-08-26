@@ -1,0 +1,12 @@
+accessWidener v2 named
+accessible field net/minecraft/client/KeyMapping clickCount I
+accessible method net/minecraft/client/gui/components/ChatComponent getLineHeight ()I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen leftPos I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen topPos I
+accessible field net/minecraft/client/gui/components/AbstractSelectionList x0 I
+accessible field net/minecraft/client/gui/components/AbstractSelectionList y0 I
+accessible field net/minecraft/client/gui/components/AbstractSelectionList x1 I
+accessible field net/minecraft/client/gui/components/AbstractSelectionList y1 I
+accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
+accessible method net/minecraft/client/Minecraft startAttack ()Z
+accessible method net/minecraft/client/Minecraft continueAttack (Z)V

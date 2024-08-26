@@ -50,6 +50,7 @@ public class ControllerX {
     private static ControllerX instance;
 
     public ControllerInput input;
+    public boolean skippedWarning;
     private ControllerHud controllerHud;
     private KeyboardHud keyboardHud;
     private InputType inputType = InputType.KEYBOARD_AND_MOUSE;
@@ -78,7 +79,6 @@ public class ControllerX {
 
                 return EventResult.pass();
             });
-            return;
         }
 
         ClientLifecycleEvent.CLIENT_STARTED.register(this::clientStarted);
@@ -143,16 +143,7 @@ public class ControllerX {
         throw new AssertionError();
     }
 
-    private void clientStarted(Minecraft instance) {
-        ControllerContext.freeze();
-
-        KeyboardHud.addMapping(Minecraft.getInstance().options.keyAttack);
-        KeyboardHud.addMapping(Minecraft.getInstance().options.keyUse);
-        KeyboardHud.addMapping(Minecraft.getInstance().options.keyJump);
-        KeyboardHud.addMapping(Minecraft.getInstance().options.keyShift);
-        KeyboardHud.addMapping(Minecraft.getInstance().options.keyChat);
-        KeyboardHud.addMapping(Minecraft.getInstance().options.keyCommand);
-
+    public void initMod() {
         SDL_Init(SdlSubSystemConst.SDL_INIT_EVENTS | SdlSubSystemConst.SDL_INIT_GAMECONTROLLER | SdlSubSystemConst.SDL_INIT_JOYSTICK);
         ClientLifecycleEvent.CLIENT_STOPPING.register(ControllerX::quitGame);
         input = new ControllerInput(this);
@@ -247,6 +238,21 @@ public class ControllerX {
             }
         } else for (Config config : configs) {
             config.load();
+        }
+    }
+
+    private void clientStarted(Minecraft instance) {
+        ControllerContext.freeze();
+
+        KeyboardHud.addMapping(Minecraft.getInstance().options.keyAttack);
+        KeyboardHud.addMapping(Minecraft.getInstance().options.keyUse);
+        KeyboardHud.addMapping(Minecraft.getInstance().options.keyJump);
+        KeyboardHud.addMapping(Minecraft.getInstance().options.keyShift);
+        KeyboardHud.addMapping(Minecraft.getInstance().options.keyChat);
+        KeyboardHud.addMapping(Minecraft.getInstance().options.keyCommand);
+
+        if (Util.getPlatform() != Util.OS.OSX) {
+            initMod();
         }
     }
 

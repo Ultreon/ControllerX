@@ -11,12 +11,7 @@
     "AbstractContainerScreenMixin",
     "CreativeModeInventoryScreenMixin",
     "KeyboardInputMixin",
-    "KeyMappingMixin",
-    "accessors.AbstractContainerScreenAccessor",
-    "accessors.AbstractSelectionListAccessor",
-    "accessors.ChatComponentAccessor",
-    "accessors.KeyMappingAccessor",
-    "accessors.MinecraftAccessor"
+    "KeyMappingMixin"
   ],
   "injectors": {
     "defaultRequire": 1

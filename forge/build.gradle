@@ -4,6 +4,9 @@ plugins {
 loom {
     forge {
         mixinConfigs "controllerx-common.mixins.json", "controllerx.mixins.json"
+
+        accessWidenerPath = file("$projectDir/../common/src/main/resources/controllerx.accesswidener")
+        convertAccessWideners = true
     }
 }
 architectury {
@@ -144,6 +147,19 @@ remapJar {
 
 jar {
     archiveClassifier.set("dev")
+
+    manifest {
+        attributes([
+                "Specification-Title"     : "controllerx",
+                "Specification-Vendor"    : "Ultreon",
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.jar.archiveVersion,
+                "Implementation-Vendor"   : "Ultreon",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "Mixin-Configs"           : "controllerx.mixins.json,controllerx-common.mixins.json"
+        ])
+    }
 }
 
 sourcesJar {

@@ -16,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -90,7 +91,7 @@ public class Config {
                 ConfigEntry<?> entry = entryMap.get(entryArr[0]);
                 entry.readAndSet(entryArr[1]);
             }
-        } catch (FileNotFoundException ignored) {
+        } catch (FileNotFoundException | NoSuchFileException ignored) {
 
         } catch (Exception e) {
             ControllerX.LOGGER.error("Failed to load config", e);

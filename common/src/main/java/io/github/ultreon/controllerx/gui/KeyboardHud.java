@@ -4,7 +4,6 @@ import io.github.ultreon.controllerx.Config;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.KeyMappingIcon;
 import io.github.ultreon.controllerx.input.InputType;
-import io.github.ultreon.controllerx.mixin.accessors.KeyMappingAccessor;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,7 +35,7 @@ public class KeyboardHud {
         var side = Side.LEFT;
 
         for (KeyMapping mapping : VISIBLE_MAPPINGS) {
-            KeyMappingIcon icon = KeyMappingIcon.byKey(((KeyMappingAccessor) mapping).getKey());
+            KeyMappingIcon icon = KeyMappingIcon.byKey(mapping.key);
             if (icon == null || mapping.isUnbound()) continue;
 
             int x = side == Side.LEFT ? 4 : width() - 12 - icon.width;

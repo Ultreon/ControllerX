@@ -16,7 +16,6 @@ import io.github.ultreon.controllerx.impl.*;
 import io.github.ultreon.controllerx.input.dyn.*;
 import io.github.ultreon.controllerx.injection.CreativeModeInventoryScreenInjection;
 import io.github.ultreon.controllerx.input.keyboard.KeyboardLayout;
-import io.github.ultreon.controllerx.mixin.accessors.AbstractSelectionListAccessor;
 import io.github.ultreon.controllerx.mixin.accessors.ScreenAccessor;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -74,6 +73,8 @@ public class ControllerInput extends Input {
             return false;
         }
     };
+    private float inputCooldown = 0F;
+    private ControllerAction<?> lastAction;
 
     public ControllerInput(ControllerX mod) {
         this.mod = mod;
@@ -114,27 +115,15 @@ public class ControllerInput extends Input {
             if (context.itemLeft.getAction().isJustPressed()) GameApi.scrollHotbar(-1);
             if (context.itemRight.getAction().isJustPressed()) GameApi.scrollHotbar(1);
 
-            boolean flag = false;
-            if (context.destroyBlock.getAction().isJustPressed()) flag = GameApi.startAttack();
-            if (context.destroyBlock.getAction().isPressed() && player.getAbilities().mayBuild) {
-                if (!player.getAbilities().mayBuild) return;
-
-                if (destroyDelay == 0) GameApi.continueAttack(flag);
-                if ((destroyDelay--) < 0) {
-                    destroyDelay = player.getAbilities().mayBuild && !player.getAbilities().instabuild ? 0 : 5;
-                }
-            }
-
-            flag = false;
-            if (context.attack.getAction().isJustPressed()) flag = GameApi.startAttack();
-            if (context.attack.getAction().isPressed()) GameApi.continueAttack(flag);
-
             for (KeyMapping keyMapping : mc.options.keyMappings) {
-                Boolean b = this.doInput(mc, keyMapping);
+                boolean shouldClick = this.shouldClick(mc, keyMapping);
 
-                if (b == Boolean.TRUE) {
-                    MixinClickHandler clickHandler = (MixinClickHandler) keyMapping;
-                    clickHandler.controllerX$handleClick();
+                if (shouldClick) {
+                    keyMapping.clickCount++;
+                }
+
+                if (this.shouldRelease(mc, keyMapping)) {
+                    keyMapping.clickCount = 0;
                 }
             }
 
@@ -294,8 +283,7 @@ public class ControllerInput extends Input {
             if (focused instanceof LayoutElement widget) {
                 screen.mouseScrolled(widget.getX(), widget.getY(), axisValue);
             } else if (focused instanceof AbstractSelectionList<?> list) {
-                AbstractSelectionListAccessor list1 = (AbstractSelectionListAccessor) list;
-                screen.mouseScrolled(list1.getX0(), list1.getY0(), axisValue);
+                screen.mouseScrolled(list.x0, list.y0, axisValue);
             } else if (focused != null) {
                 screen.mouseScrolled(0, 0, axisValue);
             } else for (GuiEventListener widget : screen.children()) {
@@ -563,36 +551,48 @@ public class ControllerInput extends Input {
         return isConnected() && ControllerX.get().getInputType() == InputType.CONTROLLER;
     }
 
-    public Boolean doInput(Minecraft mc, KeyMapping mapping) {
+    public boolean shouldClick(Minecraft mc, KeyMapping mapping) {
         if (ControllerContext.get() instanceof InGameControllerContext context) {
-            if (mapping == mc.options.keyPickItem) {
-                return context.pickItem.getAction().isPressed();
-            }
-            if (mapping == mc.options.keyDrop) {
-                return context.drop.getAction().isPressed();
-            }
-            if (mapping == mc.options.keyPlayerList) {
-                return context.playerList.getAction().isPressed();
-            }
-            if (mapping == mc.options.keyChat) {
-                return context.chat.getAction().isPressed();
-            }
-            if (mapping == mc.options.keyInventory) {
-                return context.inventory.getAction().isJustPressed();
-            }
-            if (mapping == mc.options.keyShift) {
-                return context.sneak.getAction().isPressed();
-            }
-            if (mapping == mc.options.keySwapOffhand) {
-                return context.swapHands.getAction().isJustPressed();
-            }
-            if (mapping == mc.options.keySprint) {
-                return context.run.getAction().isPressed();
-            }
-            if (mapping == mc.options.keyUse) {
-                return context.use.getAction().isPressed();
+            ControllerAction<?> action = getAction(mc, mapping, context);
+            if (action != null) {
+                this.lastAction = action;
+                return action.isJustPressed();
             }
         }
+        return false;
+    }
+
+    public boolean shouldRelease(Minecraft mc, KeyMapping mapping) {
+        if (ControllerContext.get() instanceof InGameControllerContext context) {
+            ControllerAction<?> action = getAction(mc, mapping, context);
+            if (action != null) {
+                this.lastAction = action;
+                return action.isJustReleased();
+            }
+        }
+        return false;
+    }
+
+    public boolean isDown(Minecraft mc, KeyMapping mapping) {
+        if (ControllerContext.get() instanceof InGameControllerContext context) {
+            ControllerAction<?> action = getAction(mc, mapping, context);
+            if (action != null)
+                return action.isPressed();
+        }
+        return false;
+    }
+
+    private static @Nullable ControllerAction<?> getAction(Minecraft mc, KeyMapping mapping, InGameControllerContext context) {
+        if (mapping == mc.options.keyPickItem) return context.pickItem.getAction();
+        if (mapping == mc.options.keyDrop) return context.drop.getAction();
+        if (mapping == mc.options.keyPlayerList) return context.playerList.getAction();
+        if (mapping == mc.options.keyChat) return context.chat.getAction();
+        if (mapping == mc.options.keyInventory) return context.inventory.getAction();
+        if (mapping == mc.options.keyShift) return context.sneak.getAction();
+        if (mapping == mc.options.keySwapOffhand) return context.swapHands.getAction();
+        if (mapping == mc.options.keySprint) return context.run.getAction();
+        if (mapping == mc.options.keyUse) return context.use.getAction();
+        if (mapping == mc.options.keyAttack) return context.attack.getAction();
         return null;
     }
 
