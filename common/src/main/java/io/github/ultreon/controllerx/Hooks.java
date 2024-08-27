@@ -15,6 +15,8 @@ import java.util.Optional;
 
 public class Hooks {
     public static Optional<Boolean> hookControllerInput(KeyMapping mapping, boolean isKeyDown) {
+        if (!ControllerX.get().skippedWarning) return Optional.empty();
+
         Minecraft mc = Minecraft.getInstance();
         ControllerInput input = ControllerX.get().input;
         if (isKeyDown) {
@@ -33,6 +35,8 @@ public class Hooks {
     }
 
     public static <T extends AbstractContainerMenu> void hookContainerSlots(AbstractContainerScreen<T> containerScreen, ScreenAccess screenAccess) {
+        if (!ControllerX.get().skippedWarning) return;
+
         Minecraft mc = Minecraft.getInstance();
 
         if (ControllerX.get().getInputType() == InputType.CONTROLLER) {
