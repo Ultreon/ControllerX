@@ -1,5 +1,6 @@
 package io.github.ultreon.controllerx.impl;
 
+import com.google.common.base.Predicates;
 import io.github.ultreon.controllerx.ControllerX;
 import io.github.ultreon.controllerx.GameApi;
 import io.github.ultreon.controllerx.api.ControllerAction;
@@ -7,7 +8,9 @@ import io.github.ultreon.controllerx.api.ControllerContext;
 import io.github.ultreon.controllerx.api.ControllerMapping;
 import io.github.ultreon.controllerx.api.ControllerMapping.Side;
 import io.github.ultreon.controllerx.input.ControllerBoolean;
+import io.github.ultreon.controllerx.input.ControllerInput;
 import io.github.ultreon.controllerx.input.ControllerVec2;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -19,7 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class InGameControllerContext extends ControllerContext {
@@ -42,6 +45,8 @@ public class InGameControllerContext extends ControllerContext {
     public final ControllerMapping<?> itemRight;
     public final ControllerMapping<?> attack;
 
+    private final Map<KeyMapping, ControllerMapping<?>> moddedKeyMappings = new HashMap<>();
+
     protected InGameControllerContext(ResourceLocation id) {
         super(id);
 
@@ -62,7 +67,7 @@ public class InGameControllerContext extends ControllerContext {
         this.swapHands = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.X), Side.RIGHT, Component.translatable("controllerx.action.inGame.swapHands"), "swap_hands", (mc) -> checkPlayer(mc, player -> !(player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty()))));
         this.lookPlayer = mappings.register(new ControllerMapping<>(new ControllerAction.Joystick(ControllerVec2.RightStick), Side.LEFT, Component.translatable("controllerx.action.inGame.lookPlayer"), "look_player"));
         this.movePlayer = mappings.register(new ControllerMapping<>(new ControllerAction.Joystick(ControllerVec2.LeftStick), Side.LEFT, Component.translatable("controllerx.action.inGame.movePlayer"), "move_player"));
-        this.gameMenu = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.Back), Side.RIGHT, Component.translatable("controllerx.action.inGame.openGameMenu"), "open_game_menu"));
+        this.gameMenu = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.Start), Side.RIGHT, Component.translatable("controllerx.action.inGame.openGameMenu"), "open_game_menu"));
         this.pickItem = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.DpadUp), Side.LEFT, Component.translatable("controllerx.action.inGame.pickItem"), false, "pick_item", (mc) -> checkPlayer(mc, (player) -> player.getMainHandItem().isEmpty() && (mc.crosshairPickEntity != null || player.pick(player.getPickRadius(), Minecraft.getInstance().getDeltaFrameTime(), false).getType() != HitResult.Type.MISS))));
         this.drop = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.DpadDown), Side.LEFT, Component.translatable("controllerx.action.inGame.dropItem"), "drop_item", (mc) -> checkPlayer(mc, (player) -> !player.getMainHandItem().isEmpty())));
         this.playerList = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.DpadLeft), Side.LEFT, Component.translatable("controllerx.action.inGame.showPlayerList"), false, "show_player_list"));
@@ -70,6 +75,35 @@ public class InGameControllerContext extends ControllerContext {
         this.itemLeft = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.LeftShoulder), Side.LEFT, Component.translatable("controllerx.action.inGame.selectLeft"), false, "select_left"));
         this.itemRight = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.RightShoulder), Side.LEFT, Component.translatable("controllerx.action.inGame.selectRight"), false, "select_right"));
         this.attack = mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.RightTrigger), ControllerMapping.Side.RIGHT, Component.translatable("controllerx.action.inGame.attack"), "attack", (mc) -> isTargetingBlock(mc) || isTargetingEntity(mc)));
+
+        final Set<KeyMapping> illegalKeyMappings = Set.of(
+                Minecraft.getInstance().options.keyLeft,
+                Minecraft.getInstance().options.keyRight,
+                Minecraft.getInstance().options.keyUp,
+                Minecraft.getInstance().options.keyDown,
+                Minecraft.getInstance().options.keyJump,
+                Minecraft.getInstance().options.keySprint,
+                Minecraft.getInstance().options.keyUse,
+                Minecraft.getInstance().options.keyAttack,
+                Minecraft.getInstance().options.keySwapOffhand,
+                Minecraft.getInstance().options.keyDrop,
+                Minecraft.getInstance().options.keyChat,
+                Minecraft.getInstance().options.keyPlayerList,
+                Minecraft.getInstance().options.keyPickItem,
+                Minecraft.getInstance().options.keyInventory
+        );
+
+        for (KeyMapping keyMapping : KeyMapping.ALL.values()) {
+            if (ControllerInput.getAction(Minecraft.getInstance(), keyMapping, this) != null) continue;
+            if (illegalKeyMappings.contains(keyMapping)) continue;
+            this.moddedKeyMappings.put(keyMapping, mappings.register(new ControllerMapping<>(new ControllerAction.Button(ControllerBoolean.Unknown), Side.RIGHT, Component.translatable(keyMapping.getName()), false, "minecraft." + keyMapping.getName(), (mc) -> isTargetingBlock(mc) || isTargetingEntity(mc))));
+        }
+
+        ControllerInput.moddedMappingsLoaded = true;
+    }
+
+    public Map<KeyMapping, ControllerMapping<?>> getMappings() {
+        return Collections.unmodifiableMap(moddedKeyMappings);
     }
 
     private boolean checkPlayer(Minecraft mc, Predicate<Player> predicate) {

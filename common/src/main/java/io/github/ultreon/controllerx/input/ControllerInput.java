@@ -9,6 +9,7 @@ import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
 import io.github.ultreon.controllerx.*;
 import io.github.ultreon.controllerx.api.ControllerAction;
 import io.github.ultreon.controllerx.api.ControllerContext;
+import io.github.ultreon.controllerx.api.ControllerMapping;
 import io.github.ultreon.controllerx.gui.ControllerInputHandler;
 import io.github.ultreon.controllerx.gui.ControllerToast;
 import io.github.ultreon.controllerx.gui.widget.ItemSlot;
@@ -46,6 +47,7 @@ import static io.github.libsdl4j.api.gamecontroller.SdlGamecontroller.*;
 
 @SuppressWarnings("MagicConstant")
 public class ControllerInput extends Input {
+    @ApiStatus.Internal public static boolean moddedMappingsLoaded = false;
     private final Vector2f leftStick = new Vector2f();
     private final Vector2f rightStick = new Vector2f();
 
@@ -59,7 +61,6 @@ public class ControllerInput extends Input {
     private KeyboardLayout layout;
     private String virtualKeyboardValue = "";
     private boolean virtualKeyboardOpen;
-    private float destroyDelay = 0;
     private boolean screenWasOpen;
     private InterceptCallback interceptCallback;
     private InterceptInvalidation interceptInvalidation = new InterceptInvalidation() {
@@ -73,8 +74,6 @@ public class ControllerInput extends Input {
             return false;
         }
     };
-    private float inputCooldown = 0F;
-    private ControllerAction<?> lastAction;
 
     public ControllerInput(ControllerX mod) {
         this.mod = mod;
@@ -555,7 +554,6 @@ public class ControllerInput extends Input {
         if (ControllerContext.get() instanceof InGameControllerContext context) {
             ControllerAction<?> action = getAction(mc, mapping, context);
             if (action != null) {
-                this.lastAction = action;
                 return action.isJustPressed();
             }
         }
@@ -566,7 +564,6 @@ public class ControllerInput extends Input {
         if (ControllerContext.get() instanceof InGameControllerContext context) {
             ControllerAction<?> action = getAction(mc, mapping, context);
             if (action != null) {
-                this.lastAction = action;
                 return action.isJustReleased();
             }
         }
@@ -582,7 +579,7 @@ public class ControllerInput extends Input {
         return false;
     }
 
-    private static @Nullable ControllerAction<?> getAction(Minecraft mc, KeyMapping mapping, InGameControllerContext context) {
+    public static @Nullable ControllerAction<?> getAction(Minecraft mc, KeyMapping mapping, InGameControllerContext context) {
         if (mapping == mc.options.keyPickItem) return context.pickItem.getAction();
         if (mapping == mc.options.keyDrop) return context.drop.getAction();
         if (mapping == mc.options.keyPlayerList) return context.playerList.getAction();
@@ -593,6 +590,12 @@ public class ControllerInput extends Input {
         if (mapping == mc.options.keySprint) return context.run.getAction();
         if (mapping == mc.options.keyUse) return context.use.getAction();
         if (mapping == mc.options.keyAttack) return context.attack.getAction();
+
+        // Modded mappings
+        ControllerMapping<?> controllerMapping = context.getMappings().get(mapping);
+        if (ControllerInput.moddedMappingsLoaded && controllerMapping != null)
+            return controllerMapping.getAction();
+
         return null;
     }
 

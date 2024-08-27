@@ -283,9 +283,9 @@ public enum ControllerBoolean implements ControllerInterDynamic<Boolean> {
             case DpadX -> Icon.DpadLeftRight;
             case DpadY -> Icon.DpadUpDown;
             case DpadUsed -> Icon.Dpad;
-            case Start -> Icon.Start;
+            case Start -> Icon.XboxGuide;
             case Back -> Icon.XboxMenu;
-            case Guide -> Icon.XboxGuide;
+            case Guide -> Icon.Start;
             case LeftStickDown -> Icon.LeftJoyStickDown;
             case LeftStickUp -> Icon.LeftJoyStickUp;
             case LeftStickLeft -> Icon.LeftJoyStickLeft;

@@ -44,8 +44,8 @@ public enum Icon {
     LeftShoulder(112, 304),
     RightShoulder(128, 304),
 
-    XboxGuide(64, 304),
-    XboxMenu(80, 304),
+    XboxMenu(64, 304),
+    XboxGuide(80, 304),
 
     Dpad(0, 32),
     DpadUp(16, 32),

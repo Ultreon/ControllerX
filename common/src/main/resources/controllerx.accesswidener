@@ -10,3 +10,4 @@ accessible field net/minecraft/client/gui/components/AbstractSelectionList y1 I
 accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
 accessible method net/minecraft/client/Minecraft startAttack ()Z
 accessible method net/minecraft/client/Minecraft continueAttack (Z)V
+accessible field net/minecraft/client/KeyMapping ALL Ljava/util/Map;
