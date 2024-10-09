@@ -9,6 +9,7 @@ import dev.architectury.event.events.client.ClientScreenInputEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.ultreon.controllerx.config.gui.BindingsScreen;
 import io.github.libsdl4j.api.SdlSubSystemConst;
 import dev.ultreon.controllerx.api.ControllerContext;
 import dev.ultreon.controllerx.config.Config;
@@ -20,8 +21,11 @@ import dev.ultreon.controllerx.input.keyboard.KeyboardLayouts;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.controls.ControlsScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -34,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.github.libsdl4j.api.Sdl.SDL_Init;
@@ -98,6 +103,19 @@ public class ControllerX {
     private void postInitGui(Screen screen, ScreenAccess screenAccess) {
         if (screen instanceof AbstractContainerScreen<?> containerScreen) {
             Hooks.hookContainerSlots(containerScreen, screenAccess);
+        } else if (screen instanceof ControlsScreen controlsScreen) {
+            List<? extends GuiEventListener> children = controlsScreen.children();
+            for (GuiEventListener child : children) {
+                if (child instanceof Button button) {
+                    if (button.getMessage().equals(Component.translatable("gui.done"))) {
+                        screenAccess.addRenderableWidget(Button.builder(Component.translatable("controllerx.screen.controller_bindings"), btn -> {
+                            new BindingsScreen(screen).open();
+                        }).bounds(button.getX(), button.getY(), button.getWidth(), button.getHeight()).build());
+                        button.setY(button.getY() + button.getHeight() + 10);
+                        break;
+                    }
+                }
+            }
         }
     }
 

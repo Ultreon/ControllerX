@@ -27,7 +27,7 @@ public class ControllerBindingEntry<T extends Enum<T> & ControllerInterDynamic<?
 
     @Override
     protected T read(String text) {
-        return mapping.getAction().getMapping();
+        return mapping.getAction().fromString(text);
     }
 
     @Override
@@ -43,6 +43,10 @@ public class ControllerBindingEntry<T extends Enum<T> & ControllerInterDynamic<?
         ControllerInputButton button = (ControllerInputButton) widget;
         ControllerAction<T> value = button.getAction();
         this.set(value.getMapping());
+    }
+
+    public ControllerMapping<T> getMapping() {
+        return mapping;
     }
 
     public class ControllerInputButton extends Button {

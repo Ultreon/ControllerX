@@ -1,9 +1,12 @@
 package dev.ultreon.controllerx.config.gui;
 
 import dev.ultreon.controllerx.ControllerX;
+import dev.ultreon.controllerx.api.ControllerMapping;
 import dev.ultreon.controllerx.config.Config;
 import dev.ultreon.controllerx.config.entries.ControllerBindingEntry;
+import dev.ultreon.controllerx.impl.InGameControllerContext;
 import dev.ultreon.controllerx.text.Texts;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -13,6 +16,7 @@ import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +32,19 @@ public class BindingsList extends ContainerObjectSelectionList<BindingsList.List
         this.setRenderTopAndBottom(false);
     }
 
-    public void addEntries(ConfigEntry<?>[] options) {
+    public void addEntries(ConfigEntry<?>[] options, @Nullable String keyMapCategory) {
         for (ConfigEntry<?> option : options) {
+            if (!(option instanceof ControllerBindingEntry<?> entry)) continue;
             ListEntry of = ListEntry.of(this, config, this.getRowWidth(), option);
+            ControllerMapping<?> mapping = entry.getMapping();
+            if (keyMapCategory != null) {
+                KeyMapping keyMapping = InGameControllerContext.INSTANCE.getControllerToKey().get(mapping);
+                if (keyMapping != null && keyMapping.getCategory().equals(keyMapCategory)) {
+                    this.entries.add(of);
+                    this.addEntry(of);
+                }
+                continue;
+            }
             this.entries.add(of);
             this.addEntry(of);
         }
@@ -62,6 +76,10 @@ public class BindingsList extends ContainerObjectSelectionList<BindingsList.List
         this.height = height;
     }
 
+    public boolean isEmpty() {
+        return entries.isEmpty();
+    }
+
     protected static class ListEntry extends Entry<ListEntry> {
         private final BindingsList list;
         final ControllerBindingEntry<?> configEntry;
@@ -81,6 +99,11 @@ public class BindingsList extends ContainerObjectSelectionList<BindingsList.List
 
         public static ListEntry of(BindingsList list, Config config, int rowWidth, ConfigEntry<?> entry) {
             return new ListEntry(list, config, entry, rowWidth);
+        }
+
+        public void select() {
+            list.setFocused(this);
+            this.setFocused(widget);
         }
 
         public void render(@NotNull GuiGraphics gfx, int index, int y, int x, int rowWidth, int rowHeight, int mouseX, int mouseY, boolean selected, float partialTicks) {

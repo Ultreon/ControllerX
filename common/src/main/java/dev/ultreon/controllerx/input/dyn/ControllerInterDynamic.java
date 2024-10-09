@@ -25,4 +25,6 @@ public interface ControllerInterDynamic<T> extends
     }
 
     Icon getIcon();
+
+    <T extends Enum<T> & ControllerInterDynamic<T>> T fromName(String text);
 }

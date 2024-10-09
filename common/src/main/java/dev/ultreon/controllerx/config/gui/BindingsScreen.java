@@ -5,17 +5,25 @@ import com.ultreon.mods.lib.util.KeyboardHelper;
 import dev.ultreon.controllerx.api.ControllerContext;
 import dev.ultreon.controllerx.config.gui.tabs.Tab;
 import dev.ultreon.controllerx.config.gui.tabs.Tabs;
+import dev.ultreon.controllerx.impl.InGameControllerContext;
+import dev.ultreon.controllerx.mixin.accessors.KeyMappingAccessor;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BindingsScreen extends Screen {
+    private final List<BindingsTab> allTabs = new ArrayList<>();
     private final Screen back;
     private BindingsList list;
     private Button doneButton;
@@ -45,9 +53,22 @@ public class BindingsScreen extends Screen {
             this.tabs = new Tabs(0, 20, width, height - 70, this::setFocus);
 
             for (ControllerContext context : ControllerContext.getContexts()) {
-                Tab tab = new BindingsTab(context);
+                BindingsTab tab = new BindingsTab(context, null);
+                if (tab.isEmpty()) continue;
+                allTabs.add(tab);
                 this.tabs.addTab(tab);
             }
+
+            KeyMappingAccessor.getCategoryNames().stream().sorted((a, b) -> {
+                String nameA = Language.getInstance().getOrDefault(a);
+                String nameB = Language.getInstance().getOrDefault(b);
+                return nameA.compareToIgnoreCase(nameB);
+            }).forEach(category -> {
+                BindingsTab tab = new BindingsTab(InGameControllerContext.INSTANCE, category);
+                if (tab.isEmpty()) return;
+                allTabs.add(tab);
+                this.tabs.addTab(tab);
+            });
 
             this.addRenderableWidget(tabs);
             this.setInitialFocus(tabs);
@@ -55,7 +76,7 @@ public class BindingsScreen extends Screen {
 
         this.setFocused(tabs);
         this.doneButton = new Button.Builder(CommonComponents.GUI_DONE, button -> {
-            this.list.save();
+            this.allTabs.forEach(tab -> tab.save());
             assert this.minecraft != null;
             this.minecraft.setScreen(this.back);
         }).bounds(this.width / 2 + 5, this.height - 6 - 20, 150, 20).build();
@@ -71,6 +92,7 @@ public class BindingsScreen extends Screen {
     private void setFocus(Tabs tabs) {
         ComponentPath componentPath = ComponentPath.path(this, tabs.focusTab());
         if (componentPath != null) {
+            this.changeFocus(componentPath);
             this.changeFocus(componentPath);
             return;
         }
@@ -121,10 +143,10 @@ public class BindingsScreen extends Screen {
     private static class BindingsTab extends Tab {
         private final BindingsList list;
 
-        public BindingsTab(ControllerContext context) {
-            super(context.getName());
+        public BindingsTab(ControllerContext context, @Nullable String category) {
+            super(category != null ? Component.translatable(category) : context.getName());
             list = new BindingsList(this.minecraft, this.getWidth(), this.getHeight(), this.getY(), this.getY() + this.getHeight(), context.getConfig());
-            list.addEntries(context.getConfig().values());
+            list.addEntries(context.getConfig().values(), category);
             this.addRenderableWidget(this.list);
         }
 
@@ -142,6 +164,15 @@ public class BindingsScreen extends Screen {
         @Override
         public void resize(int width, int height) {
             super.resize(width, height);
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return this.list.isEmpty() || super.isEmpty();
+        }
+
+        public void save() {
+            this.list.save();
         }
     }
 }

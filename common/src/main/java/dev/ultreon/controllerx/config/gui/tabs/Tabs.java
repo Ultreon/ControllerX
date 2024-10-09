@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
+import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,8 @@ public class Tabs extends AbstractContainerWidget {
             current = tabs.indexOf(tab);
             focusSetter.accept(this);
         }
+
+        tab.nextFocusPath(new FocusNavigationEvent.InitialFocus());
         tab.resize(width, height);
     }
 
@@ -74,7 +77,7 @@ public class Tabs extends AbstractContainerWidget {
                 currentFocusPath = currentTab.getCurrentFocusPath();
                 return ComponentPath.path(this, currentFocusPath == null ? currentTab.nextFocusPath(event) : currentFocusPath);
             } else {
-                return ComponentPath.path(this, currentFocusPath == null ? currentTab.nextFocusPath(new FocusNavigationEvent.InitialFocus()) : currentTab.nextFocusPath(event));
+                return ComponentPath.path(this, currentTab.nextFocusPath(event));
             }
         }
 

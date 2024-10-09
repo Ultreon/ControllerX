@@ -5,6 +5,7 @@ import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
 import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.Icon;
 import dev.ultreon.controllerx.input.dyn.ControllerInterDynamic;
+import org.apache.commons.lang3.EnumUtils;
 import org.intellij.lang.annotations.MagicConstant;
 import org.joml.Vector2f;
 
@@ -296,5 +297,10 @@ public enum ControllerBoolean implements ControllerInterDynamic<Boolean> {
             case RightStickRight -> Icon.RightJoyStickRight;
             default -> Icon.AnyButton;
         };
+    }
+
+    @Override
+    public ControllerBoolean fromName(String text) {
+        return EnumUtils.getEnum(ControllerBoolean.class, text);
     }
 }

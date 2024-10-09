@@ -3,6 +3,7 @@ package dev.ultreon.controllerx.input;
 import com.ultreon.commons.collection.Pair;
 import dev.ultreon.controllerx.Icon;
 import dev.ultreon.controllerx.input.dyn.ControllerInterDynamic;
+import org.apache.commons.lang3.EnumUtils;
 import org.joml.Vector2f;
 
 public enum ControllerVec2 implements ControllerInterDynamic<Vector2f> {
@@ -121,5 +122,10 @@ public enum ControllerVec2 implements ControllerInterDynamic<Vector2f> {
             case Triggers -> Icon.LeftTrigger;
             default -> Icon.AnyJoyStick;
         };
+    }
+
+    @Override
+    public ControllerVec2 fromName(String text) {
+        return EnumUtils.getEnum(ControllerVec2.class, text);
     }
 }

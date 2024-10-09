@@ -5,6 +5,7 @@ import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerAxis;
 import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.Icon;
 import dev.ultreon.controllerx.input.dyn.ControllerInterDynamic;
+import org.apache.commons.lang3.EnumUtils;
 import org.intellij.lang.annotations.MagicConstant;
 import org.joml.Vector2f;
 
@@ -153,6 +154,11 @@ public enum ControllerSignedFloat implements ControllerInterDynamic<Float> {
             case DpadMagnitude -> Icon.Dpad;
             default -> Icon.AnyJoyStick;
         };
+    }
+
+    @Override
+    public ControllerSignedFloat fromName(String text) {
+        return EnumUtils.getEnum(ControllerSignedFloat.class, text);
     }
 
     public @MagicConstant(valuesFromClass = SDL_GameControllerAxis.class) int sdlAxis() {

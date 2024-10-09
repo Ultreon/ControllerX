@@ -27,9 +27,9 @@ public class TabsHeader extends AbstractWidget {
     @Override
     protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int tabWidth = tabs.getTabWidth();
-        int tabIndex = tabs.getTabCount() - tabs.getSelectedTab() - 1;
+        int tabIndex = tabs.getSelectedTab();
 
-        int expectedX = tabWidth * tabIndex;
+        int expectedX = tabWidth * -tabIndex;
 
         if (tabScroll > expectedX) {
             tabScroll = Math.max(tabScroll + ((expectedX - tabScroll) / 1.0 * partialTick), expectedX);
@@ -42,8 +42,8 @@ public class TabsHeader extends AbstractWidget {
         guiGraphics.fill(getX(), 0, getWidth(), getY() + getHeight() - 1, 0xff000000);
         guiGraphics.fill(getX(), getY() + getHeight() - 1, getWidth(), getY() + getHeight(), 0x80ffffff);
 
-        for (int i = tabs.getTabCount() - 1; i >= 0; i--) {
-            int tabX = 10 + x - (tabWidth * i);
+        for (int i = 0; i < tabs.getTabCount(); i++) {
+            int tabX = 10 + x - (tabWidth * -i);
             int tabY = getY() + 1;
 
             guiGraphics.blitNineSliced(TEXTURE, tabX, tabY, tabWidth, height - 2, 7, 7, 21, 21, 0, tabIndex == i ? 22 : 0);

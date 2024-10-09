@@ -15,10 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -99,22 +96,17 @@ public class Config {
     }
 
     public void save() {
-        try (BufferedWriter writer = Files.newBufferedWriter(file)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
             for (ConfigEntry<?> e : entryMap.values()) {
                 String key = e.getKey();
                 String value = e.write();
 
-                String comment = e.getComment();
-                if (comment != null && !comment.isBlank()) {
-                    writer.write("# ");
-                    writer.write(comment.trim().replaceAll("\r\n", " ").replaceAll("\r", " ").replaceAll("\n", " "));
-                    writer.newLine();
-                }
                 writer.write(key);
                 writer.write("=");
                 writer.write(value);
                 writer.newLine();
             }
+            writer.flush();
         } catch (Exception e) {
             ControllerX.LOGGER.error("Failed to save config", e);
         }

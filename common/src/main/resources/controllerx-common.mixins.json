@@ -11,7 +11,8 @@
     "AbstractContainerScreenMixin",
     "CreativeModeInventoryScreenMixin",
     "KeyboardInputMixin",
-    "KeyMappingMixin"
+    "KeyMappingMixin",
+    "accessors.KeyMappingAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

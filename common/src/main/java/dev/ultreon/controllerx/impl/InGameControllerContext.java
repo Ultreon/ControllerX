@@ -136,4 +136,8 @@ public class InGameControllerContext extends ControllerContext {
     public @NotNull ClientLevel level() {
         return Objects.requireNonNull(Minecraft.getInstance().level);
     }
+
+    public boolean isModded(ControllerMapping<?> mapping) {
+        return moddedKeyMappings.containsValue(mapping);
+    }
 }

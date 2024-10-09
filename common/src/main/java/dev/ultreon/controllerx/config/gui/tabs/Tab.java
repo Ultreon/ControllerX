@@ -95,4 +95,8 @@ public class Tab extends AbstractWidget implements ContainerEventHandler {
         this.children.add(widget);
         return widget;
     }
+
+    public boolean isEmpty() {
+        return this.children.isEmpty() && this.renderables.isEmpty();
+    }
 }

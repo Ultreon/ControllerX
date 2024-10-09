@@ -133,6 +133,10 @@ public sealed class ControllerAction<T extends Enum<T> & ControllerInterDynamic<
         return type;
     }
 
+    public T fromString(String text) {
+        return this.defaultValue.fromName(text).as(this.defaultValue);
+    }
+
     public static final class Button extends ControllerAction<ControllerBoolean> {
         public Button(ControllerBoolean value) {
             super(value, Type.BOOLEAN);
