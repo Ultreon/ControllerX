@@ -1,6 +1,7 @@
 package dev.ultreon.controllerx.impl;
 
-import com.google.common.base.Predicates;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.GameApi;
 import dev.ultreon.controllerx.api.ControllerAction;
@@ -45,7 +46,7 @@ public class InGameControllerContext extends ControllerContext {
     public final ControllerMapping<?> itemRight;
     public final ControllerMapping<?> attack;
 
-    private final Map<KeyMapping, ControllerMapping<?>> moddedKeyMappings = new HashMap<>();
+    private final BiMap<KeyMapping, ControllerMapping<?>> moddedKeyMappings = HashBiMap.create();
 
     protected InGameControllerContext(ResourceLocation id) {
         super(id);
@@ -102,8 +103,12 @@ public class InGameControllerContext extends ControllerContext {
         ControllerInput.moddedMappingsLoaded = true;
     }
 
-    public Map<KeyMapping, ControllerMapping<?>> getMappings() {
+    public Map<KeyMapping, ControllerMapping<?>> getKeyToController() {
         return Collections.unmodifiableMap(moddedKeyMappings);
+    }
+
+    public Map<ControllerMapping<?>, KeyMapping> getControllerToKey() {
+        return Collections.unmodifiableMap(moddedKeyMappings.inverse());
     }
 
     private boolean checkPlayer(Minecraft mc, Predicate<Player> predicate) {

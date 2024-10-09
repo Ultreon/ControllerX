@@ -1,28 +1,31 @@
 package dev.ultreon.controllerx.config.gui.tabs;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import com.ultreon.mods.lib.client.gui.widget.AbstractContainerWidget;
-import com.ultreon.mods.lib.util.KeyboardHelper;
-import dev.ultreon.controllerx.api.ControllerContext;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Tabs extends AbstractContainerWidget {
     private final List<Tab> tabs = new ArrayList<>();
+    private final Consumer<Tabs> focusSetter;
     private Tab currentTab;
     private int current;
     private int tabWidth = 100;
     private final TabsHeader header = new TabsHeader(this);
 
-    public Tabs(int x, int y, int width, int height) {
+    public Tabs(int x, int y, int width, int height, Consumer<Tabs> focusSetter) {
         super(x, y, width, height, Component.empty());
+        this.focusSetter = focusSetter;
     }
 
     public void addTab(Tab tab) {
@@ -30,16 +33,17 @@ public class Tabs extends AbstractContainerWidget {
         if (currentTab == null) {
             currentTab = tab;
             current = tabs.indexOf(tab);
+            focusSetter.accept(this);
         }
+        tab.resize(width, height);
     }
 
     public void selectTab(int index) {
-        if (index < 0 || index >= tabs.size()) {
-            return;
-        }
+        if (index < 0 || index >= tabs.size() || current == index) return;
 
         currentTab = tabs.get(index);
         current = index;
+        focusSetter.accept(this);
     }
 
     public void previousTab() {
@@ -57,6 +61,24 @@ public class Tabs extends AbstractContainerWidget {
     public void setTabWidth(int tabWidth) {
         if (tabWidth < 15) throw new IllegalArgumentException("Tab width must be at least 15");
         this.tabWidth = tabWidth;
+    }
+
+    @Override
+    public @Nullable ComponentPath nextFocusPath(FocusNavigationEvent event) {
+        if (currentTab != null) {
+            ComponentPath currentFocusPath = currentTab.getCurrentFocusPath();
+            if (event instanceof FocusNavigationEvent.InitialFocus) {
+                if (currentFocusPath == null) {
+                    currentTab.setFocused(true);
+                }
+                currentFocusPath = currentTab.getCurrentFocusPath();
+                return ComponentPath.path(this, currentFocusPath == null ? currentTab.nextFocusPath(event) : currentFocusPath);
+            } else {
+                return ComponentPath.path(this, currentFocusPath == null ? currentTab.nextFocusPath(new FocusNavigationEvent.InitialFocus()) : currentTab.nextFocusPath(event));
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -94,7 +116,7 @@ public class Tabs extends AbstractContainerWidget {
         this.setSize(width, height);
         header.resize(width);
         for (Tab tab : tabs) {
-            tab.resize(width, height - header.getHeight());
+            tab.resize(width, height);
         }
     }
 
@@ -118,5 +140,9 @@ public class Tabs extends AbstractContainerWidget {
 
     public int getSelectedTab() {
         return current;
+    }
+
+    public ComponentPath focusTab() {
+        return ComponentPath.path(this, currentTab.nextFocusPath(new FocusNavigationEvent.InitialFocus()));
     }
 }

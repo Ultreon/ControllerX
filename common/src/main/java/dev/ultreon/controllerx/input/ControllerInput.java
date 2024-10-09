@@ -3,6 +3,7 @@ package dev.ultreon.controllerx.input;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.ultreon.mods.lib.client.gui.widget.BaseWidget;
 import dev.architectury.impl.ScreenAccessImpl;
+import dev.ultreon.controllerx.config.gui.tabs.Tabs;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerAxis;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
@@ -256,6 +257,14 @@ public class ControllerInput extends Input {
             }
         }
 
+        if (screen.getFocused() instanceof Tabs tabs) {
+            if (ctx.prevPage.getAction().isJustPressed()) {
+                tabs.previousTab();
+            } else if (ctx.nextPage.getAction().isJustPressed()) {
+                tabs.nextTab();
+            }
+        }
+
         if (ctx.activate.getAction().isJustPressed()) {
             if (screen.getFocused() instanceof EditBox editBox && !(screen instanceof ChatScreen)) {
                 screen.setFocused(true);
@@ -270,8 +279,8 @@ public class ControllerInput extends Input {
             } else if (screen.getFocused() instanceof BaseWidget baseWidget) {
                 baseWidget.leftClick();
             } else {
-                screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
-                screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
+                press(screen, InputConstants.KEY_RETURN);
+                release(screen, InputConstants.KEY_RETURN);
             }
         }
 
@@ -279,7 +288,9 @@ public class ControllerInput extends Input {
         if (axisValue != 0) {
             axisValue = -axisValue;
             GuiEventListener focused = screen.getFocused();
-            if (focused instanceof LayoutElement widget) {
+            if (focused instanceof Tabs widget) {
+                screen.mouseScrolled(widget.getX(), widget.getY() + 21, axisValue);
+            } else if (focused instanceof LayoutElement widget) {
                 screen.mouseScrolled(widget.getX(), widget.getY(), axisValue);
             } else if (focused instanceof AbstractSelectionList<?> list) {
                 screen.mouseScrolled(list.x0, list.y0, axisValue);
@@ -301,39 +312,65 @@ public class ControllerInput extends Input {
         }
 
         if (ctx.back.getAction().isJustPressed() || ctx.close.getAction().isJustPressed()) {
-            screen.keyPressed(InputConstants.KEY_ESCAPE, 0, 0);
-            screen.keyReleased(InputConstants.KEY_ESCAPE, 0, 0);
+            press(screen, InputConstants.KEY_ESCAPE);
+            release(screen, InputConstants.KEY_ESCAPE);
         } else if (ctx.dpadMove.getAction().isJustPressed()) {
+            Minecraft.getInstance().setLastInputType(net.minecraft.client.InputType.KEYBOARD_ARROW);
             if (ctx.dpadMove.getAction().get2DValue().y > 0) {
-                screen.keyPressed(InputConstants.KEY_UP, 0, 0);
-                screen.keyReleased(InputConstants.KEY_UP, 0, 0);
+                press(screen, InputConstants.KEY_UP);
             } else if (ctx.dpadMove.getAction().get2DValue().x < 0) {
-                screen.keyPressed(InputConstants.KEY_LEFT, 0, 0);
-                screen.keyReleased(InputConstants.KEY_LEFT, 0, 0);
+                press(screen, InputConstants.KEY_LEFT);
             } else if (ctx.dpadMove.getAction().get2DValue().y < 0) {
-                screen.keyPressed(InputConstants.KEY_DOWN, 0, 0);
-                screen.keyReleased(InputConstants.KEY_DOWN, 0, 0);
+                press(screen, InputConstants.KEY_DOWN);
             } else if (ctx.dpadMove.getAction().get2DValue().x > 0) {
-                screen.keyPressed(InputConstants.KEY_RIGHT, 0, 0);
-                screen.keyReleased(InputConstants.KEY_RIGHT, 0, 0);
+                press(screen, InputConstants.KEY_RIGHT);
+            }
+        } else if (ctx.dpadMove.getAction().isJustReleased()) {
+            Minecraft.getInstance().setLastInputType(net.minecraft.client.InputType.KEYBOARD_ARROW);
+            if (ctx.dpadMove.getAction().get2DValue().y > 0) {
+                release(screen, InputConstants.KEY_UP);
+            } else if (ctx.dpadMove.getAction().get2DValue().x < 0) {
+                release(screen, InputConstants.KEY_LEFT);
+            } else if (ctx.dpadMove.getAction().get2DValue().y < 0) {
+                release(screen, InputConstants.KEY_DOWN);
+            } else if (ctx.dpadMove.getAction().get2DValue().x > 0) {
+                release(screen, InputConstants.KEY_RIGHT);
             }
         }
 
         if (ctx.joystickMove.getAction().isJustPressed()) {
+            Minecraft.getInstance().setLastInputType(net.minecraft.client.InputType.KEYBOARD_ARROW);
             if (ctx.joystickMove.getAction().get2DValue().y < 0) {
-                screen.keyPressed(InputConstants.KEY_UP, 0, 0);
-                screen.keyReleased(InputConstants.KEY_UP, 0, 0);
+                press(screen, InputConstants.KEY_UP);
             } else if (ctx.joystickMove.getAction().get2DValue().x < 0) {
-                screen.keyPressed(InputConstants.KEY_LEFT, 0, 0);
-                screen.keyReleased(InputConstants.KEY_LEFT, 0, 0);
+                press(screen, InputConstants.KEY_LEFT);
             } else if (ctx.joystickMove.getAction().get2DValue().y > 0) {
-                screen.keyPressed(InputConstants.KEY_DOWN, 0, 0);
-                screen.keyReleased(InputConstants.KEY_DOWN, 0, 0);
+                press(screen, InputConstants.KEY_DOWN);
             } else if (ctx.joystickMove.getAction().get2DValue().x > 0) {
-                screen.keyPressed(InputConstants.KEY_RIGHT, 0, 0);
-                screen.keyReleased(InputConstants.KEY_RIGHT, 0, 0);
+                press(screen, InputConstants.KEY_RIGHT);
             }
         }
+
+        if (ctx.joystickMove.getAction().isJustReleased()) {
+            Minecraft.getInstance().setLastInputType(net.minecraft.client.InputType.KEYBOARD_ARROW);
+            if (ctx.joystickMove.getAction().get2DValue().y < 0) {
+                release(screen, InputConstants.KEY_UP);
+            } else if (ctx.joystickMove.getAction().get2DValue().x < 0) {
+                release(screen, InputConstants.KEY_LEFT);
+            } else if (ctx.joystickMove.getAction().get2DValue().y > 0) {
+                release(screen, InputConstants.KEY_DOWN);
+            } else if (ctx.joystickMove.getAction().get2DValue().x > 0) {
+                release(screen, InputConstants.KEY_RIGHT);
+            }
+        }
+    }
+
+    private static boolean release(Screen screen, int esc) {
+        return screen.keyReleased(esc, 0, 0);
+    }
+
+    private static boolean press(Screen screen, int esc) {
+        return screen.keyPressed(esc, 0, 0);
     }
 
     private void handleChat(Screen screen, ChatControllerContext chatContext) {
@@ -350,17 +387,17 @@ public class ControllerInput extends Input {
                     val.setValue(input);
                 }, () -> {
                     assert Minecraft.getInstance().screen != null;
-                    Minecraft.getInstance().screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
+                    press(Minecraft.getInstance().screen, InputConstants.KEY_RETURN);
                 });
             } else {
                 ControllerX.LOGGER.warn("Chat screen does not contain any edit boxes.");
             }
         } else if (chatContext.send.getAction().isJustPressed()) {
-            screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
-            screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
+            press(screen, InputConstants.KEY_RETURN);
+            release(screen, InputConstants.KEY_RETURN);
         } else if (chatContext.close.getAction().isJustPressed()) {
-            screen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
-            screen.keyReleased(InputConstants.KEY_RETURN, 0, 0);
+            press(screen, InputConstants.KEY_RETURN);
+            release(screen, InputConstants.KEY_RETURN);
         }
     }
 
@@ -592,7 +629,7 @@ public class ControllerInput extends Input {
         if (mapping == mc.options.keyAttack) return context.attack.getAction();
 
         // Modded mappings
-        ControllerMapping<?> controllerMapping = context.getMappings().get(mapping);
+        ControllerMapping<?> controllerMapping = context.getKeyToController().get(mapping);
         if (ControllerInput.moddedMappingsLoaded && controllerMapping != null)
             return controllerMapping.getAction();
 

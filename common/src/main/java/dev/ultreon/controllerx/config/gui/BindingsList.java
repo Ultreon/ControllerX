@@ -2,6 +2,7 @@ package dev.ultreon.controllerx.config.gui;
 
 import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.config.Config;
+import dev.ultreon.controllerx.config.entries.ControllerBindingEntry;
 import dev.ultreon.controllerx.text.Texts;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,14 +17,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BindingsConfigList extends ContainerObjectSelectionList<BindingsConfigList.ListEntry> {
+public class BindingsList extends ContainerObjectSelectionList<BindingsList.ListEntry> {
     private final List<ListEntry> entries = new ArrayList<>();
     private final Config config;
 
-    public BindingsConfigList(Minecraft minecraft, int width, int height, int y0, int y1, Config config) {
+    public BindingsList(Minecraft minecraft, int width, int height, int y0, int y1, Config config) {
         super(minecraft, width, height, y0, y1, 28);
         this.config = config;
         this.centerListVertically = false;
+        this.setRenderTopAndBottom(false);
     }
 
     public void addEntries(ConfigEntry<?>[] options) {
@@ -61,14 +63,14 @@ public class BindingsConfigList extends ContainerObjectSelectionList<BindingsCon
     }
 
     protected static class ListEntry extends Entry<ListEntry> {
-        private final BindingsConfigList list;
-        final ConfigEntry<?> configEntry;
+        private final BindingsList list;
+        final ControllerBindingEntry<?> configEntry;
         final Button resetBtn;
         AbstractWidget widget;
 
-        private ListEntry(BindingsConfigList list, Config config, ConfigEntry<?> configEntry, int rowWidth) {
+        private ListEntry(BindingsList list, Config config, ConfigEntry<?> configEntry, int rowWidth) {
             this.list = list;
-            this.configEntry = configEntry;
+            this.configEntry = (ControllerBindingEntry<?>) configEntry;
             this.widget = configEntry.createButton(config, rowWidth - 160, 0, 150);
 
             this.resetBtn = new ImageButton(0, 0, 20, 20, 0, 0, 20, ControllerX.res("textures/gui/reset.png"), 20, 40, button -> {
@@ -77,7 +79,7 @@ public class BindingsConfigList extends ContainerObjectSelectionList<BindingsCon
             }, Texts.GUI_RESET);
         }
 
-        public static ListEntry of(BindingsConfigList list, Config config, int rowWidth, ConfigEntry<?> entry) {
+        public static ListEntry of(BindingsList list, Config config, int rowWidth, ConfigEntry<?> entry) {
             return new ListEntry(list, config, entry, rowWidth);
         }
 

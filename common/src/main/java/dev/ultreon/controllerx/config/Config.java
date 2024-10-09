@@ -5,7 +5,7 @@ import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.api.ControllerContext;
 import dev.ultreon.controllerx.api.ControllerMapping;
 import dev.ultreon.controllerx.config.entries.*;
-import dev.ultreon.controllerx.config.gui.BindingsConfigScreen;
+import dev.ultreon.controllerx.config.gui.BindingsScreen;
 import dev.ultreon.controllerx.config.gui.ConfigEntry;
 import dev.ultreon.controllerx.input.dyn.ControllerInterDynamic;
 import net.minecraft.client.Minecraft;
@@ -134,7 +134,7 @@ public class Config {
 
     private static class ConfigButton extends Button {
         public ConfigButton(int x, int y, int w, Config config) {
-            super(x, y, w, 20, Component.translatable("controllerx.open_config"), (button) -> new BindingsConfigScreen(Minecraft.getInstance().screen, config).open(), supplier -> Component.empty());
+            super(x, y, w, 20, Component.translatable("controllerx.open_config"), (button) -> new BindingsScreen(Minecraft.getInstance().screen).open(), supplier -> Component.empty());
         }
     }
 

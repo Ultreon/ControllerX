@@ -18,6 +18,8 @@ public class ControllerHud {
 
         Iterable<ControllerMapping<?>> mappings = ctx.mappings.getAllMappings();
 
+        if (!ctx.shouldShowHUD()) return;
+
         int leftY = 20 + ctx.getYOffset();
         int rightY = 20 + ctx.getYOffset();
 

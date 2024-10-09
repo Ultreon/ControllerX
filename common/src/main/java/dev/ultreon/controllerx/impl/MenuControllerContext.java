@@ -6,6 +6,7 @@ import dev.ultreon.controllerx.Hooks;
 import dev.ultreon.controllerx.api.ControllerAction;
 import dev.ultreon.controllerx.api.ControllerContext;
 import dev.ultreon.controllerx.api.ControllerMapping;
+import dev.ultreon.controllerx.config.gui.tabs.Tabs;
 import dev.ultreon.controllerx.gui.widget.ItemSlot;
 import dev.ultreon.controllerx.injection.CreativeModeInventoryScreenInjection;
 import dev.ultreon.controllerx.input.ControllerSignedFloat;
@@ -90,10 +91,16 @@ public class MenuControllerContext extends ControllerContext {
     }
 
     private static boolean hasNextPage(Minecraft mc) {
+        if (mc.screen != null && mc.screen.getFocused() instanceof Tabs) {
+            return true;
+        }
         return mc.screen instanceof CreativeModeInventoryScreen screen && ((CreativeModeInventoryScreenInjection) screen).controllerX$getNextPage() != null;
     }
 
     private static boolean hasPrevPage(Minecraft mc) {
+        if (mc.screen != null && mc.screen.getFocused() instanceof Tabs) {
+            return true;
+        }
         return mc.screen instanceof CreativeModeInventoryScreen screen && ((CreativeModeInventoryScreenInjection) screen).controllerX$getPrevPage() != null;
     }
 
@@ -165,5 +172,10 @@ public class MenuControllerContext extends ControllerContext {
         }
 
         return super.getYOffset();
+    }
+
+    @Override
+    public boolean shouldShowHUD() {
+        return false;
     }
 }

@@ -3,11 +3,11 @@ package dev.ultreon.controllerx.config.gui;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.ultreon.mods.lib.util.KeyboardHelper;
 import dev.ultreon.controllerx.api.ControllerContext;
-import dev.ultreon.controllerx.config.Config;
 import dev.ultreon.controllerx.config.gui.tabs.Tab;
 import dev.ultreon.controllerx.config.gui.tabs.Tabs;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -15,17 +15,15 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class BindingsConfigScreen extends Screen {
+public class BindingsScreen extends Screen {
     private final Screen back;
-    private BindingsConfigList list;
+    private BindingsList list;
     private Button doneButton;
-    private final Config config;
     private Tabs tabs;
 
-    public BindingsConfigScreen(Screen back, Config config) {
+    public BindingsScreen(Screen back) {
         super(Component.translatable("controllerx.screen.config.bindings.title"));
         this.back = back;
-        this.config = config;
     }
 
     @Override
@@ -40,11 +38,11 @@ public class BindingsConfigScreen extends Screen {
         super.init();
 
         if (this.tabs != null) {
-            this.tabs.resize(this.width, this.height - 96);
+            this.tabs.resize(this.width, this.height - 70);
 
             this.addRenderableWidget(tabs);
         } else {
-            this.tabs = new Tabs(0, 20, width, height - 96);
+            this.tabs = new Tabs(0, 20, width, height - 70, this::setFocus);
 
             for (ControllerContext context : ControllerContext.getContexts()) {
                 Tab tab = new BindingsTab(context);
@@ -52,6 +50,7 @@ public class BindingsConfigScreen extends Screen {
             }
 
             this.addRenderableWidget(tabs);
+            this.setInitialFocus(tabs);
         }
 
         this.setFocused(tabs);
@@ -67,6 +66,15 @@ public class BindingsConfigScreen extends Screen {
             this.minecraft.setScreen(this.back);
         }).bounds(this.width / 2 - 155, this.height - 6 - 20, 150, 20).build();
         this.addRenderableWidget(cancelButton);
+    }
+
+    private void setFocus(Tabs tabs) {
+        ComponentPath componentPath = ComponentPath.path(this, tabs.focusTab());
+        if (componentPath != null) {
+            this.changeFocus(componentPath);
+            return;
+        }
+        this.changeFocus(ComponentPath.path(this, ComponentPath.leaf(tabs)));
     }
 
     @Override
@@ -97,7 +105,7 @@ public class BindingsConfigScreen extends Screen {
         return this.back;
     }
 
-    public BindingsConfigList getList() {
+    public BindingsList getList() {
         return this.list;
     }
 
@@ -111,20 +119,29 @@ public class BindingsConfigScreen extends Screen {
     }
 
     private static class BindingsTab extends Tab {
-        private final BindingsConfigList list;
+        private final BindingsList list;
 
         public BindingsTab(ControllerContext context) {
             super(context.getName());
-            list = new BindingsConfigList(this.minecraft, this.width, this.height, 32, this.height - 32, context.getConfig());
+            list = new BindingsList(this.minecraft, this.getWidth(), this.getHeight(), this.getY(), this.getY() + this.getHeight(), context.getConfig());
             list.addEntries(context.getConfig().values());
-            this.addWidget(this.list);
+            this.addRenderableWidget(this.list);
+        }
+
+        @Override
+        protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            list.y0 = this.getY();
+            list.y1 = this.getY() + this.getHeight();
+            list.x0 = 0;
+            list.x1 = this.getWidth();
+            list.setSize(this.getWidth(), this.getHeight());
+
+            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
         }
 
         @Override
         public void resize(int width, int height) {
             super.resize(width, height);
-
-            list.setSize(width, height - 32);
         }
     }
 }

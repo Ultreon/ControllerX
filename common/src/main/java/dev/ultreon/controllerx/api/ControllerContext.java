@@ -151,4 +151,8 @@ public abstract class ControllerContext {
     public Component getName() {
         return config.getTitle();
     }
+
+    public boolean shouldShowHUD() {
+        return true;
+    }
 }
