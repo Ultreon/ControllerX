@@ -1,12 +1,17 @@
 package dev.ultreon.controllerx.config.gui.tabs;
 
 import com.ultreon.mods.lib.client.gui.widget.AbstractContainerWidget;
+import dev.ultreon.controllerx.init.ModSounds;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
+import net.minecraft.client.resources.sounds.AbstractSoundInstance;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,14 +52,17 @@ public class Tabs extends AbstractContainerWidget {
         currentTab = tabs.get(index);
         current = index;
         focusSetter.accept(this);
+        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.MENU_TICK.get(), 1));
     }
 
     public void previousTab() {
         selectTab((current - 1 + tabs.size()) % tabs.size());
+        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.MENU_TICK.get(), 1));
     }
 
     public void nextTab() {
         selectTab((current + 1) % tabs.size());
+        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.MENU_TICK.get(), 1));
     }
 
     public int getTabWidth() {

@@ -10,6 +10,7 @@ import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.ultreon.controllerx.config.gui.BindingsScreen;
+import dev.ultreon.controllerx.init.ModSounds;
 import io.github.libsdl4j.api.SdlSubSystemConst;
 import dev.ultreon.controllerx.api.ControllerContext;
 import dev.ultreon.controllerx.config.Config;
@@ -84,6 +85,8 @@ public class ControllerX {
                 return EventResult.pass();
             });
         }
+
+        ModSounds.register();
 
         ClientLifecycleEvent.CLIENT_STARTED.register(this::clientStarted);
 
