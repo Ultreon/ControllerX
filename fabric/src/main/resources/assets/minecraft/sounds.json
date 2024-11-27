@@ -1,0 +1,8 @@
+{
+  "gui.controllerx.menu.tick": {
+    "sounds": [
+      "controllerx:tick"
+    ],
+    "subtitle": "subtitles.gui.controllerx.menu.tick"
+  }
+}

@@ -48,6 +48,7 @@
   "controllerx.config.controllerx.menu": "Menu",
   "controllerx.config.controllerx.chat": "Chat",
   "controllerx.config.controllerx.virtual_keyboard": "Virtual Keyboard",
-  "controllerx.config.controllerx.default": "Default",
+  "controllerx.config.controllerx.virtual_keyboard": "Virtual Keyboard",
+  "controllerx.screen.controller_bindings": "Controller Bindings",
   "controllerx.gui.reset": "Reset"
 }

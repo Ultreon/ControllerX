@@ -21,10 +21,10 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "io.github.ultreon.controllerx.fabric.ControllerXFabric"
+      "dev.ultreon.controllerx.fabric.ControllerXFabric"
     ],
     "modmenu": [
-      "io.github.ultreon.controllerx.fabric.ControllerXModMenuIntegration"
+      "dev.ultreon.controllerx.fabric.ControllerXModMenuIntegration"
     ]
   },
   "mixins": [
