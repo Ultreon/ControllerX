@@ -89,7 +89,7 @@ public class BindingsList extends ContainerObjectSelectionList<BindingsList.List
         private ListEntry(BindingsList list, Config config, ConfigEntry<?> configEntry, int rowWidth) {
             this.list = list;
             this.configEntry = (ControllerBindingEntry<?>) configEntry;
-            this.widget = configEntry.createButton(config, rowWidth - 160, 0, 150);
+            this.widget = configEntry.createButton(config, rowWidth - 110, 0, 100);
 
             this.resetBtn = new ImageButton(0, 0, 20, 20, 0, 0, 20, ControllerX.res("textures/gui/reset.png"), 20, 40, button -> {
                 configEntry.reset();
