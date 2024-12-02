@@ -34,6 +34,7 @@ import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -137,6 +138,14 @@ public class ControllerInput extends Input {
             this.leftImpulse = 0;
             this.jumping = false;
             this.shiftKeyDown = false;
+        }
+        LocalPlayer player = mc.player;
+        if (player != null) {
+            float sneakingSpeed = Mth.clamp(0.3F + EnchantmentHelper.getSneakingSpeedBonus(player), 0.0F, 1.0F);
+            if (player.isMovingSlowly()) {
+                this.forwardImpulse *= sneakingSpeed;
+                this.leftImpulse *= sneakingSpeed;
+            }
         }
     }
 
