@@ -58,12 +58,18 @@ public class TextInputScreen extends BaseScreen {
     protected void init() {
         setInput(ControllerX.get().input.getVirtualKeyboardValue());
 
-        for (ImageButton button : buttons) {
-            removeWidget(button);
-        }
+        reloadButtons();
 
-        buttons.clear();
+        super.init();
+    }
 
+    private void reloadButtons() {
+        removeButtons();
+
+        addButtons();
+    }
+
+    private void addButtons() {
         char[][] layoutLayout = layout.getLayout(shift || caps);
         for (int rowIdx = 0, layoutLayoutLength = layoutLayout.length; rowIdx < layoutLayoutLength; rowIdx++) {
             char[] row = layoutLayout[rowIdx];
@@ -75,18 +81,28 @@ public class TextInputScreen extends BaseScreen {
             if (rowIdx == 3) keyboardWidth += 33;
             if (rowIdx == 4) keyboardWidth += 41;
 
-            int x = width / 2 - keyboardWidth / 2;
-            for (char c : row) {
-                KeyMappingIcon icon = KeyMappingIcon.byChar(c);
-                if (icon == null) continue;
+            addButton(keyboardWidth, row, rowIdx);
+        }
+    }
 
-                addButton(c, x, rowIdx, icon);
+    private void addButton(int keyboardWidth, char[] row, int rowIdx) {
+        int x = width / 2 - keyboardWidth / 2;
+        for (char c : row) {
+            KeyMappingIcon icon = KeyMappingIcon.byChar(c);
+            if (icon == null) continue;
 
-                x += icon.width;
-            }
+            addButton(c, x, rowIdx, icon);
+
+            x += icon.width;
+        }
+    }
+
+    private void removeButtons() {
+        for (ImageButton button : buttons) {
+            removeWidget(button);
         }
 
-        super.init();
+        buttons.clear();
     }
 
     @Override
@@ -105,7 +121,15 @@ public class TextInputScreen extends BaseScreen {
                 case '\n', '\r' -> submit();
                 case '\b' -> backspace();
                 case '\t' -> setInput(getInput() + "    ");
-                case '\0', '\1', '\3', '\4', '\5', '\6', '\7' -> {
+                case '\3' -> {
+                    caps = !caps;
+                    reloadButtons();
+                }
+                case '\6' -> {
+                    shift = !shift;
+                    reloadButtons();
+                }
+                case '\0', '\1', '\4', '\5', '\7' -> {
                     // TODO: Add support for other controller input characters
                 }
             }

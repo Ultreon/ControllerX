@@ -158,12 +158,7 @@ public abstract class ControllerX implements IControllerX {
         controllerHud = new ControllerHud();
         keyboardHud = new KeyboardHud();
 
-        ClientGuiEvent.RENDER_HUD.register(this::renderHud);
-        ClientGuiEvent.RENDER_POST.register(this::renderGui);
-        ClientGuiEvent.INIT_PRE.register(this::initGui);
-        ClientGuiEvent.INIT_POST.register(this::postInitGui);
-
-        ClientTickEvent.CLIENT_PRE.register(this::tickInput);
+        registerEvents();
 
         if (input.isConnected()) {
             inputType = InputType.CONTROLLER;
@@ -172,63 +167,7 @@ public abstract class ControllerX implements IControllerX {
         initKeyboardLayout();
         virtualKeyboard = new VirtualKeyboard();
 
-        ClientScreenInputEvent.KEY_PRESSED_PRE.register((client, screen, keyCode, scanCode, modifiers) -> {
-            setInputType(InputType.KEYBOARD_AND_MOUSE);
-
-            if (input.isVirtualKeyboardOpen()) {
-                virtualKeyboard.getScreen().keyPressed(keyCode, scanCode, modifiers);
-                return EventResult.interruptFalse();
-            }
-            return EventResult.pass();
-        });
-        ClientScreenInputEvent.KEY_RELEASED_PRE.register((client, screen, keyCode, scanCode, modifiers) -> {
-            setInputType(InputType.KEYBOARD_AND_MOUSE);
-            if (input.isVirtualKeyboardOpen()) {
-                virtualKeyboard.getScreen().keyReleased(keyCode, scanCode, modifiers);
-                return EventResult.interruptFalse();
-            }
-            return EventResult.pass();
-        });
-        ClientScreenInputEvent.CHAR_TYPED_PRE.register((client, screen, character, keyCode) -> {
-            setInputType(InputType.KEYBOARD_AND_MOUSE);
-            if (input.isVirtualKeyboardOpen()) {
-                virtualKeyboard.getScreen().charTyped(character, keyCode);
-                return EventResult.interruptFalse();
-            }
-            return EventResult.pass();
-        });
-        ClientScreenInputEvent.MOUSE_CLICKED_PRE.register((client, screen, x, y, button) -> {
-            setInputType(InputType.KEYBOARD_AND_MOUSE);
-            if (input.isVirtualKeyboardOpen()) {
-                virtualKeyboard.getScreen().mouseClicked(x, y, button);
-                return EventResult.interruptFalse();
-            }
-            return EventResult.pass();
-        });
-        ClientScreenInputEvent.MOUSE_DRAGGED_PRE.register((client, screen, mouseX1, mouseY1, button, mouseX2, mouseY2) -> {
-            setInputType(InputType.KEYBOARD_AND_MOUSE);
-            if (input.isVirtualKeyboardOpen()) {
-                virtualKeyboard.getScreen().mouseDragged(mouseX1, mouseY1, button, mouseX2, mouseY2);
-                return EventResult.interruptFalse();
-            }
-            return EventResult.pass();
-        });
-        ClientScreenInputEvent.MOUSE_SCROLLED_PRE.register((client, screen, mouseX, mouseY, amount) -> {
-            setInputType(InputType.KEYBOARD_AND_MOUSE);
-            if (input.isVirtualKeyboardOpen()) {
-                virtualKeyboard.getScreen().mouseScrolled(mouseX, mouseY, amount);
-                return EventResult.interruptFalse();
-            }
-            return EventResult.pass();
-        });
-        ClientScreenInputEvent.MOUSE_RELEASED_PRE.register((client, screen, mouseX, mouseY, button) -> {
-            setInputType(InputType.KEYBOARD_AND_MOUSE);
-            if (input.isVirtualKeyboardOpen()) {
-                virtualKeyboard.getScreen().mouseReleased(mouseX, mouseY, button);
-                return EventResult.interruptFalse();
-            }
-            return EventResult.pass();
-        });
+        hookInput();
 
         Iterable<IConfig> configs = ControllerContext.createConfigs();
 
@@ -246,6 +185,24 @@ public abstract class ControllerX implements IControllerX {
         } else for (IConfig config : configs) {
             config.load();
         }
+    }
+
+    private void hookInput() {
+        ClientScreenInputEvent.KEY_PRESSED_PRE.register(this::keyPressed);
+        ClientScreenInputEvent.KEY_RELEASED_PRE.register(this::keyReleased);
+        ClientScreenInputEvent.CHAR_TYPED_PRE.register(this::charTyped);
+        ClientScreenInputEvent.MOUSE_CLICKED_PRE.register(this::mouseClicked);
+        ClientScreenInputEvent.MOUSE_DRAGGED_PRE.register(this::mouseDragged);
+        ClientScreenInputEvent.MOUSE_SCROLLED_PRE.register(this::mouseScrolled);
+        ClientScreenInputEvent.MOUSE_RELEASED_PRE.register(this::mouseReleased);
+    }
+
+    private void registerEvents() {
+        ClientGuiEvent.RENDER_HUD.register(this::renderHud);
+        ClientGuiEvent.RENDER_POST.register(this::renderGui);
+        ClientGuiEvent.INIT_PRE.register(this::initGui);
+        ClientGuiEvent.INIT_POST.register(this::postInitGui);
+        ClientTickEvent.CLIENT_PRE.register(this::tickInput);
     }
 
     private static boolean isUsingVirtualKeyboard(Minecraft minecraft) {
@@ -335,5 +292,69 @@ public abstract class ControllerX implements IControllerX {
 
     public IControllerBackend getBackend() {
         return backend;
+    }
+
+    private EventResult keyPressed(Minecraft client, Screen screen, int keyCode, int scanCode, int modifiers) {
+        setInputType(InputType.KEYBOARD_AND_MOUSE);
+
+        if (input.isVirtualKeyboardOpen()) {
+            virtualKeyboard.getScreen().keyPressed(keyCode, scanCode, modifiers);
+            return EventResult.interruptFalse();
+        }
+        return EventResult.pass();
+    }
+
+    private EventResult keyReleased(Minecraft client, Screen screen, int keyCode, int scanCode, int modifiers) {
+        setInputType(InputType.KEYBOARD_AND_MOUSE);
+        if (input.isVirtualKeyboardOpen()) {
+            virtualKeyboard.getScreen().keyReleased(keyCode, scanCode, modifiers);
+            return EventResult.interruptFalse();
+        }
+        return EventResult.pass();
+    }
+
+    private EventResult charTyped(Minecraft client, Screen screen, char character, int keyCode) {
+        setInputType(InputType.KEYBOARD_AND_MOUSE);
+        if (input.isVirtualKeyboardOpen()) {
+            virtualKeyboard.getScreen().charTyped(character, keyCode);
+            return EventResult.interruptFalse();
+        }
+        return EventResult.pass();
+    }
+
+    private EventResult mouseClicked(Minecraft client, Screen screen, double x, double y, int button) {
+        setInputType(InputType.KEYBOARD_AND_MOUSE);
+        if (input.isVirtualKeyboardOpen()) {
+            virtualKeyboard.getScreen().mouseClicked(x, y, button);
+            return EventResult.interruptFalse();
+        }
+        return EventResult.pass();
+    }
+
+    private EventResult mouseDragged(Minecraft client, Screen screen, double mouseX1, double mouseY1, int button, double mouseX2, double mouseY2) {
+        setInputType(InputType.KEYBOARD_AND_MOUSE);
+        if (input.isVirtualKeyboardOpen()) {
+            virtualKeyboard.getScreen().mouseDragged(mouseX1, mouseY1, button, mouseX2, mouseY2);
+            return EventResult.interruptFalse();
+        }
+        return EventResult.pass();
+    }
+
+    private EventResult mouseScrolled(Minecraft client, Screen screen, double mouseX, double mouseY, double amount) {
+        setInputType(InputType.KEYBOARD_AND_MOUSE);
+        if (input.isVirtualKeyboardOpen()) {
+            virtualKeyboard.getScreen().mouseScrolled(mouseX, mouseY, amount);
+            return EventResult.interruptFalse();
+        }
+        return EventResult.pass();
+    }
+
+    private EventResult mouseReleased(Minecraft client, Screen screen, double mouseX, double mouseY, int button) {
+        setInputType(InputType.KEYBOARD_AND_MOUSE);
+        if (input.isVirtualKeyboardOpen()) {
+            virtualKeyboard.getScreen().mouseReleased(mouseX, mouseY, button);
+            return EventResult.interruptFalse();
+        }
+        return EventResult.pass();
     }
 }
