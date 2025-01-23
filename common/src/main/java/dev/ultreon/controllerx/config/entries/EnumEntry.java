@@ -13,7 +13,7 @@ public class EnumEntry<T extends Enum<T>> extends ConfigEntry<T> {
     public EnumEntry(String key, T value, Component description) {
         super(key, value, description);
 
-        this.clazz = (Class<T>) value.getClass();
+        clazz = (Class<T>) value.getClass();
     }
 
     @Override
@@ -23,11 +23,11 @@ public class EnumEntry<T extends Enum<T>> extends ConfigEntry<T> {
 
     @Override
     public AbstractWidget createButton(Config options, int x, int y, int width) {
-        CycleButton<T> cycleButton = CycleButton.<T>builder(enumValue -> Component.nullToEmpty(enumValue.name())).withValues(clazz.getEnumConstants()).withInitialValue(this.get()).displayOnlyValue().create(x, y, width, 20, Component.nullToEmpty("Value"), (cycler, enumValue) -> {
+        CycleButton<T> cycleButton = CycleButton.<T>builder(enumValue -> Component.nullToEmpty(enumValue.name())).withValues(clazz.getEnumConstants()).withInitialValue(get()).displayOnlyValue().create(x, y, width, 20, Component.nullToEmpty("Value"), (cycler, enumValue) -> {
             cycler.setValue(enumValue);
             cycler.setMessage(Component.nullToEmpty(enumValue.name()));
         });
-        cycleButton.setValue(this.get());
+        cycleButton.setValue(get());
         return cycleButton;
     }
 
@@ -36,6 +36,6 @@ public class EnumEntry<T extends Enum<T>> extends ConfigEntry<T> {
     public void setFromWidget(AbstractWidget widget) {
         CycleButton<T> cycleButton = (CycleButton<T>) widget;
         T value = cycleButton.getValue();
-        this.set(value);
+        set(value);
     }
 }

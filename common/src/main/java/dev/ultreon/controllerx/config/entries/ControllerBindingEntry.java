@@ -1,18 +1,18 @@
 package dev.ultreon.controllerx.config.entries;
 
 import dev.ultreon.controllerx.ControllerX;
-import dev.ultreon.controllerx.api.ControllerAction;
+import dev.ultreon.controllerx.impl.ControllerAction;
 import dev.ultreon.controllerx.api.ControllerContext;
-import dev.ultreon.controllerx.api.ControllerMapping;
+import dev.ultreon.controllerx.impl.ControllerMapping;
 import dev.ultreon.controllerx.config.Config;
 import dev.ultreon.controllerx.config.gui.ConfigEntry;
-import dev.ultreon.controllerx.input.dyn.ControllerInterDynamic;
+import dev.ultreon.controllerx.api.input.dyn.IControllerInterDynamic;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class ControllerBindingEntry<T extends Enum<T> & ControllerInterDynamic<?>> extends ConfigEntry<T> {
+public class ControllerBindingEntry<T extends Enum<T> & IControllerInterDynamic<?>> extends ConfigEntry<T> {
     private final Class<T> clazz;
     private final ControllerMapping<T> mapping;
 
@@ -22,7 +22,7 @@ public class ControllerBindingEntry<T extends Enum<T> & ControllerInterDynamic<?
         this.mapping = mapping;
 
         ControllerAction<T> action = value.getAction();
-        this.clazz = (Class<T>) action.getMapping().getClass();
+        clazz = (Class<T>) action.getMapping().getClass();
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ControllerBindingEntry<T extends Enum<T> & ControllerInterDynamic<?
     public void setFromWidget(AbstractWidget widget) {
         ControllerInputButton button = (ControllerInputButton) widget;
         ControllerAction<T> value = button.getAction();
-        this.set(value.getMapping());
+        set(value.getMapping());
     }
 
     public ControllerMapping<T> getMapping() {
@@ -58,15 +58,15 @@ public class ControllerBindingEntry<T extends Enum<T> & ControllerInterDynamic<?
             super(x, y, width, height, message, (button) -> {}, (button) -> Component.empty());
             this.context = context;
             this.mapping = mapping;
-            this.action = mapping.getAction();
+            action = mapping.getAction();
         }
 
         @Override
         public void onPress() {
             ControllerX.get().input.interceptInputOnce((evt) -> {
                 if (evt.mapping().getClass() == clazz) {
-                    this.action.setMapping(evt.mapping().as(this.action.getMapping()));
-                    this.setMessage(Component.nullToEmpty(evt.mapping().name()));
+                    action.setMapping(evt.mapping().as(action.getMapping()));
+                    setMessage(Component.nullToEmpty(evt.mapping().name()));
                 }
             });
         }
@@ -80,12 +80,12 @@ public class ControllerBindingEntry<T extends Enum<T> & ControllerInterDynamic<?
         }
 
         public ControllerAction<T> getAction() {
-            return this.action;
+            return action;
         }
 
         public void setAction(@NotNull ControllerAction<T> action) {
             this.action = action;
-            this.setMessage(Component.nullToEmpty(action.getMapping().name()));
+            setMessage(Component.nullToEmpty(action.getMapping().name()));
         }
 
         public void actuallySetAction(@NotNull ControllerAction<T> tControllerMapping) {
@@ -93,7 +93,7 @@ public class ControllerBindingEntry<T extends Enum<T> & ControllerInterDynamic<?
         }
 
         public void reset() {
-            this.action = mapping.getDefaultAction();
+            action = mapping.getDefaultAction();
         }
     }
 }

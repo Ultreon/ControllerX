@@ -2,7 +2,7 @@ package dev.ultreon.controllerx.mixin.forge;
 
 import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.gui.widget.ItemSlot;
-import dev.ultreon.controllerx.input.InputType;
+import dev.ultreon.controllerx.api.input.InputType;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;

@@ -21,7 +21,7 @@ public abstract class BaseConfigScreen extends PanoramaScreen {
 
     @Override
     protected final void init() {
-        this.list = new ListWidget(this, 0, 0, 0, getCount(), hasSearch(), title, Theme.NORMAL);
+        list = new ListWidget(this, 0, 0, 0, getCount(), hasSearch(), title, Theme.NORMAL);
     }
 
     protected abstract boolean hasSearch();

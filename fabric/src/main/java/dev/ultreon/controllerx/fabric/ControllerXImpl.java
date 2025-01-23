@@ -1,13 +1,17 @@
 package dev.ultreon.controllerx.fabric;
 
+import dev.ultreon.controllerx.ControllerX;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Player;
 
-public class ControllerXImpl {
-    public static double getEntityReach(Player player) {
+public class ControllerXImpl extends ControllerX {
+    @Override
+    public double getEntityReach(LocalPlayer player) {
         return player.isCreative() ? 5.0D : 4.5D;
     }
 
-    public static double getBlockReach(Player player) {
+    @Override
+    public double getBlockReach(LocalPlayer player) {
         return player.isCreative() ? 5.0D : 4.5D;
     }
 }

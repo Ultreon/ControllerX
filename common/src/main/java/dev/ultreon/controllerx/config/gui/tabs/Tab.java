@@ -81,22 +81,22 @@ public class Tab extends AbstractWidget implements ContainerEventHandler {
     }
 
     protected <T extends Renderable & GuiEventListener> T addRenderableWidget(T widget) {
-        this.children.add(widget);
-        this.renderables.add(widget);
+        children.add(widget);
+        renderables.add(widget);
         return widget;
     }
 
     public <T extends Renderable> T addRenderable(T widget) {
-        this.renderables.add(widget);
+        renderables.add(widget);
         return widget;
     }
 
     public <T extends GuiEventListener> T addWidget(T widget) {
-        this.children.add(widget);
+        children.add(widget);
         return widget;
     }
 
     public boolean isEmpty() {
-        return this.children.isEmpty() && this.renderables.isEmpty();
+        return children.isEmpty() && renderables.isEmpty();
     }
 }

@@ -58,9 +58,10 @@ dependencies {
     implementation("dev.ultreon.corelibs:corelibs-events-v1:$corelibs_version")
     implementation("dev.ultreon.corelibs:corelibs-functions-v0:$corelibs_version")
     implementation("dev.ultreon.corelibs:corelibs-registries-v0:$corelibs_version")
-    implementation("dev.ultreon.corelibs:corelibs-resources-v0:$corelibs_version")
     implementation("dev.ultreon.corelibs:corelibs-text-v0:$corelibs_version")
     implementation("dev.ultreon.corelibs:corelibs-translations-v0:$corelibs_version")
+
+    modImplementation("dev.ultreon.mods:advanced-debug-fabric:$advancedDebugVersion")
 }
 
 processResources {

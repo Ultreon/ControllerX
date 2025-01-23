@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.architectury.event.CompoundEventResult;
 import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.event.ItemSlotGuiEvent;
-import dev.ultreon.controllerx.input.InputType;
+import dev.ultreon.controllerx.api.input.InputType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -36,7 +36,7 @@ public class ItemSlot extends AbstractWidget {
     @Override
     protected void renderWidget(@NotNull GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         if (ControllerX.get().getInputType() != InputType.CONTROLLER) return;
-        if (!this.isFocused()) return;
+        if (!isFocused()) return;
 
         gfx.fill(getX(), getY(), getX() + width, getY() + height, 0xff00ff00);
     }

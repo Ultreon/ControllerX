@@ -1,9 +1,10 @@
 package dev.ultreon.controllerx;
 
 import dev.architectury.hooks.client.screen.ScreenAccess;
+import dev.ultreon.controllerx.api.ControllerContext;
 import dev.ultreon.controllerx.gui.widget.ItemSlot;
 import dev.ultreon.controllerx.input.ControllerInput;
-import dev.ultreon.controllerx.input.InputType;
+import dev.ultreon.controllerx.api.input.InputType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -39,12 +40,10 @@ public class Hooks {
 
         Minecraft mc = Minecraft.getInstance();
 
-        if (ControllerX.get().getInputType() == InputType.CONTROLLER) {
-            T menu = containerScreen.getMenu();
+        T menu = containerScreen.getMenu();
 
-            for (Slot slot : menu.slots) {
-                screenAccess.addRenderableWidget(ItemSlot.getSlot(containerScreen, slot));
-            }
+        for (Slot slot : menu.slots) {
+            screenAccess.addRenderableWidget(ItemSlot.getSlot(containerScreen, slot));
         }
     }
 
@@ -59,5 +58,9 @@ public class Hooks {
     public static boolean isOnSlot(AbstractContainerScreen<?> screen) {
         if (ControllerX.get().getInputType() != InputType.CONTROLLER) return false;
         return screen.getFocused() instanceof ItemSlot;
+    }
+
+    public static void hookReleaseAll() {
+        ControllerContext.getContexts().forEach(ControllerContext::releaseAll);
     }
 }

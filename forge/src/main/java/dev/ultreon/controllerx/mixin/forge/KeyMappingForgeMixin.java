@@ -11,14 +11,5 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(KeyMapping.class)
 public abstract class KeyMappingForgeMixin implements IForgeKeyMapping {
-    @Shadow
-    boolean isDown;
 
-    @Inject(method = "isDown", at = @At("HEAD"), cancellable = true)
-    private void onIsDown(CallbackInfoReturnable<Boolean> cir) {
-        Hooks.hookControllerInput((KeyMapping) (Object) this, isDown).ifPresent(returnValue -> {
-            // Added isConflictContextAndModifierActive check for the side on Forge.
-            cir.setReturnValue(returnValue && isConflictContextAndModifierActive());
-        });
-    }
 }

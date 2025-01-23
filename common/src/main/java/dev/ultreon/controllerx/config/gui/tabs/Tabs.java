@@ -124,7 +124,7 @@ public class Tabs extends AbstractContainerWidget {
     }
 
     public void resize(int width, int height) {
-        this.setSize(width, height);
+        setSize(width, height);
         header.resize(width);
         for (Tab tab : tabs) {
             tab.resize(width, height);

@@ -5,7 +5,7 @@
 
 package dev.ultreon.controllerx.gui;
 
-import dev.ultreon.controllerx.Icon;
+import dev.ultreon.controllerx.api.Icon;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
@@ -32,40 +32,40 @@ public class ControllerToast implements Toast {
     private Instant hideAt;
 
     public ControllerToast(Icon icon, Component title, @Nullable Component message) {
-        this.visibility = Visibility.SHOW;
+        visibility = Visibility.SHOW;
         this.icon = icon;
         this.title = title;
         this.message = message;
     }
 
     public Toast.@NotNull Visibility render(GuiGraphics gfx, @NotNull ToastComponent toastComponent, long timeSinceLastVisible) {
-        gfx.blit(TEXTURE, 0, 0, 0, 96, this.width(), this.height());
-        this.icon.render(gfx, 6, 6);
-        if (this.message == null) {
-            gfx.drawString(toastComponent.getMinecraft().font, this.title, 30, 12, -11534256, false);
+        gfx.blit(TEXTURE, 0, 0, 0, 96, width(), height());
+        icon.render(gfx, 6, 6);
+        if (message == null) {
+            gfx.drawString(toastComponent.getMinecraft().font, title, 30, 12, -11534256, false);
         } else {
-            gfx.drawString(toastComponent.getMinecraft().font, this.title, 30, 7, -11534256, false);
-            gfx.drawString(toastComponent.getMinecraft().font, this.message, 30, 18, -16777216, false);
+            gfx.drawString(toastComponent.getMinecraft().font, title, 30, 7, -11534256, false);
+            gfx.drawString(toastComponent.getMinecraft().font, message, 30, 18, -16777216, false);
         }
 
         if (hideAt != null && Instant.now().isAfter(hideAt)) {
-            this.visibility = Visibility.HIDE;
+            visibility = Visibility.HIDE;
         }
 
-        return this.visibility;
+        return visibility;
     }
 
     public void hide() {
-        this.visibility = Visibility.HIDE;
+        visibility = Visibility.HIDE;
     }
 
     public ControllerToast hideIn(Duration hideTime) {
-        this.hideAt(Instant.now().plus(hideTime));
+        hideAt(Instant.now().plus(hideTime));
         return this;
     }
 
     public ControllerToast hideAt(Instant instant) {
-        this.hideAt = instant;
+        hideAt = instant;
         return this;
     }
 

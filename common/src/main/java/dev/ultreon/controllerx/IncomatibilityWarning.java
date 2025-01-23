@@ -21,10 +21,10 @@ public class IncomatibilityWarning extends Screen {
         super.init();
 
         addRenderableWidget(Button.builder(CommonComponents.GUI_PROCEED, button -> {
-            if (this.minecraft != null) {
+            if (minecraft != null) {
                 ControllerX.get().initMod();
                 ControllerX.get().skippedWarning = true;
-                this.minecraft.setScreen(null);
+                minecraft.setScreen(null);
             }
         }).bounds(width / 2 - 50, 3 * height / 4, 100, 20).build());
     }

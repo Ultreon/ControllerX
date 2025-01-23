@@ -22,6 +22,6 @@ public abstract class ValueSliderButton extends AbstractSliderButton {
     }
 
     public double getValue() {
-        return this.min + this.value * (this.max - this.min);
+        return min + value * (max - min);
     }
 }

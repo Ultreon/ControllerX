@@ -3,7 +3,7 @@ package dev.ultreon.controllerx.gui;
 import dev.ultreon.controllerx.Config;
 import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.KeyMappingIcon;
-import dev.ultreon.controllerx.input.InputType;
+import dev.ultreon.controllerx.api.input.InputType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

@@ -63,15 +63,15 @@ public class TabsHeader extends AbstractWidget {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        double oldScrollPosition = this.scrollPosition;
-        this.scrollPosition += delta / 2.0;
+        double oldScrollPosition = scrollPosition;
+        scrollPosition += delta / 2.0;
 
         int index = (int) scrollPosition;
         if (index != (int) oldScrollPosition) {
-            int tabCount = this.tabs.getTabCount();
+            int tabCount = tabs.getTabCount();
             index = Mth.clamp(index, 0, tabCount - 1);
             scrollPosition = Mth.clamp(scrollPosition, 0, tabCount);
-            this.tabs.selectTab((index + tabCount) % tabCount);
+            tabs.selectTab((index + tabCount) % tabCount);
             return true;
         }
 
@@ -79,6 +79,6 @@ public class TabsHeader extends AbstractWidget {
     }
 
     public void resize(int width) {
-        this.setWidth(width);
+        setWidth(width);
     }
 }

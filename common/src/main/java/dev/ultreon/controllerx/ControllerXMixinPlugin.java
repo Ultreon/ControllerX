@@ -14,7 +14,7 @@ public class ControllerXMixinPlugin implements IMixinConfigPlugin {
     public void onLoad(String mixinPackage) {
         if (mixinPackage.startsWith("dev.ultreon.controllerx.")) {
             if (getClass().getClassLoader().getResource("com/ultreon/mods/lib/UltreonLib.class") == null) {
-                this.disabled = true;
+                disabled = true;
             }
         }
     }

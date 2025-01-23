@@ -2,7 +2,7 @@ package dev.ultreon.controllerx.gui;
 
 import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.api.ControllerContext;
-import dev.ultreon.controllerx.api.ControllerMapping;
+import dev.ultreon.controllerx.api.IControllerMapping;
 import dev.ultreon.controllerx.input.ControllerInput;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,22 +16,22 @@ public class ControllerHud {
         if (ctx == null) return;
         if (!input.isAvailable()) return;
 
-        Iterable<ControllerMapping<?>> mappings = ctx.mappings.getAllMappings();
+        Iterable<IControllerMapping<?>> mappings = ctx.mappings.getAllMappings();
 
         if (!ctx.shouldShowHUD()) return;
 
         int leftY = 20 + ctx.getYOffset();
         int rightY = 20 + ctx.getYOffset();
 
-        for (ControllerMapping<?> mapping : mappings) {
+        for (IControllerMapping<?> mapping : mappings) {
             if (!mapping.isVisible()) continue;
 
-            ControllerMapping.Side side = mapping.getSide();
-            int x = side == ControllerMapping.Side.LEFT ? 4 + ctx.getLeftXOffset() : width() - 24 - ctx.getRightXOffset();
-            int y = height() - (side == ControllerMapping.Side.LEFT ? leftY : rightY);
+            IControllerMapping.Side side = mapping.getSide();
+            int x = side == IControllerMapping.Side.LEFT ? 4 + ctx.getLeftXOffset() : width() - 24 - ctx.getRightXOffset();
+            int y = height() - (side == IControllerMapping.Side.LEFT ? leftY : rightY);
             mapping.getAction().getMapping().getIcon().render(gfx, x, y);
 
-            if (side == ControllerMapping.Side.LEFT) {
+            if (side == IControllerMapping.Side.LEFT) {
                 gfx.drawString(Minecraft.getInstance().font, mapping.getName(), 28 + ctx.getLeftXOffset(), height() - leftY + 4, 0xFFFFFF);
 
                 leftY += 20;

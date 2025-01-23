@@ -3,9 +3,10 @@ package dev.ultreon.controllerx.config.gui;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.ultreon.mods.lib.util.KeyboardHelper;
 import dev.ultreon.controllerx.api.ControllerContext;
+import dev.ultreon.controllerx.config.Config;
 import dev.ultreon.controllerx.config.gui.tabs.Tab;
 import dev.ultreon.controllerx.config.gui.tabs.Tabs;
-import dev.ultreon.controllerx.impl.InGameControllerContext;
+import dev.ultreon.controllerx.impl.contexts.InGameControllerContext;
 import dev.ultreon.controllerx.mixin.accessors.KeyMappingAccessor;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -36,27 +37,27 @@ public class BindingsScreen extends Screen {
 
     @Override
     public void onClose() {
-        assert this.minecraft != null;
-        this.minecraft.setScreen(this.back);
+        assert minecraft != null;
+        minecraft.setScreen(back);
     }
 
     @Override
     protected void init() {
-        this.clearWidgets();
+        clearWidgets();
         super.init();
 
-        if (this.tabs != null) {
-            this.tabs.resize(this.width, this.height - 70);
+        if (tabs != null) {
+            tabs.resize(width, height - 70);
 
-            this.addRenderableWidget(tabs);
+            addRenderableWidget(tabs);
         } else {
-            this.tabs = new Tabs(0, 20, width, height - 70, this::setFocus);
+            tabs = new Tabs(0, 20, width, height - 70, this::setFocus);
 
             for (ControllerContext context : ControllerContext.getContexts()) {
                 BindingsTab tab = new BindingsTab(context, null);
                 if (tab.isEmpty()) continue;
                 allTabs.add(tab);
-                this.tabs.addTab(tab);
+                tabs.addTab(tab);
             }
 
             KeyMappingAccessor.getCategoryNames().stream().sorted((a, b) -> {
@@ -67,45 +68,45 @@ public class BindingsScreen extends Screen {
                 BindingsTab tab = new BindingsTab(InGameControllerContext.INSTANCE, category);
                 if (tab.isEmpty()) return;
                 allTabs.add(tab);
-                this.tabs.addTab(tab);
+                tabs.addTab(tab);
             });
 
-            this.addRenderableWidget(tabs);
-            this.setInitialFocus(tabs);
+            addRenderableWidget(tabs);
+            setInitialFocus(tabs);
         }
 
-        this.setFocused(tabs);
-        this.doneButton = new Button.Builder(CommonComponents.GUI_DONE, button -> {
-            this.allTabs.forEach(tab -> tab.save());
-            assert this.minecraft != null;
-            this.minecraft.setScreen(this.back);
-        }).bounds(this.width / 2 + 5, this.height - 6 - 20, 150, 20).build();
-        this.addRenderableWidget(this.doneButton);
+        setFocused(tabs);
+        doneButton = new Button.Builder(CommonComponents.GUI_DONE, button -> {
+            allTabs.forEach(tab -> tab.save());
+            assert minecraft != null;
+            minecraft.setScreen(back);
+        }).bounds(width / 2 + 5, height - 6 - 20, 150, 20).build();
+        addRenderableWidget(doneButton);
 
         Button cancelButton = new Button.Builder(CommonComponents.GUI_CANCEL, button -> {
-            assert this.minecraft != null;
-            this.minecraft.setScreen(this.back);
-        }).bounds(this.width / 2 - 155, this.height - 6 - 20, 150, 20).build();
-        this.addRenderableWidget(cancelButton);
+            assert minecraft != null;
+            minecraft.setScreen(back);
+        }).bounds(width / 2 - 155, height - 6 - 20, 150, 20).build();
+        addRenderableWidget(cancelButton);
     }
 
     private void setFocus(Tabs tabs) {
         ComponentPath componentPath = ComponentPath.path(this, tabs.focusTab());
         if (componentPath != null) {
-            this.changeFocus(componentPath);
-            this.changeFocus(componentPath);
+            changeFocus(componentPath);
+            changeFocus(componentPath);
             return;
         }
-        this.changeFocus(ComponentPath.path(this, ComponentPath.leaf(tabs)));
+        changeFocus(ComponentPath.path(this, ComponentPath.leaf(tabs)));
     }
 
     @Override
     public void render(@NotNull GuiGraphics gfx, int i, int j, float f) {
-        this.renderBackground(gfx);
+        renderBackground(gfx);
 
         super.render(gfx, i, j, f);
 
-        gfx.drawCenteredString(this.font, this.getTitle(), this.width / 2, 12 - this.font.lineHeight / 2, 0xffffffff);
+        gfx.drawCenteredString(font, getTitle(), width / 2, 12 - font.lineHeight / 2, 0xffffffff);
     }
 
     @Override
@@ -124,15 +125,15 @@ public class BindingsScreen extends Screen {
     }
 
     public Screen getBack() {
-        return this.back;
+        return back;
     }
 
     public BindingsList getList() {
-        return this.list;
+        return list;
     }
 
     public Button getDoneButton() {
-        return this.doneButton;
+        return doneButton;
     }
 
     public void open() {
@@ -145,18 +146,18 @@ public class BindingsScreen extends Screen {
 
         public BindingsTab(ControllerContext context, @Nullable String category) {
             super(category != null ? Component.translatable(category) : context.getName());
-            list = new BindingsList(this.minecraft, this.getWidth(), this.getHeight(), this.getY(), this.getY() + this.getHeight(), context.getConfig());
-            list.addEntries(context.getConfig().values(), category);
-            this.addRenderableWidget(this.list);
+            list = new BindingsList(minecraft, getWidth(), getHeight(), getY(), getY() + getHeight(), (Config) context.getConfig());
+            list.addEntries(((Config) context.getConfig()).values(), category);
+            addRenderableWidget(list);
         }
 
         @Override
         protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            list.y0 = this.getY();
-            list.y1 = this.getY() + this.getHeight();
+            list.y0 = getY();
+            list.y1 = getY() + getHeight();
             list.x0 = 0;
-            list.x1 = this.getWidth();
-            list.setSize(this.getWidth(), this.getHeight());
+            list.x1 = getWidth();
+            list.setSize(getWidth(), getHeight());
 
             super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
         }
@@ -168,11 +169,11 @@ public class BindingsScreen extends Screen {
 
         @Override
         public boolean isEmpty() {
-            return this.list.isEmpty() || super.isEmpty();
+            return list.isEmpty() || super.isEmpty();
         }
 
         public void save() {
-            this.list.save();
+            list.save();
         }
     }
 }

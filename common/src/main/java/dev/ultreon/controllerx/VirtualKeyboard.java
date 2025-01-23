@@ -1,5 +1,6 @@
 package dev.ultreon.controllerx;
 
+import dev.ultreon.controllerx.api.VirtualKeyboardEditCallback;
 import dev.ultreon.controllerx.gui.screen.TextInputScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,20 +13,20 @@ public class VirtualKeyboard extends Overlay {
     private final TextInputScreen screen;
 
     VirtualKeyboard() {
-        this.screen = new TextInputScreen(this);
+        screen = new TextInputScreen(this);
     }
 
     public void open(VirtualKeyboardEditCallback callback, VirtualKeyboardSubmitCallback submitCallback) {
-        this.screen.setSubmitCallback(submitCallback);
-        this.screen.setEditCallback(callback);
-        this.screen.init(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
+        screen.setSubmitCallback(submitCallback);
+        screen.setEditCallback(callback);
+        screen.init(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
     }
 
     public void close() {
-        this.screen.close();
-        this.screen.setSubmitCallback(() -> {});
-        this.screen.setEditCallback(input -> {});
-        ControllerX.get().input.handleVirtualKeyboardClosed(this.screen.getInput());
+        screen.close();
+        screen.setSubmitCallback(() -> {});
+        screen.setEditCallback(input -> {});
+        ControllerX.get().input.handleVirtualKeyboardClosed(screen.getInput());
     }
 
     @Override
@@ -33,7 +34,7 @@ public class VirtualKeyboard extends Overlay {
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0, 0, 2000);
         guiGraphics.fill(0, 0, Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight(), 0x80000000);
-        this.screen.render(guiGraphics, mouseX, mouseY, partialTick);
+        screen.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.pose().popPose();
     }
 

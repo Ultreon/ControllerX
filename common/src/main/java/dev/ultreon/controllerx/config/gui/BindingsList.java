@@ -1,10 +1,10 @@
 package dev.ultreon.controllerx.config.gui;
 
 import dev.ultreon.controllerx.ControllerX;
-import dev.ultreon.controllerx.api.ControllerMapping;
+import dev.ultreon.controllerx.impl.ControllerMapping;
 import dev.ultreon.controllerx.config.Config;
 import dev.ultreon.controllerx.config.entries.ControllerBindingEntry;
-import dev.ultreon.controllerx.impl.InGameControllerContext;
+import dev.ultreon.controllerx.impl.contexts.InGameControllerContext;
 import dev.ultreon.controllerx.text.Texts;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -28,44 +28,44 @@ public class BindingsList extends ContainerObjectSelectionList<BindingsList.List
     public BindingsList(Minecraft minecraft, int width, int height, int y0, int y1, Config config) {
         super(minecraft, width, height, y0, y1, 28);
         this.config = config;
-        this.centerListVertically = false;
-        this.setRenderTopAndBottom(false);
+        centerListVertically = false;
+        setRenderTopAndBottom(false);
     }
 
     public void addEntries(ConfigEntry<?>[] options, @Nullable String keyMapCategory) {
         for (ConfigEntry<?> option : options) {
             if (!(option instanceof ControllerBindingEntry<?> entry)) continue;
-            ListEntry of = ListEntry.of(this, config, this.getRowWidth(), option);
+            ListEntry of = ListEntry.of(this, config, getRowWidth(), option);
             ControllerMapping<?> mapping = entry.getMapping();
             if (keyMapCategory != null) {
                 KeyMapping keyMapping = InGameControllerContext.INSTANCE.getControllerToKey().get(mapping);
                 if (keyMapping != null && keyMapping.getCategory().equals(keyMapCategory)) {
-                    this.entries.add(of);
-                    this.addEntry(of);
+                    entries.add(of);
+                    addEntry(of);
                 }
                 continue;
             }
-            this.entries.add(of);
-            this.addEntry(of);
+            entries.add(of);
+            addEntry(of);
         }
     }
 
     @Override
     protected void clearEntries() {
         super.clearEntries();
-        this.entries.clear();
+        entries.clear();
     }
 
     public int getRowWidth() {
-        return this.width - 4;
+        return width - 4;
     }
 
     protected int getScrollbarPosition() {
-        return this.width - 5;
+        return width - 5;
     }
 
     public void save() {
-        for (ListEntry entry : this.entries) {
+        for (ListEntry entry : entries) {
             entry.configEntry.setFromWidget(entry.widget);
         }
         config.save();
@@ -89,9 +89,9 @@ public class BindingsList extends ContainerObjectSelectionList<BindingsList.List
         private ListEntry(BindingsList list, Config config, ConfigEntry<?> configEntry, int rowWidth) {
             this.list = list;
             this.configEntry = (ControllerBindingEntry<?>) configEntry;
-            this.widget = configEntry.createButton(config, rowWidth - 110, 0, 100);
+            widget = configEntry.createButton(config, rowWidth - 110, 0, 100);
 
-            this.resetBtn = new ImageButton(0, 0, 20, 20, 0, 0, 20, ControllerX.res("textures/gui/reset.png"), 20, 40, button -> {
+            resetBtn = new ImageButton(0, 0, 20, 20, 0, 0, 20, ControllerX.res("textures/gui/reset.png"), 20, 40, button -> {
                 configEntry.reset();
                 widget = configEntry.createButton(config, list.getRowWidth() - 160, 0, 150);
             }, Texts.GUI_RESET);
@@ -103,34 +103,34 @@ public class BindingsList extends ContainerObjectSelectionList<BindingsList.List
 
         public void select() {
             list.setFocused(this);
-            this.setFocused(widget);
+            setFocused(widget);
         }
 
         public void render(@NotNull GuiGraphics gfx, int index, int y, int x, int rowWidth, int rowHeight, int mouseX, int mouseY, boolean selected, float partialTicks) {
-            if (this.list.isMouseOver(mouseX, mouseY) && this.isMouseOver(mouseX, mouseY)) {
+            if (list.isMouseOver(mouseX, mouseY) && isMouseOver(mouseX, mouseY)) {
                 gfx.fill(x - 4, y, x + rowWidth, y + rowHeight, 0x40ffffff);
             }
 
             Minecraft mc = Minecraft.getInstance();
-            gfx.drawString(mc.font, this.configEntry.getDescription(), 2 + x, y + rowHeight / 2 - mc.font.lineHeight / 2, 0xffffffff, true);
+            gfx.drawString(mc.font, configEntry.getDescription(), 2 + x, y + rowHeight / 2 - mc.font.lineHeight / 2, 0xffffffff, true);
 
-            this.widget.setX(x + rowWidth - this.widget.getWidth() - 2 - 22);
-            this.widget.setY(y + 2);
-            this.widget.render(gfx, mouseX, mouseY, partialTicks);
+            widget.setX(x + rowWidth - widget.getWidth() - 2 - 22);
+            widget.setY(y + 2);
+            widget.render(gfx, mouseX, mouseY, partialTicks);
 
-            this.resetBtn.setX(x + rowWidth - this.resetBtn.getWidth() - 2);
-            this.resetBtn.setY(y + 2);
-            this.resetBtn.render(gfx, mouseX, mouseY, partialTicks);
+            resetBtn.setX(x + rowWidth - resetBtn.getWidth() - 2);
+            resetBtn.setY(y + 2);
+            resetBtn.render(gfx, mouseX, mouseY, partialTicks);
         }
 
         @NotNull
         public List<? extends GuiEventListener> children() {
-            return List.of(this.widget, this.resetBtn);
+            return List.of(widget, resetBtn);
         }
 
         @NotNull
         public List<? extends NarratableEntry> narratables() {
-            return List.of(this.widget, this.resetBtn);
+            return List.of(widget, resetBtn);
         }
     }
 }

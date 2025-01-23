@@ -19,7 +19,7 @@ public abstract class ConfigEntry<T> {
 
     public ConfigEntry(String key, T value, Component description) {
         this.key = transform(key);
-        this.defaultValue = value;
+        defaultValue = value;
         this.value = value;
         this.description = description;
     }
@@ -34,7 +34,7 @@ public abstract class ConfigEntry<T> {
     }
 
     public T get() {
-        return this.value;
+        return value;
     }
 
     public void set(@NotNull T value) {
@@ -51,33 +51,33 @@ public abstract class ConfigEntry<T> {
 
     public void readAndSet(String text) {
         try {
-            this.value = this.read(text);
+            value = read(text);
         } catch (Exception ignored) {
 
         }
     }
 
     public String getComment() {
-        return this.comment;
+        return comment;
     }
 
     public String getKey() {
-        return this.key;
+        return key;
     }
 
     public String write() {
-        return this.value.toString();
+        return value.toString();
     }
 
     public Component getDescription() {
-        return this.description;
+        return description;
     }
 
     public AbstractWidget createButton(Config options, int x, int y, int width) {
-        return new AbstractWidget(x, y, width, 20, this.getDescription()) {
+        return new AbstractWidget(x, y, width, 20, getDescription()) {
             @Override
             public void renderWidget(@NotNull GuiGraphics gfx, int i, int j, float f) {
-                gfx.drawCenteredString(Minecraft.getInstance().font, ConfigEntry.this.getDescription(), this.getX() + this.width / 2, this.getY() + (this.height / 2 - 5), 0xffffffff);
+                gfx.drawCenteredString(Minecraft.getInstance().font, getDescription(), getX() + width / 2, getY() + (height / 2 - 5), 0xffffffff);
             }
 
             @Override
@@ -90,7 +90,7 @@ public abstract class ConfigEntry<T> {
     public abstract void setFromWidget(AbstractWidget widget);
 
     public void reset() {
-        this.value = this.defaultValue;
+        value = defaultValue;
     }
 
     public T getDefault() {

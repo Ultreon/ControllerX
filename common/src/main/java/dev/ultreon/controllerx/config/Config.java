@@ -3,11 +3,13 @@ package dev.ultreon.controllerx.config;
 import com.ultreon.commons.collection.map.OrderedMap;
 import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.api.ControllerContext;
-import dev.ultreon.controllerx.api.ControllerMapping;
+import dev.ultreon.controllerx.api.IControllerMapping;
+import dev.ultreon.controllerx.api.config.IConfig;
+import dev.ultreon.controllerx.impl.ControllerMapping;
 import dev.ultreon.controllerx.config.entries.*;
 import dev.ultreon.controllerx.config.gui.BindingsScreen;
 import dev.ultreon.controllerx.config.gui.ConfigEntry;
-import dev.ultreon.controllerx.input.dyn.ControllerInterDynamic;
+import dev.ultreon.controllerx.api.input.dyn.IControllerInterDynamic;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -21,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Config {
+public class Config implements IConfig {
     private static final Map<ControllerContext, Config> CONFIGS = new OrderedMap<>();
 
     private final Map<ControllerMapping<?>, ConfigEntry<?>> mappings = new HashMap<>();
@@ -41,14 +43,15 @@ public class Config {
         else
             file = bindingsDir.resolve(key.getNamespace() + "/" + key.getPath() + ".txt");
 
-        for (ControllerMapping<?> mapping : context.mappings.getAllMappings()) {
+        for (IControllerMapping<?> e : context.mappings.getAllMappings()) {
+            if (!(e instanceof ControllerMapping<?> mapping)) continue;
             ConfigEntry<?> entry = mapping.createEntry(this);
             mappings.put(mapping, entry);
         }
     }
 
     public ConfigEntry<?> byMapping(ControllerMapping<?> mapping) {
-        return this.mappings.get(mapping);
+        return mappings.get(mapping);
     }
 
     public static void register(Config config) {
@@ -65,7 +68,7 @@ public class Config {
         }
     }
 
-    public <T extends Enum<T> & ControllerInterDynamic<?>> ConfigEntry<T> add(String key, ControllerMapping<T> defaultValue, Component description) {
+    public <T extends Enum<T> & IControllerInterDynamic<?>> ConfigEntry<T> add(String key, ControllerMapping<T> defaultValue, Component description) {
         ConfigEntry<T> entry = new ControllerBindingEntry<>(key, defaultValue, defaultValue, description).comment(description.getString());
         entryMap.put(entry.getKey(), entry);
         entries.add(entry);
@@ -131,6 +134,6 @@ public class Config {
     }
 
     public Component getTitle() {
-        return Component.translatable("controllerx.config." + this.key.toString().replace(":", "."));
+        return Component.translatable("controllerx.config." + key.toString().replace(":", "."));
     }
 }

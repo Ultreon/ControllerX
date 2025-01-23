@@ -1,5 +1,7 @@
 package dev.ultreon.controllerx.input;
 
+import dev.ultreon.controllerx.api.input.ControllerBoolean;
+import dev.ultreon.controllerx.api.input.ControllerSignedFloat;
 import it.unimi.dsi.fastutil.ints.Int2FloatFunction;
 
 import java.util.BitSet;
