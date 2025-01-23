@@ -2,7 +2,6 @@ package dev.ultreon.controllerx.fabric;
 
 import dev.ultreon.controllerx.ControllerX;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.entity.player.Player;
 
 public class ControllerXImpl extends ControllerX {
     @Override

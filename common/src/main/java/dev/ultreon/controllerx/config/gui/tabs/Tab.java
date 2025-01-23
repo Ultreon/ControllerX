@@ -1,6 +1,5 @@
 package dev.ultreon.controllerx.config.gui.tabs;
 
-import com.ultreon.mods.lib.client.gui.widget.AbstractContainerWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;

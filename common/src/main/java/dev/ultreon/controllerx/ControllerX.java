@@ -11,6 +11,7 @@ import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.ultreon.controllerx.api.ICxInternals;
 import dev.ultreon.controllerx.api.config.IConfig;
 import dev.ultreon.controllerx.api.extension.ICxExtension;
+import dev.ultreon.controllerx.api.input.IControllerBackend;
 import dev.ultreon.controllerx.impl.ControllerMappings;
 import dev.ultreon.controllerx.api.IControllerMappings;
 import dev.ultreon.controllerx.api.IControllerX;
@@ -18,7 +19,8 @@ import dev.ultreon.controllerx.api.input.IControllerInput;
 import dev.ultreon.controllerx.config.gui.BindingsScreen;
 import dev.ultreon.controllerx.impl.contexts.VirtKeyboardControllerContext;
 import dev.ultreon.controllerx.init.ModSounds;
-import io.github.libsdl4j.api.SdlSubSystemConst;
+import dev.ultreon.controllerx.backend.glfw.GLFWControllerBackend;
+import dev.ultreon.controllerx.backend.sdl.SdlControllerBackend;
 import dev.ultreon.controllerx.api.ControllerContext;
 import dev.ultreon.controllerx.config.Config;
 import dev.ultreon.controllerx.gui.ControllerHud;
@@ -48,9 +50,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import static io.github.libsdl4j.api.Sdl.SDL_Init;
-import static io.github.libsdl4j.api.Sdl.SDL_Quit;
-
 public abstract class ControllerX implements IControllerX {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = LoggerFactory.getLogger("ControllerX");
@@ -70,11 +69,15 @@ public abstract class ControllerX implements IControllerX {
     public VirtualKeyboard virtualKeyboard;
     private final CxInternals cxInternals = new CxInternals();
     private final List<ICxExtension> extensions = new ArrayList<>();
+    private static IControllerBackend backend;
 
     protected ControllerX() {
         instance = this;
 
         ModSounds.register();
+
+        Util.OS platform = Util.getPlatform();
+        backend = platform == Util.OS.WINDOWS || platform == Util.OS.LINUX ? new SdlControllerBackend() : new GLFWControllerBackend();
 
         ServiceLoader<ICxExtension> load = ServiceLoader.load(ICxExtension.class);
         for (ICxExtension extension : load) {
@@ -145,7 +148,7 @@ public abstract class ControllerX implements IControllerX {
     }
 
     public void initMod() {
-        if (Util.getPlatform() != Util.OS.OSX) SDL_Init(SdlSubSystemConst.SDL_INIT_EVENTS | SdlSubSystemConst.SDL_INIT_GAMECONTROLLER | SdlSubSystemConst.SDL_INIT_JOYSTICK);
+        if (Util.getPlatform() != Util.OS.OSX) backend.init();
 
         ClientLifecycleEvent.CLIENT_STOPPING.register(ControllerX::quitGame);
         input = new ControllerInput(this);
@@ -273,9 +276,7 @@ public abstract class ControllerX implements IControllerX {
     }
 
     private static void quitGame(Minecraft instance) {
-        if (Util.getPlatform() != Util.OS.OSX) {
-            SDL_Quit();
-        }
+        backend.quit();
     }
 
     public static ControllerX get() {
@@ -328,5 +329,9 @@ public abstract class ControllerX implements IControllerX {
 
     public void setInputType(InputType inputType) {
         setInputType(inputType, 10);
+    }
+
+    public IControllerBackend getBackend() {
+        return backend;
     }
 }

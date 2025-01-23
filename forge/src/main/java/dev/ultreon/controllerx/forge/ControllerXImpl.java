@@ -3,7 +3,6 @@ package dev.ultreon.controllerx.forge;
 import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.gui.screen.ControllerXConfigScreen;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.ModLoadingContext;

@@ -10,9 +10,6 @@ import dev.ultreon.controllerx.config.gui.tabs.Tabs;
 import dev.ultreon.controllerx.impl.contexts.ChatControllerContext;
 import dev.ultreon.controllerx.impl.contexts.InGameControllerContext;
 import dev.ultreon.controllerx.impl.contexts.MenuControllerContext;
-import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
-import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerAxis;
-import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
 import dev.ultreon.controllerx.*;
 import dev.ultreon.controllerx.impl.ControllerAction;
 import dev.ultreon.controllerx.api.ControllerContext;
@@ -39,27 +36,19 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 
 import java.time.Duration;
-import java.util.BitSet;
 
-import static io.github.libsdl4j.api.event.SdlEventsConst.SDL_PRESSED;
-import static io.github.libsdl4j.api.gamecontroller.SdlGamecontroller.*;
-
-@SuppressWarnings("MagicConstant")
 public class ControllerInput extends Input implements IControllerInput {
     @ApiStatus.Internal public static boolean moddedMappingsLoaded = false;
     private final Vector2f leftStick = new Vector2f();
     private final Vector2f rightStick = new Vector2f();
 
-    private final BitSet pressedButtons = new BitSet(SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_MAX);
-    private SDL_GameController sdlController;
-    private Controller controller;
+    private IController connected;
     private final float[] oldAxes = new float[ControllerSignedFloat.values().length];
     private final float[] axes = new float[ControllerSignedFloat.values().length];
     private final Vector2f tmp = new Vector2f();
@@ -80,6 +69,7 @@ public class ControllerInput extends Input implements IControllerInput {
             return false;
         }
     };
+    private final IControllerBackend backend = ControllerX.get().getBackend();
 
     public ControllerInput(ControllerX mod) {
         this.mod = mod;
@@ -161,31 +151,7 @@ public class ControllerInput extends Input implements IControllerInput {
     }
 
     private boolean pollEvents() {
-        SDL_GameControllerUpdate();
-
-        if (ControllerX.get().input != null) {
-            ControllerBoolean.pollAll();
-        }
-
-        if (sdlController == null) {
-            setController(0);
-            if (sdlController == null)
-                return true;
-        }
-
-        if (!SDL_GameControllerGetAttached(sdlController)) {
-            unsetController();
-            return true;
-        }
-
-        for (@MagicConstant(valuesFromClass = SDL_GameControllerButton.class) int idx = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A; idx < SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_MAX; idx++) {
-            boolean pressed = SDL_GameControllerGetButton(sdlController, idx) == SDL_PRESSED;
-            pressedButtons.set(idx, pressed);
-
-            if (pressed) {
-                ControllerX.get().setInputType(InputType.CONTROLLER);
-            }
-        }
+        backend.update();
 
         for (int i = 0; i < ControllerSignedFloat.values().length; i++) {
             ControllerSignedFloat axis = ControllerSignedFloat.values()[i];
@@ -519,67 +485,43 @@ public class ControllerInput extends Input implements IControllerInput {
     }
 
     private @Nullable Float getAxis0(ControllerSignedFloat controllerAxis) {
-        @MagicConstant(valuesFromClass = SDL_GameControllerAxis.class) int axis = controllerAxis.sdlAxis();
-        if (axis == SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_INVALID) return null;
-        float v = SDL_GameControllerGetAxis(sdlController, axis) / 32767f;
-
-        float deadZone = Config.get().axisDeadZone;
-        int signum = v > 0 ? 1 : -1;
-        v = Math.abs(v);
-        if (v < deadZone) {
-            v = Math.max(0, (v - deadZone) / (1 - deadZone)) * signum;
-        } else {
-            v *= signum;
-        }
-
-        if (v == 0) return 0f;
-
-        return v;
+        return backend.getAxis(controllerAxis);
     }
 
     private float getOldAxis(ControllerSignedFloat controllerAxis) {
-        return oldAxes[controllerAxis.sdlAxis()];
+        return oldAxes[controllerAxis.ordinal()];
     }
 
     @SuppressWarnings("SameParameterValue")
-    private void setController(int deviceIndex) {
-        sdlController = SDL_GameControllerOpen(deviceIndex);
-        if (sdlController == null) return;
+    public void setController(int deviceIndex) {
+        IController controller = backend.getController(deviceIndex);
+        if (controller == null) return;
 
-        short productId = SDL_GameControllerGetProduct(sdlController);
-        short vendorId = SDL_GameControllerGetVendor(sdlController);
-        String name = SDL_GameControllerName(sdlController);
-        String mapping = SDL_GameControllerMapping(sdlController);
+        connected = controller;
 
-        controller = new Controller(sdlController, deviceIndex, productId, vendorId, name, mapping);
+        ControllerEvent.CONTROLLER_CONNECTED.invoker().onConnectionStatus(connected);
+        Minecraft.getInstance().getToasts().addToast(new ControllerToast(Icon.AnyJoyStick, Component.translatable("controllerx.toast.controller_connected.title"), Component.translatable("controllerx.toast.controller_connected.description", controller.name())).hideIn(Duration.ofSeconds(5)));
 
-        ControllerEvent.CONTROLLER_CONNECTED.invoker().onConnectionStatus(controller);
-        Minecraft.getInstance().getToasts().addToast(new ControllerToast(Icon.AnyJoyStick, Component.translatable("controllerx.toast.controller_connected.title"), Component.translatable("controllerx.toast.controller_connected.description", name)).hideIn(Duration.ofSeconds(5)));
-
-        ControllerX.LOGGER.info("Controller {} connected", name);
+        ControllerX.LOGGER.info("Controller {} connected", controller.name());
     }
 
-    private void unsetController() {
-        if (0 != controller.deviceIndex()) return;
+    public void unsetController() {
+        if (0 != connected.deviceIndex()) return;
 
-        Minecraft.getInstance().getToasts().addToast(new ControllerToast(Icon.AnyJoyStick, Component.translatable("controllerx.toast.controller_disconnected.title"), Component.translatable("controllerx.toast.controller_disconnected.description", controller.name())).hideIn(Duration.ofSeconds(5)));
+        Minecraft.getInstance().getToasts().addToast(new ControllerToast(Icon.AnyJoyStick, Component.translatable("controllerx.toast.controller_disconnected.title"), Component.translatable("controllerx.toast.controller_disconnected.description", connected.name())).hideIn(Duration.ofSeconds(5)));
 
-        sdlController = null;
-        controller = null;
+        connected = null;
+        connected = null;
 
-        ControllerEvent.CONTROLLER_DISCONNECTED.invoker().onConnectionStatus(controller);
+        ControllerEvent.CONTROLLER_DISCONNECTED.invoker().onConnectionStatus(connected);
         ControllerX.get().forceSetInputType(InputType.KEYBOARD_AND_MOUSE, 10);
 
         ControllerX.LOGGER.info("Controller disconnected");
     }
 
     @Override
-    public @Nullable Controller getController() {
-        return controller;
-    }
-
-    public @Nullable SDL_GameController getSDLController() {
-        return sdlController;
+    public @Nullable IController getController() {
+        return connected;
     }
 
     @Override
@@ -609,17 +551,12 @@ public class ControllerInput extends Input implements IControllerInput {
 
     @Override
     public boolean isButtonPressed0(ControllerBoolean button) {
-        int idx = button.sdlButton();
-        boolean pressed = SDL_GameControllerGetButton(sdlController, idx) == SDL_PRESSED;
-
-        if (ControllerX.get().getInputType() == InputType.CONTROLLER) return pressed;
-
-        return false;
+        return backend.getButton(button);
     }
 
     @Override
     public boolean isConnected() {
-        return controller != null && SDL_GameControllerGetAttached(controller.sdlController());
+        return connected != null && backend.isConnected();
     }
 
     @Override
@@ -702,7 +639,7 @@ public class ControllerInput extends Input implements IControllerInput {
 
     @Override
     public boolean hasAnyInput() {
-        boolean hasButtonInput = !pressedButtons.isEmpty();
+        boolean hasButtonInput = backend.isAnyButtonPressed();
         boolean hasAxisInput = isAnyAxisUsed();
 
         return hasButtonInput || hasAxisInput;
@@ -721,9 +658,4 @@ public class ControllerInput extends Input implements IControllerInput {
         interceptCallback = callback;
         IInterceptInvalidation = new CountInvalidationI(1);
     }
-
-    public void onKeyPress(InputConstants.Key key, boolean held) {
-        // TODO: Implement
-    }
-
 }

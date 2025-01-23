@@ -2,11 +2,9 @@ package dev.ultreon.controllerx.api.input;
 
 import com.ultreon.commons.collection.Pair;
 import dev.ultreon.controllerx.api.IControllerX;
-import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton;
 import dev.ultreon.controllerx.api.Icon;
 import dev.ultreon.controllerx.api.input.dyn.IControllerInterDynamic;
 import org.apache.commons.lang3.EnumUtils;
-import org.intellij.lang.annotations.MagicConstant;
 import org.joml.Vector2f;
 
 public enum ControllerBoolean implements IControllerInterDynamic<Boolean> {
@@ -230,28 +228,6 @@ public enum ControllerBoolean implements IControllerInterDynamic<Boolean> {
 
     public boolean isJustReleased() {
         return !value && lastValue;
-    }
-
-    public @MagicConstant(valuesFromClass = SDL_GameControllerButton.class) int sdlButton() {
-        return switch (this) {
-            case A -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A;
-            case B -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_B;
-            case X -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_X;
-            case Y -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_Y;
-            case Back -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_BACK;
-            case Start -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_START;
-            case Guide -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE;
-            case Touchpad -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_TOUCHPAD;
-            case DpadLeft -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_LEFT;
-            case DpadRight -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
-            case DpadUp -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_UP;
-            case DpadDown -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_DOWN;
-            case LeftStickClick -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSTICK;
-            case RightStickClick -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSTICK;
-            case LeftShoulder -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
-            case RightShoulder -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
-            default -> SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_INVALID;
-        };
     }
 
     @Override

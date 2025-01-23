@@ -2,11 +2,6 @@ package dev.ultreon.controllerx.forge;
 
 import dev.architectury.platform.forge.EventBuses;
 import dev.ultreon.controllerx.ControllerX;
-import dev.ultreon.controllerx.gui.screen.ControllerXConfigScreen;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 

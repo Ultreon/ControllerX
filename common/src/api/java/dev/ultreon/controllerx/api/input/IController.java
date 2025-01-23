@@ -4,6 +4,4 @@ public interface IController {
     int deviceIndex();
 
     String name();
-
-    String mapping();
 }

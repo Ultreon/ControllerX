@@ -3,10 +3,8 @@ package dev.ultreon.controllerx.api.input;
 import com.ultreon.commons.collection.Pair;
 import dev.ultreon.controllerx.api.IControllerX;
 import dev.ultreon.controllerx.api.Icon;
-import io.github.libsdl4j.api.gamecontroller.SDL_GameControllerAxis;
 import dev.ultreon.controllerx.api.input.dyn.IControllerInterDynamic;
 import org.apache.commons.lang3.EnumUtils;
-import org.intellij.lang.annotations.MagicConstant;
 import org.joml.Vector2f;
 
 public enum ControllerSignedFloat implements IControllerInterDynamic<Float> {
@@ -159,17 +157,5 @@ public enum ControllerSignedFloat implements IControllerInterDynamic<Float> {
     @Override
     public ControllerSignedFloat fromName(String text) {
         return EnumUtils.getEnum(ControllerSignedFloat.class, text);
-    }
-
-    public @MagicConstant(valuesFromClass = SDL_GameControllerAxis.class) int sdlAxis() {
-        return switch (this) {
-            case LeftTrigger -> SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERLEFT;
-            case RightTrigger -> SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERRIGHT;
-            case LeftStickX -> SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX;
-            case LeftStickY -> SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY;
-            case RightStickX -> SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTX;
-            case RightStickY -> SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTY;
-            default -> SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_INVALID;
-        };
     }
 }
