@@ -1,4 +1,5 @@
 import net.fabricmc.loom.task.RemapJarTask
+import net.fabricmc.loom.task.RemapSourcesJarTask
 
 architectury {
     common(enabled_platforms.split(","))
@@ -61,11 +62,71 @@ dependencies {
     annotationProcessor(compileOnly("io.github.llamalad7:mixinextras-common:0.4.1"))
 }
 
+jar {
+    from sourceSets.api.output
+}
+
+tasks.register("apiJar", Jar) {
+    from sourceSets.api.output
+    archiveBaseName = "controllerx"
+    archiveClassifier = "api-dev"
+    finalizedBy("remapApiJar")
+
+    exclude "META-INF/accesstransformer.cfg", "META-INF/mods.toml", "META-INF/neoforge.mods.toml", "fabric.mod.json", "architectury.common.json", "controllerx.accesswidener"
+}
+
+tasks.register("remapApiJar", RemapJarTask) {
+    dependsOn("remapJar")
+    inputFile.set(tasks.apiJar.archiveFile)
+    archiveBaseName.set("controllerx")
+    archiveClassifier.set("api")
+
+    exclude "META-INF/accesstransformer.cfg", "META-INF/mods.toml", "META-INF/neoforge.mods.toml", "fabric.mod.json", "architectury.common.json", "controllerx.accesswidener"
+}
+
+tasks.register("apiSourcesJar", Jar) {
+    from sourceSets.api.output
+    archiveBaseName = "controllerx-api"
+    archiveClassifier = "sources-dev"
+    finalizedBy("remapApiJar")
+
+    exclude "META-INF/accesstransformer.cfg", "META-INF/mods.toml", "META-INF/neoforge.mods.toml", "fabric.mod.json", "architectury.common.json", "controllerx.accesswidener"
+}
+
+tasks.register("remapSourcesApiJar", RemapSourcesJarTask) {
+    dependsOn("remapJar")
+    inputFile.set(tasks.apiJar.archiveFile)
+    archiveBaseName.set("controllerx-api")
+    archiveClassifier.set("sources")
+
+    exclude "META-INF/accesstransformer.cfg", "META-INF/mods.toml", "META-INF/neoforge.mods.toml", "fabric.mod.json", "architectury.common.json", "controllerx.accesswidener"
+}
+
+artifacts {
+    archives remapApiJar
+    archives remapSourcesApiJar
+}
+
 publishing {
     publications {
-        mavenCommon(MavenPublication) {
-            artifactId = rootProject.archives_base_name
+        mavenJava(MavenPublication) {
+            artifactId = rootProject.archivesBaseName
+
+            // add all the jars that should be included when publishing
             from components.java
+        }
+        mavenApiJava(MavenPublication) {
+            artifact(remapApiJar) {
+                builtBy remapApiJar
+                artifactId = "controllerx-api"
+                classifier = null
+            }
+
+            artifact(remapSourcesApiJar) {
+                builtBy remapSourcesApiJar
+                artifactId = "controllerx-api"
+                classifier = "sources"
+            }
         }
     }
 
@@ -73,22 +134,4 @@ publishing {
     repositories {
         // Add repositories to publish to here.
     }
-}
-
-jar {
-    from sourceSets.api.output
-}
-
-tasks.register("apiJar", Jar) {
-    archiveClassifier.set("api")
-    from sourceSets.api.output
-    archiveBaseName.set("api-dev")
-}
-
-remapJar.dependsOn("apiJar")
-
-tasks.register("remapApiJar", RemapJarTask) {
-    inputFile.set(tasks.apiJar.archiveFile)
-    dependsOn tasks.apiJar
-    archiveClassifier.set("api")
 }
