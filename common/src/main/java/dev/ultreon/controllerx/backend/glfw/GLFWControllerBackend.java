@@ -71,6 +71,9 @@ public class GLFWControllerBackend implements IControllerBackend {
             return;
         }
 
+        if (state == null) {
+            state = GLFWGamepadState.create();
+        }
         GLFW.glfwGetGamepadState(connected.glfwController(), state);
         for (int idx = GLFW.GLFW_GAMEPAD_BUTTON_A; idx < GLFW.GLFW_GAMEPAD_BUTTON_LAST; idx++) {
             boolean pressed = state.buttons(idx) == GLFW.GLFW_PRESS;
@@ -86,7 +89,12 @@ public class GLFWControllerBackend implements IControllerBackend {
     public Float getAxis(ControllerSignedFloat controllerAxis) {
         int axis = glfwAxis(controllerAxis);
         if (axis == -1) return null;
-        float v = state.buttons(axis) / 32767f;
+        if (state == null) return null;
+        float v = state.axes(axis);
+
+        if (controllerAxis == ControllerSignedFloat.LeftTrigger || controllerAxis == ControllerSignedFloat.RightTrigger) {
+            v = (v + 1) / 2;
+        }
 
         float deadZone = Config.get().axisDeadZone;
         int sign = v > 0 ? 1 : -1;
@@ -105,6 +113,8 @@ public class GLFWControllerBackend implements IControllerBackend {
     @Override
     public boolean getButton(ControllerBoolean button) {
         int idx = glfwButton(button);
+        if (idx == -1) return false;
+        if (state == null) return false;
         boolean pressed = state.buttons(idx) == GLFW.GLFW_PRESS;
 
         if (ControllerX.get().getInputType() == InputType.CONTROLLER) return pressed;
@@ -133,7 +143,7 @@ public class GLFWControllerBackend implements IControllerBackend {
 
     @Override
     public void init() {
-        state = GLFWGamepadState.create();
+        // No-op
     }
 
     @Override

@@ -84,6 +84,8 @@ public abstract class ControllerX implements IControllerX {
             extensions.add(extension);
         }
 
+        initMod();
+
         ClientLifecycleEvent.CLIENT_STARTED.register(this::clientStarted);
 
         LOGGER.info("ControllerX initialized");
