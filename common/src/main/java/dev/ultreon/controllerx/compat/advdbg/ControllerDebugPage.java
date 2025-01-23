@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 public class ControllerDebugPage extends DebugPage {
     @Override
     public void render(@NotNull GuiGraphics gfx, IDebugRenderContext ctx) {
+        // Check for PojavLauncher environment
+        ctx.left();
         ctx.left("ControllerX");
         ctx.left("Input Type", ControllerX.get().getInputType());
         ControllerInput input = ControllerX.get().input;
@@ -26,21 +28,22 @@ public class ControllerDebugPage extends DebugPage {
         ctx.left("Virtual Keyboard Open", input.isVirtualKeyboardOpen());
         ctx.left("Skipped Warning", ControllerX.get().skippedWarning);
 
+        ctx.left();
         ctx.left("Controller Joysticks");
         for (ControllerVec2 axis : ControllerVec2.values()) {
             ctx.left(axis.name(), input.getJoystick(axis));
         }
 
+        ctx.left();
         ctx.left("Controller Axes");
         for (ControllerSignedFloat axis : ControllerSignedFloat.values()) {
             ctx.left(axis.name(), input.getAxis1(axis));
         }
 
+        ctx.right();
         ctx.right("Controller Buttons");
         for (ControllerBoolean button : ControllerBoolean.values()) {
             ctx.right(button.name(), input.isButtonPressed(button));
         }
-
-        ctx.left("Controller Triggers");
     }
 }

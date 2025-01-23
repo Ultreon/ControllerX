@@ -4,14 +4,15 @@ import com.ultreon.mods.lib.client.gui.screen.BaseScreen;
 import dev.ultreon.controllerx.*;
 import dev.ultreon.controllerx.api.VirtualKeyboardEditCallback;
 import dev.ultreon.controllerx.api.input.keyboard.keyboard.KeyboardLayout;
+import dev.ultreon.controllerx.gui.widget.Keycap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ public class TextInputScreen extends BaseScreen {
     private boolean caps;
     private VirtualKeyboardSubmitCallback submitCallback = () -> {};
     private VirtualKeyboardEditCallback editCallback = s -> {};
-    private final List<ImageButton> buttons = new ArrayList<>();
+    private final List<Keycap> buttons = new ArrayList<>();
 
     public TextInputScreen(VirtualKeyboard virtualKeyboard) {
         super(Component.literal("Text Input"));
@@ -34,7 +35,7 @@ public class TextInputScreen extends BaseScreen {
         font = Minecraft.getInstance().font;
 
         layout = ControllerX.get().input.getLayout();
-    }
+   }
 
     public void setSubmitCallback(VirtualKeyboardSubmitCallback callback) {
         submitCallback = callback;
@@ -74,31 +75,31 @@ public class TextInputScreen extends BaseScreen {
         for (int rowIdx = 0, layoutLayoutLength = layoutLayout.length; rowIdx < layoutLayoutLength; rowIdx++) {
             char[] row = layoutLayout[rowIdx];
 
-            int keyboardWidth = row.length * 16;
-            if (rowIdx == 0) keyboardWidth += 16;
-            if (rowIdx == 1) keyboardWidth += 7;
-            if (rowIdx == 2) keyboardWidth += 27;
-            if (rowIdx == 3) keyboardWidth += 33;
-            if (rowIdx == 4) keyboardWidth += 41;
+            int keyboardWidth = 0;
+            for (char c : row) {
+                Keycap.Key key = Keycap.Key.byChar(c);
+                if (key == null) continue;
 
-            addButton(keyboardWidth, row, rowIdx);
+                keyboardWidth += key.width() + 2;
+            }
+            addButton(keyboardWidth - 2, row, rowIdx);
         }
     }
 
     private void addButton(int keyboardWidth, char[] row, int rowIdx) {
         int x = width / 2 - keyboardWidth / 2;
         for (char c : row) {
-            KeyMappingIcon icon = KeyMappingIcon.byChar(c);
-            if (icon == null) continue;
+            Keycap.Key key = Keycap.Key.byChar(c);
+            if (key == null) continue;
 
-            addButton(c, x, rowIdx, icon);
+            addButton(c, x, rowIdx, key);
 
-            x += icon.width;
+            x += key.width() + 2;
         }
     }
 
     private void removeButtons() {
-        for (ImageButton button : buttons) {
+        for (Keycap button : buttons) {
             removeWidget(button);
         }
 
@@ -110,27 +111,18 @@ public class TextInputScreen extends BaseScreen {
 
     }
 
-    private void addButton(char c, int x, int rowIdx, KeyMappingIcon icon) {
-        ImageButton imageButton = addRenderableWidget(new ImageButton(x, rowIdx * 16 + height - 85 - getYOffset(), icon.width, icon.height, icon.u, icon.v, -128, icon.getTexture(), 544, 384, button -> {
-            if (c >= 0x20) {
-                setInput(getInput() + c);
-                return;
-
-            }
-            switch (c) {
-                case '\n', '\r' -> submit();
-                case '\b' -> backspace();
-                case '\t' -> setInput(getInput() + "    ");
-                case '\3' -> {
-                    caps = !caps;
-                    reloadButtons();
-                }
-                case '\6' -> {
-                    shift = !shift;
-                    reloadButtons();
-                }
-                case '\0', '\1', '\4', '\5', '\7' -> {
-                    // TODO: Add support for other controller input characters
+    private void addButton(char c, int x, int rowIdx, Keycap.Key key) {
+        Keycap imageButton = addRenderableWidget(new Keycap(x, rowIdx * 18 + height - 101 - getYOffset(), key, button -> {
+            switch (key) {
+                case CAPS_LOCK -> caps = !caps;
+                case LEFT_SHIFT, RIGHT_SHIFT -> shift = !shift;
+                case ENTER -> submit();
+                case BACKSPACE -> backspace();
+                case SPACE -> setInput(getInput() + " ");
+                default -> {
+                    if (key.toString().length() == 1) {
+                        setInput(getInput() + c);
+                    }
                 }
             }
         }));

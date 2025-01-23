@@ -28,7 +28,7 @@ public class Keycap extends Button {
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
 
-        guiGraphics.blitNineSliced(TEXTURE, getX(), getY(), getWidth(), getHeight(), 20, 4, 200, 20, 0, getTextureY());
+        guiGraphics.blitNineSliced(TEXTURE, getX(), getY(), getWidth(), getHeight(), 4, 4, 16, 16, 0, getTextureY());
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         int color = active ? 0xffffff : 0xa0a0a0;
@@ -46,6 +46,130 @@ public class Keycap extends Button {
         LEFT_PAREN, RIGHT_PAREN, LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE,
         LEFT_SHIFT, RIGHT_SHIFT, LEFT_CONTROL, RIGHT_CONTROL, LEFT_ALT, RIGHT_ALT, LEFT_META, RIGHT_META,
         SPACE, BACKSPACE, CAPS_LOCK, ESCAPE, NUM_LOCK, SCROLL_LOCK, TAB, ENTER;
+
+        public static Key byChar(char c) {
+            switch (c) {
+                case 'a' -> { return A; }
+                case 'b' -> { return B; }
+                case 'c' -> { return C; }
+                case 'd' -> { return D; }
+                case 'e' -> { return E; }
+                case 'f' -> { return F; }
+                case 'g' -> { return G; }
+                case 'h' -> { return H; }
+                case 'i' -> { return I; }
+                case 'j' -> { return J; }
+                case 'k' -> { return K; }
+                case 'l' -> { return L; }
+                case 'm' -> { return M; }
+                case 'n' -> { return N; }
+                case 'o' -> { return O; }
+                case 'p' -> { return P; }
+                case 'q' -> { return Q; }
+                case 'r' -> { return R; }
+                case 's' -> { return S; }
+                case 't' -> { return T; }
+                case 'u' -> { return U; }
+                case 'v' -> { return V; }
+                case 'w' -> { return W; }
+                case 'x' -> { return X; }
+                case 'y' -> { return Y; }
+                case 'z' -> { return Z; }
+                case ',' -> { return COMMA; }
+                case '.' -> { return PERIOD; }
+                case '-' -> { return MINUS; }
+                case '=' -> { return EQUALS; }
+                case ':' -> { return COLON; }
+                case ';' -> { return SEMI; }
+                case '~' -> { return TILDE; }
+                case '?' -> { return QUESTION; }
+                case '!' -> { return EXCLAMATION; }
+                case '@' -> { return AT; }
+                case '#' -> { return HASH; }
+                case '_' -> { return UNDERSCORE; }
+                case '\'' -> { return APOSTROPHE; }
+                case '\\' -> { return BACKSLASH; }
+                case '|' -> { return PIPE; }
+                case '€' -> { return EURO; }
+                case '£' -> { return POUND; }
+                case '¥' -> { return YEN; }
+                case '×' -> { return TIMES; }
+                case '÷' -> { return DIVIDE; }
+                case '&' -> { return AMPER; }
+                case '$' -> { return DOLLAR; }
+                case '%' -> { return PERCENT; }
+                case '^' -> { return CIRCUMFLEX; }
+                case '1' -> { return KEY_1; }
+                case '2' -> { return KEY_2; }
+                case '3' -> { return KEY_3; }
+                case '4' -> { return KEY_4; }
+                case '5' -> { return KEY_5; }
+                case '6' -> { return KEY_6; }
+                case '7' -> { return KEY_7; }
+                case '8' -> { return KEY_8; }
+                case '9' -> { return KEY_9; }
+                case '0' -> { return KEY_0; }
+                case '(' -> { return LEFT_PAREN; }
+                case ')' -> { return RIGHT_PAREN; }
+                case '[' -> { return LEFT_BRACKET; }
+                case ']' -> { return RIGHT_BRACKET; }
+                case '{' -> { return LEFT_BRACE; }
+                case '}' -> { return RIGHT_BRACE; }
+                case ' ' -> { return SPACE; }
+                case '\b' -> { return BACKSPACE; }
+                case '\t' -> { return TAB; }
+                case '\n', '\r' -> { return ENTER; }
+
+                // Lock keys
+                case '\f' -> { return CAPS_LOCK; }
+                case 0x0002 -> { return SCROLL_LOCK; }
+                case 0x0001 -> { return NUM_LOCK; }
+
+                // Navigation keys
+                case 0x0003 -> { return LEFT_ARROW; }
+                case 0x0004 -> { return RIGHT_ARROW; }
+                case 0x0005 -> { return UP_ARROW; }
+                case 0x0006 -> { return DOWN_ARROW; }
+
+                // Modifier keys
+                case 0x001b -> { return ESCAPE; }
+                case 0xff1b -> { return LEFT_CONTROL; }
+                case 0xff1d -> { return LEFT_SHIFT; }
+                case 0xff1c -> { return LEFT_ALT; }
+                case 0xff1e -> { return LEFT_META; }
+                case 0xff1f -> { return RIGHT_CONTROL; }
+                case 0xff20 -> { return RIGHT_SHIFT; }
+                case 0xff21 -> { return RIGHT_ALT; }
+                case 0xff22 -> { return RIGHT_META; }
+
+                // Function keys
+                case 0xff23 -> { return F1; }
+                case 0xff24 -> { return F2; }
+                case 0xff25 -> { return F3; }
+                case 0xff26 -> { return F4; }
+                case 0xff27 -> { return F5; }
+                case 0xff28 -> { return F6; }
+                case 0xff29 -> { return F7; }
+                case 0xff2a -> { return F8; }
+                case 0xff2b -> { return F9; }
+                case 0xff2c -> { return F10; }
+                case 0xff2d -> { return F11; }
+                case 0xff2e -> { return F12; }
+                case 0xff2f -> { return F13; }
+                case 0xff30 -> { return F14; }
+                case 0xff31 -> { return F15; }
+                case 0xff32 -> { return F16; }
+                case 0xff33 -> { return F17; }
+                case 0xff34 -> { return F18; }
+                case 0xff35 -> { return F19; }
+                case 0xff36 -> { return F20; }
+                case 0xff37 -> { return F21; }
+                case 0xff38 -> { return F22; }
+                case 0xff39 -> { return F23; }
+                case 0xff3a -> { return F24; }
+                default -> { return null; }
+            }
+        }
 
         @Override
         public String toString() {
@@ -91,7 +215,7 @@ public class Keycap extends Button {
                 case KEY_8 -> "8";
                 case KEY_9 -> "9";
                 case KEY_0 -> "0";
-                case SPACE -> " ";
+                case SPACE -> "                    ";
                 case BACKSPACE -> "⌫";
                 case TAB -> Util.getPlatform() == Util.OS.OSX ? "⇥" : "Tab";
                 case CAPS_LOCK -> Util.getPlatform() == Util.OS.OSX ? "⇪" : "Caps";
@@ -148,10 +272,9 @@ public class Keycap extends Button {
         public int height() {
             return 16;
         }
-
     }
 
     private int getTextureY() {
-        return 46 + (!active ? 0 : isHoveredOrFocused() ? 2 : 13) * 20;
+        return (isHoveredOrFocused() ? 0 : 1) * 16;
     }
 }
