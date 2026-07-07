@@ -4,23 +4,34 @@ import com.mojang.datafixers.util.Pair;
 import dev.ultreon.controllerx.api.Icon;
 import dev.ultreon.controllerx.api.IControllerX;
 import dev.ultreon.controllerx.api.input.dyn.IControllerInterDynamic;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.EnumUtils;
 import org.joml.Vector2f;
 
 public enum ControllerUnsignedFloat implements IControllerInterDynamic<Float> {
-    TriggerMagnitude,
-    LeftStickMagnitude,
-    RightStickMagnitude,
-    DpadMagnitude,
-    LeftTrigger,
-    RightTrigger,
-    LeftStickX,
-    LeftStickY,
-    RightStickX,
-    RightStickY,
-    DpadX,
-    DpadY,
-    Unknown;
+    TriggerMagnitude("controllerx.gamepad.ufloat.TriggerMagnitude"),
+    LeftStickMagnitude("controllerx.gamepad.ufloat.LeftStickMagnitude"),
+    RightStickMagnitude("controllerx.gamepad.ufloat.RightStickMagnitude"),
+    DpadMagnitude("controllerx.gamepad.ufloat.DpadMagnitude"),
+    LeftTrigger("controllerx.gamepad.ufloat.LeftTrigger"),
+    RightTrigger("controllerx.gamepad.ufloat.RightTrigger"),
+    LeftStickX("controllerx.gamepad.ufloat.LeftStickX"),
+    LeftStickY("controllerx.gamepad.ufloat.LeftStickY"),
+    RightStickX("controllerx.gamepad.ufloat.RightStickX"),
+    RightStickY("controllerx.gamepad.ufloat.RightStickY"),
+    DpadX("controllerx.gamepad.ufloat.DpadX"),
+    DpadY("controllerx.gamepad.ufloat.DpadY"),
+    Unknown("controllerx.gamepad.ufloat.Unknown");
+
+    public final Component displayName;
+
+    ControllerUnsignedFloat(String translationId) {
+        this.displayName = Component.translatable(translationId);
+    }
+
+    public Component getDisplayName() {
+        return displayName;
+    }
 
     public float getValue() {
         return switch (this) {

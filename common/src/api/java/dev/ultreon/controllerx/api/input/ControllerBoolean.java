@@ -4,52 +4,63 @@ import com.mojang.datafixers.util.Pair;
 import dev.ultreon.controllerx.api.IControllerX;
 import dev.ultreon.controllerx.api.Icon;
 import dev.ultreon.controllerx.api.input.dyn.IControllerInterDynamic;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.EnumUtils;
 import org.joml.Vector2f;
 
 public enum ControllerBoolean implements IControllerInterDynamic<Boolean> {
-    AnyButton,
-    A,
-    B,
-    X,
-    Y,
-    Back,
-    Start,
-    Guide,
-    AnyJoyStick,
-    LeftStickAny,
-    RightStickAny,
-    LeftStickUsed,
-    RightStickUsed,
-    LeftStickX,
-    LeftStickY,
-    RightStickX,
-    RightStickY,
-    LeftStickLeft,
-    LeftStickRight,
-    LeftStickUp,
-    LeftStickDown,
-    RightStickLeft,
-    RightStickRight,
-    RightStickUp,
-    RightStickDown,
-    Touchpad,
-    AnyDpad,
-    DpadX,
-    DpadY,
-    DpadLeft,
-    DpadRight,
-    DpadUp,
-    DpadDown,
-    DpadUsed,
-    LeftStickClick,
-    RightStickClick,
-    LeftShoulder,
-    RightShoulder,
-    AnyTrigger,
-    LeftTrigger,
-    RightTrigger,
-    Unknown;
+    AnyButton("controllerx.gamepad.bool.AnyButton"),
+    A("controllerx.gamepad.bool.A"),
+    B("controllerx.gamepad.bool.B"),
+    X("controllerx.gamepad.bool.X"),
+    Y("controllerx.gamepad.bool.Y"),
+    Back("controllerx.gamepad.bool.Back"),
+    Start("controllerx.gamepad.bool.Start"),
+    Guide("controllerx.gamepad.bool.Guide"),
+    AnyJoyStick("controllerx.gamepad.bool.AnyJoyStick"),
+    LeftStickAny("controllerx.gamepad.bool.LeftStickAny"),
+    RightStickAny("controllerx.gamepad.bool.RightStickAny"),
+    LeftStickUsed("controllerx.gamepad.bool.LeftStickUsed"),
+    RightStickUsed("controllerx.gamepad.bool.RightStickUsed"),
+    LeftStickX("controllerx.gamepad.bool.LeftStickX"),
+    LeftStickY("controllerx.gamepad.bool.LeftStickY"),
+    RightStickX("controllerx.gamepad.bool.RightStickX"),
+    RightStickY("controllerx.gamepad.bool.RightStickY"),
+    LeftStickLeft("controllerx.gamepad.bool.LeftStickLeft"),
+    LeftStickRight("controllerx.gamepad.bool.LeftStickRight"),
+    LeftStickUp("controllerx.gamepad.bool.LeftStickUp"),
+    LeftStickDown("controllerx.gamepad.bool.LeftStickDown"),
+    RightStickLeft("controllerx.gamepad.bool.RightStickLeft"),
+    RightStickRight("controllerx.gamepad.bool.RightStickRight"),
+    RightStickUp("controllerx.gamepad.bool.RightStickUp"),
+    RightStickDown("controllerx.gamepad.bool.RightStickDown"),
+    Touchpad("controllerx.gamepad.bool.Touchpad"),
+    AnyDpad("controllerx.gamepad.bool.AnyDpad"),
+    DpadX("controllerx.gamepad.bool.DpadX"),
+    DpadY("controllerx.gamepad.bool.DpadY"),
+    DpadLeft("controllerx.gamepad.bool.DpadLeft"),
+    DpadRight("controllerx.gamepad.bool.DpadRight"),
+    DpadUp("controllerx.gamepad.bool.DpadUp"),
+    DpadDown("controllerx.gamepad.bool.DpadDown"),
+    DpadUsed("controllerx.gamepad.bool.DpadUsed"),
+    LeftStickClick("controllerx.gamepad.bool.LeftStickClick"),
+    RightStickClick("controllerx.gamepad.bool.RightStickClick"),
+    LeftShoulder("controllerx.gamepad.bool.LeftShoulder"),
+    RightShoulder("controllerx.gamepad.bool.RightShoulder"),
+    AnyTrigger("controllerx.gamepad.bool.AnyTrigger"),
+    LeftTrigger("controllerx.gamepad.bool.LeftTrigger"),
+    RightTrigger("controllerx.gamepad.bool.RightTrigger"),
+    Unknown("controllerx.gamepad.bool.Unknown");
+
+    public final Component displayName;
+
+    ControllerBoolean(String translationId) {
+        this.displayName = Component.translatable(translationId);
+    }
+
+    public Component getDisplayName() {
+        return displayName;
+    }
 
     private boolean lastValue = false;
     private boolean value = false;

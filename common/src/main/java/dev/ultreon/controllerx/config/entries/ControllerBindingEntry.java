@@ -66,7 +66,7 @@ public class ControllerBindingEntry<T extends Enum<T> & IControllerInterDynamic<
             ControllerX.get().input.interceptInputOnce((evt) -> {
                 if (evt.mapping().getClass() == clazz) {
                     action.setMapping(evt.mapping().as(action.getMapping()));
-                    setMessage(Component.nullToEmpty(evt.mapping().name()));
+                    setMessage(evt.mapping().getDisplayName());
                 }
             });
         }
@@ -85,7 +85,7 @@ public class ControllerBindingEntry<T extends Enum<T> & IControllerInterDynamic<
 
         public void setAction(@NotNull ControllerAction<T> action) {
             this.action = action;
-            setMessage(Component.nullToEmpty(action.getMapping().name()));
+            setMessage(action.getMapping().getDisplayName());
         }
 
         public void actuallySetAction(@NotNull ControllerAction<T> tControllerMapping) {

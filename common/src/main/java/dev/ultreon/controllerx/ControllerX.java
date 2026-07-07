@@ -84,8 +84,6 @@ public abstract class ControllerX implements IControllerX {
             extensions.add(extension);
         }
 
-        initMod();
-
         ClientLifecycleEvent.CLIENT_STARTED.register(this::clientStarted);
 
         LOGGER.info("ControllerX initialized");
@@ -221,9 +219,7 @@ public abstract class ControllerX implements IControllerX {
         KeyboardHud.addMapping(Minecraft.getInstance().options.keyChat);
         KeyboardHud.addMapping(Minecraft.getInstance().options.keyCommand);
 
-        if (Util.getPlatform() != Util.OS.OSX) {
-            initMod();
-        }
+        initMod();
     }
 
     private void renderHud(GuiGraphics gfx, float partialTicks) {

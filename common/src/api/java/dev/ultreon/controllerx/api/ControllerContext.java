@@ -111,6 +111,7 @@ public abstract class ControllerContext {
     }
 
     public Component getName() {
+        if (config == null) return Component.empty();
         return config.getTitle();
     }
 

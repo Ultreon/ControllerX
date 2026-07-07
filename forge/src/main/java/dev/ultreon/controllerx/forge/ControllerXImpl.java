@@ -1,5 +1,7 @@
 package dev.ultreon.controllerx.forge;
 
+import dev.architectury.utils.Env;
+import dev.architectury.utils.EnvExecutor;
 import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.gui.screen.ControllerXConfigScreen;
 import net.minecraft.client.player.LocalPlayer;
@@ -9,10 +11,7 @@ import net.minecraftforge.fml.ModLoadingContext;
 
 public class ControllerXImpl extends ControllerX {
     public ControllerXImpl() {
-        ModLoadingContext.get().registerExtensionPoint(
-                ConfigScreenHandler.ConfigScreenFactory.class,
-                () -> new ConfigScreenHandler.ConfigScreenFactory((mc, screen) -> new ControllerXConfigScreen(screen))
-        );
+
     }
 
     @Override

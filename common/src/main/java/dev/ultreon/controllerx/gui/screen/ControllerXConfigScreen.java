@@ -12,6 +12,7 @@ public class ControllerXConfigScreen extends Screen {
 
     private Button bindingsButton;
     private Button genericButton;
+    private Button backButton;
 
     public ControllerXConfigScreen(Screen screen) {
         super(Component.translatable("controllerx.config.title"));
@@ -21,16 +22,26 @@ public class ControllerXConfigScreen extends Screen {
 
     @Override
     protected void init() {
+        clearWidgets();
+
         super.init();
 
-        this.bindingsButton = addWidget(Button.builder(
+        this.bindingsButton = addRenderableWidget(Button.builder(
                 Component.translatable("controllerx.screen.config.bindings"),
                 this::openBindings
-        ).bounds(width / 2 - 100, height - 30, 200, 20).build());
-        this.genericButton = addWidget(Button.builder(
+        ).bounds(width / 2 - 100, height / 2 - 30, 200, 20).build());
+        this.genericButton = addRenderableWidget(Button.builder(
                 Component.translatable("controllerx.screen.config.generic"),
                 this::openGeneric
-        ).bounds(width / 2 + 5, height - 30, 200, 20).build());
+        ).bounds(width / 2 - 100, height / 2, 200, 20).build());
+        this.backButton = addRenderableWidget(Button.builder(
+                Component.translatable("gui.done"),
+                this::back
+        ).bounds(width / 2 - 100, height / 2 + 30, 200, 20).build());
+    }
+
+    private void back(Button button) {
+        back();
     }
 
     private void openGeneric(Button button) {
@@ -39,6 +50,8 @@ public class ControllerXConfigScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderBackground(guiGraphics);
+
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         guiGraphics.drawCenteredString(font, Component.translatable("controllerx.config.title"), width / 2, 10, 0xffffffff);
@@ -66,5 +79,9 @@ public class ControllerXConfigScreen extends Screen {
 
     public Button getBindingsButton() {
         return bindingsButton;
+    }
+
+    public Button getBackButton() {
+        return backButton;
     }
 }

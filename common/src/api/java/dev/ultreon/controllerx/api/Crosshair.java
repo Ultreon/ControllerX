@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 /// Utility for finding what's targeted in the crosshair.
 ///
-/// @author XyperCode
+/// @author QboiDev
 @Beta
 public final class Crosshair {
     @NotNull

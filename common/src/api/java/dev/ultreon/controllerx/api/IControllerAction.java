@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 /// Represents a controller action.
 ///
 /// @param <T> The type of the mapping for this action.
-/// @author <a href="https://github.com/XyperCode">XyperCode</a>
+/// @author <a href="https://github.com/QboiDev">QboiDev</a>
 public interface IControllerAction<T extends Enum<T> & IControllerInterDynamic<?>> {
     /**
      * Get the nulled version of this action.

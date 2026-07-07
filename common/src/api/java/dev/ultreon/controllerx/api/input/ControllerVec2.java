@@ -3,17 +3,28 @@ package dev.ultreon.controllerx.api.input;
 import com.mojang.datafixers.util.Pair;
 import dev.ultreon.controllerx.api.Icon;
 import dev.ultreon.controllerx.api.input.dyn.IControllerInterDynamic;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.EnumUtils;
 import org.joml.Vector2f;
 
 public enum ControllerVec2 implements IControllerInterDynamic<Vector2f> {
-    LeftStick,
-    RightStick,
-    Dpad,
-    Triggers,
-    Unknown;
+    LeftStick("controllerx.gamepad.vec2.LeftStick"),
+    RightStick("controllerx.gamepad.vec2.RightStick"),
+    Dpad("controllerx.gamepad.vec2.Dpad"),
+    Triggers("controllerx.gamepad.vec2.Triggers"),
+    Unknown("controllerx.gamepad.vec2.Unknown");
 
     private static final Vector2f VEC = new Vector2f();
+
+    public final Component displayName;
+
+    ControllerVec2(String translationId) {
+        this.displayName = Component.translatable(translationId);
+    }
+
+    public Component getDisplayName() {
+        return displayName;
+    }
 
     public float getX() {
         return switch (this) {

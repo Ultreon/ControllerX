@@ -4,9 +4,12 @@ import dev.ultreon.controllerx.api.input.ControllerBoolean;
 import dev.ultreon.controllerx.api.input.ControllerSignedFloat;
 import dev.ultreon.controllerx.api.input.ControllerUnsignedFloat;
 import dev.ultreon.controllerx.api.input.ControllerVec2;
+import net.minecraft.network.chat.Component;
 
 public interface IControllerInterDynamic<T> extends
         ControllerDynamic, BooleanConvertible<T>, SignedFloatConvertible<T>, UnsignedFloatConvertible<T>, Vec2Convertible<T> {
+
+    Component getDisplayName();
 
     @SuppressWarnings("unchecked")
     default <V extends IControllerInterDynamic<?>> V as(V mapping) {

@@ -192,6 +192,8 @@ public class Tabs extends AbstractContainerEventHandler implements Renderable, N
     }
 
     public Component getMessage() {
+        TabsHeader header = this.header;
+        if (header == null) return Component.empty();
         return header.getMessage();
     }
 }
