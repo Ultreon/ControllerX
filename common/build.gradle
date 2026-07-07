@@ -45,18 +45,6 @@ dependencies {
     modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-common:8.0.0"
 
     implementation("io.github.libsdl4j:libsdl4j:$libsdl4j_version")
-    modImplementation("dev.ultreon.mods:ultreonlib:$ultreonlib_version")
-    api("dev.ultreon.corelibs:corelibs-collections-v0:$corelibs_version")
-    api("dev.ultreon.corelibs:corelibs-commons-v0:$corelibs_version")
-    api("dev.ultreon.corelibs:corelibs-crash-v0:$corelibs_version")
-    api("dev.ultreon.corelibs:corelibs-datetime-v0:$corelibs_version")
-    api("dev.ultreon.corelibs:corelibs-events-v1:$corelibs_version")
-    api("dev.ultreon.corelibs:corelibs-functions-v0:$corelibs_version")
-    api("dev.ultreon.corelibs:corelibs-registries-v0:$corelibs_version")
-    api("dev.ultreon.corelibs:corelibs-text-v0:$corelibs_version")
-    api("dev.ultreon.corelibs:corelibs-translations-v0:$corelibs_version")
-
-    modImplementation("dev.ultreon.mods:advanced-debug:$advancedDebugVersion")
 
     // Mixin Extras
     annotationProcessor(compileOnly("io.github.llamalad7:mixinextras-common:0.4.1"))

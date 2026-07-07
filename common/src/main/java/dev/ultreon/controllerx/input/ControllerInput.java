@@ -1,7 +1,6 @@
 package dev.ultreon.controllerx.input;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.ultreon.mods.lib.client.gui.widget.BaseWidget;
 import dev.architectury.impl.ScreenAccessImpl;
 import dev.ultreon.controllerx.api.Icon;
 import dev.ultreon.controllerx.api.VirtualKeyboardEditCallback;
@@ -262,8 +261,6 @@ public class ControllerInput extends Input implements IControllerInput {
 
                     editBox.setValue(input);
                 });
-            } else if (screen.getFocused() instanceof BaseWidget baseWidget) {
-                baseWidget.leftClick();
             } else {
                 press(screen, InputConstants.KEY_RETURN);
                 release(screen, InputConstants.KEY_RETURN);

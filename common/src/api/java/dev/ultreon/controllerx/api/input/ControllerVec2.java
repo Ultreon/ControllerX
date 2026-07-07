@@ -1,6 +1,6 @@
 package dev.ultreon.controllerx.api.input;
 
-import com.ultreon.commons.collection.Pair;
+import com.mojang.datafixers.util.Pair;
 import dev.ultreon.controllerx.api.Icon;
 import dev.ultreon.controllerx.api.input.dyn.IControllerInterDynamic;
 import org.apache.commons.lang3.EnumUtils;

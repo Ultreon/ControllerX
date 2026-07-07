@@ -1,6 +1,5 @@
 package dev.ultreon.controllerx.config;
 
-import com.ultreon.commons.collection.map.OrderedMap;
 import dev.ultreon.controllerx.ControllerX;
 import dev.ultreon.controllerx.api.ControllerContext;
 import dev.ultreon.controllerx.api.IControllerMapping;
@@ -18,13 +17,10 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Config implements IConfig {
-    private static final Map<ControllerContext, Config> CONFIGS = new OrderedMap<>();
+    private static final Map<ControllerContext, Config> CONFIGS = new LinkedHashMap<>();
 
     private final Map<ControllerMapping<?>, ConfigEntry<?>> mappings = new HashMap<>();
     private final Map<String, ConfigEntry<?>> entryMap = new HashMap<>();

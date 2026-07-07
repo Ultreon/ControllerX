@@ -1,11 +1,13 @@
 package dev.ultreon.controllerx.config.gui.tabs;
 
-import com.ultreon.mods.lib.client.gui.widget.AbstractContainerWidget;
 import dev.ultreon.controllerx.init.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -18,16 +20,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class Tabs extends AbstractContainerWidget {
+public class Tabs extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
     private final List<Tab> tabs = new ArrayList<>();
     private final Consumer<Tabs> focusSetter;
     private Tab currentTab;
     private int current;
     private int tabWidth = 100;
     private final TabsHeader header = new TabsHeader(this);
+    private int x, y;
+    private int width, height;
 
     public Tabs(int x, int y, int width, int height, Consumer<Tabs> focusSetter) {
-        super(x, y, width, height, Component.empty());
+        super();
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
         this.focusSetter = focusSetter;
     }
 
@@ -97,7 +105,7 @@ public class Tabs extends AbstractContainerWidget {
     }
 
     @Override
-    protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         header.setY(getY());
         currentTab.setY(getY() + header.getHeight());
         header.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -107,11 +115,6 @@ public class Tabs extends AbstractContainerWidget {
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         return super.keyPressed(pKeyCode, pScanCode, pModifiers);
-    }
-
-    @Override
-    protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
-        // TODO
     }
 
     @Override
@@ -152,5 +155,43 @@ public class Tabs extends AbstractContainerWidget {
 
     public ComponentPath focusTab() {
         return ComponentPath.path(this, currentTab.nextFocusPath(new FocusNavigationEvent.InitialFocus()));
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    @Override
+    public NarrationPriority narrationPriority() {
+        return NarrationPriority.NONE;
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput narrationElementOutput) {
+
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public Component getMessage() {
+        return header.getMessage();
     }
 }

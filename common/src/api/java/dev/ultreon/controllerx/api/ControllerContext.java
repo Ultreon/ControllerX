@@ -1,7 +1,5 @@
 package dev.ultreon.controllerx.api;
 
-import com.ultreon.libs.collections.v0.maps.OrderedHashMap;
-import com.ultreon.mods.lib.world.Crosshair;
 import dev.ultreon.controllerx.api.config.IConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -10,12 +8,13 @@ import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
 public abstract class ControllerContext {
-    private static final Map<Predicate<Minecraft>, ControllerContext> REGISTRY = new OrderedHashMap<>();
+    private static final Map<Predicate<Minecraft>, ControllerContext> REGISTRY = new LinkedHashMap<>();
     private static volatile boolean frozen = false;
     public final IControllerMappings mappings = IControllerX.get().createMappings();
     final ResourceLocation id;
@@ -66,7 +65,6 @@ public abstract class ControllerContext {
         }
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     public static boolean isTargetingEntity(Minecraft minecraft) {
         Crosshair crosshair = Crosshair.get();
         if (crosshair == null) return false;
@@ -75,7 +73,6 @@ public abstract class ControllerContext {
         return crosshair.entity(entityReach) instanceof LivingEntity;
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     public static boolean isTargetingBlock(Minecraft minecraft) {
         Crosshair crosshair = Crosshair.get();
         if (crosshair == null) return false;

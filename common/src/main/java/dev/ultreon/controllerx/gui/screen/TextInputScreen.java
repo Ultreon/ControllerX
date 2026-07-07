@@ -1,6 +1,5 @@
 package dev.ultreon.controllerx.gui.screen;
 
-import com.ultreon.mods.lib.client.gui.screen.BaseScreen;
 import dev.ultreon.controllerx.*;
 import dev.ultreon.controllerx.api.VirtualKeyboardEditCallback;
 import dev.ultreon.controllerx.api.input.keyboard.keyboard.KeyboardLayout;
@@ -8,16 +7,14 @@ import dev.ultreon.controllerx.gui.widget.Keycap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TextInputScreen extends BaseScreen {
+public class TextInputScreen extends Screen {
     private final KeyboardLayout layout;
     private final VirtualKeyboard virtualKeyboard;
     private String input;
@@ -163,11 +160,6 @@ public class TextInputScreen extends BaseScreen {
         virtualKeyboard.close();
 
         submitCallback = () -> {};
-    }
-
-    @Override
-    public @Nullable Vec2 getCloseButtonPos() {
-        return null;
     }
 
     public String getInput() {

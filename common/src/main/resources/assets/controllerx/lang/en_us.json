@@ -40,6 +40,7 @@
   "controllerx.screen.config.bindings.title": "ControllerX Bindings",
   "controllerx.screen.config.generic.title": "ControllerX Settings",
   "controllerx.screen.config.bindings": "Bindings",
+  "controllerx.config.title": "ControllerX",
   "controllerx.screen.config.generic": "Generic",
   "controllerx.screen.incompat": "§6Incompatibility!",
   "controllerx.screen.incompat.macos": "Your current operating system \"macOS\" is not supported by ControllerX",

@@ -1,6 +1,6 @@
 package dev.ultreon.controllerx.api.input;
 
-import com.ultreon.commons.collection.Pair;
+import com.mojang.datafixers.util.Pair;
 import dev.ultreon.controllerx.api.IControllerX;
 import dev.ultreon.controllerx.api.Icon;
 import dev.ultreon.controllerx.api.input.dyn.IControllerInterDynamic;
@@ -122,7 +122,7 @@ public enum ControllerSignedFloat implements IControllerInterDynamic<Float> {
     @Override
     public Pair<ControllerVec2, Vector2f> asVec2(Float value, Vector2f result) {
         Pair<ControllerSignedFloat, Float> signedFloat = asSignedFloat(value);
-        return signedFloat.first().asVec2(signedFloat.second(), result);
+        return signedFloat.getFirst().asVec2(signedFloat.getSecond(), result);
     }
 
     @Override

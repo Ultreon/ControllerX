@@ -1,7 +1,7 @@
 package dev.ultreon.controllerx;
 
-import com.ultreon.mods.lib.world.Crosshair;
 import dev.ultreon.controllerx.api.ControllerContext;
+import dev.ultreon.controllerx.api.Crosshair;
 import dev.ultreon.controllerx.api.IControllerX;
 import dev.ultreon.controllerx.api.ICxInternals;
 import dev.ultreon.controllerx.gui.widget.ItemSlot;

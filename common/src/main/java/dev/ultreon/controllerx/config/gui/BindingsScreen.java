@@ -1,7 +1,7 @@
 package dev.ultreon.controllerx.config.gui;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.ultreon.mods.lib.util.KeyboardHelper;
+import dev.ultreon.controllerx.KeyboardHelper;
 import dev.ultreon.controllerx.api.ControllerContext;
 import dev.ultreon.controllerx.config.Config;
 import dev.ultreon.controllerx.config.gui.tabs.Tab;
